@@ -56,32 +56,37 @@
       .catch(error => { alert("Webcam tidak tersedia: " + error); });
 
     function deteksiWajah() {
-      const el = document.getElementById("hasil-wajah");
-      const detail = document.getElementById("detail-wajah");
+    const el = document.getElementById("hasil-wajah");
+    const detail = document.getElementById("detail-wajah");
 
-      el.innerText = "👁️ Mendeteksi ekspresi wajah...";
-      detail.innerHTML = "";
+    el.innerText = "👁️ Mendeteksi ekspresi wajah...";
+    detail.innerHTML = "";
 
-      fetch("/detect-face", { method: "POST" })
+    fetch("/detect-face", { method: "POST" })
         .then(res => res.json())
         .then(data => {
-          if (data.status !== "ok") {
+        if (data.status !== "ok") {
             el.innerText = "❌ Gagal deteksi wajah: " + data.message;
             return;
-          }
+        }
 
-          hasilDeteksi.wajah = data.kategori;
-          el.innerText = `✅ Wajah: ${data.kategori}`;
-          detail.innerHTML = `
-            <li>🔸 Delta Bibir (y): ${data.delta_mouth}</li>
-            <li>🔸 Delta Alis (y): ${data.delta_brow}</li>
-            <li>🔸 Skor Simetri: ${data.score}</li>
+        hasilDeteksi.wajah = data.kategori;
+        el.innerText = `✅ Wajah: ${data.kategori}`;
+
+        detail.innerHTML = `
+            <li>🔸 Delta Bibir (y): ${data.delta_bibir}</li>
+            <li>🔸 Delta Alis (y): ${data.delta_alis}</li>
+            <li>🔸 Delta Pipi (y): ${data.delta_pipi}</li>
+            <li>🔸 Delta Mata (y): ${data.delta_mata}</li>
+            <li>🔁 Sudut Kemiringan Wajah: ${data.angle}°</li>
+            <li>🧠 Skor Simetri Final: ${data.score}</li>
             <li>💡 Saran: ${data.saran}</li>
-          `;
-          updateDiagnosaButton();
+        `;
+
+        updateDiagnosaButton();
         })
         .catch(err => {
-          el.innerText = "❌ Gagal deteksi wajah";
+        el.innerText = "❌ Gagal deteksi wajah";
         });
     }
 
