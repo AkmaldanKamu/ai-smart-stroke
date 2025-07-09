@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>AI-SMART - Deteksi Stroke</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <h1>🧠 AI-SMART: Sistem Deteksi Stroke</h1>
+
+  <!-- Webcam Video Preview -->
+  <video id="video" width="400" height="300" autoplay muted></video>
+
+  <br><br>
+
+  <!-- Tombol Tes Deteksi -->
+  <button onclick="deteksiWajah()">😊 Tes Ekspresi Wajah</button>
+  <button onclick="deteksiTangan()">🖐️ Tes Gerakan Tangan</button>
+  <button id="btn-voice" onclick="mulaiTesSuara()">🎤 Tes Ucapan</button>
+
+  <br><br>
+
+  <!-- Status dan Hasil -->
+  <p id="hasil-wajah"></p>
+  <p id="hasil-tangan"></p>
+  <p id="status-audio"></p>
+
+  <script>
+    // Aktifkan Webcam
+    const video = document.getElementById("video");
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => {
+        video.srcObject = stream;
+      })
+      .catch(error => {
+        alert("Webcam tidak tersedia: " + error);
+      });
+
+    // Dummy Function: Deteksi Wajah (Nanti kita konek ke backend OpenCV)
+    function deteksiWajah() {
+      document.getElementById("hasil-wajah").innerText = "👁️ Mendeteksi ekspresi wajah...";
+      setTimeout(() => {
+        document.getElementById("hasil-wajah").innerText = "✅ Wajah: Normal (tidak miring)";
+        // nanti bisa ambil dari backend, misalnya fetch('/detect-face')
+      }, 1500);
+    }
+
+    // Dummy Function: Deteksi Gerakan Tangan
+    function deteksiTangan() {
+      document.getElementById("hasil-tangan").innerText = "🖐️ Mendeteksi posisi tangan...";
+      setTimeout(() => {
+        document.getElementById("hasil-tangan").innerText = "✅ Tangan: Kedua tangan naik";
+      }, 1500);
+    }
+
+    // Tes Ucapan dengan Batas Waktu 5 detik
+    function mulaiTesSuara() {
+      const status = document.getElementById("status-audio");
+      const btn = document.getElementById("btn-voice");
+
+      btn.disabled = true;
+      status.innerText = "⏱️ Merekam suara selama 5 detik...";
+
+      setTimeout(() => {
+        status.innerText = "🧠 Menganalisis suara...";
+      }, 5000);
+
+      fetch('/analyze-audio', { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+          status.innerText = "✅ Hasil Suara: " + data.hasil;
+          btn.disabled = false;
+        })
+        .catch(error => {
+          status.innerText = "❌ Gagal menganalisis suara.";
+          console.error(error);
+          btn.disabled = false;
+        });
+    }
+  </script>
+</body>
+</html>

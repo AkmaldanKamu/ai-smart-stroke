@@ -1,0 +1,12 @@
+flask
+opencv-python
+mediapipe
+openvino
+torch
+transformers
+pydub
+librosa
+scikit-learn
+numpy
+pandas
+openai-whisper
