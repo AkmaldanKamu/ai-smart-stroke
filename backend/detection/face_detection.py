@@ -1,14 +1,24 @@
+# backend/detection/face_detection.py
+
 import cv2
+from detection.analyze_facial_symmetry import analyze_symmetry
 
-def detect_facial_droop_from_frame(frame):
-    # Untuk demo, kita deteksi simetris wajah berdasarkan senyum (placeholder)
-    # Versi final bisa pakai facial landmark + rasio pipi
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
-    faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+def detect_facial_droop_from_frame(frame, return_detail=False):
+    """
+    Mendeteksi simetri wajah dan mengkategorikan: Normal / Ringan / Sedang / Berat
+    Params:
+        - frame: gambar dari webcam (OpenCV)
+        - return_detail: jika True, kembalikan data lengkap (delta + saran)
+    Returns:
+        - Jika return_detail=False: "Normal" / "Sedang" / "Berat"
+        - Jika return_detail=True: dict dengan semua data
+    """
+    result = analyze_symmetry(frame)
 
-    if len(faces) == 0:
-        return "Tidak terdeteksi wajah"
+    if result["status"] != "ok":
+        return result if return_detail else "Tidak terdeteksi"
 
-    # Placeholder untuk demo
-    return "Miring"  # atau "Normal"
+    if return_detail:
+        return result
+    else:
+        return result["kategori"]

@@ -8,142 +8,148 @@
 <body>
   <h1>🧠 AI-SMART: Sistem Deteksi Stroke</h1>
 
-  <!-- Webcam Video Preview -->
+  <!-- Webcam Preview -->
   <video id="video" width="400" height="300" autoplay muted></video>
 
-  <br><br>
+  <hr>
 
   <!-- Tombol Tes Deteksi -->
   <button onclick="deteksiWajah()">😊 Tes Ekspresi Wajah</button>
   <button onclick="deteksiTangan()">🖐️ Tes Gerakan Tangan</button>
   <button id="btn-voice" onclick="mulaiTesSuara()">🎤 Tes Ucapan</button>
 
-  <br><br>
+  <hr>
 
-  <!-- Status dan Hasil -->
+  <!-- Hasil Deteksi -->
+  <h3>📌 Hasil Deteksi:</h3>
   <p id="hasil-wajah"></p>
+  <ul id="detail-wajah"></ul>
+
   <p id="hasil-tangan"></p>
+
   <p id="status-audio"></p>
   <p id="transkrip-audio"></p>
 
-<hr>
-<button id="btn-diagnosa" onclick="diagnosaStroke()" disabled>🔍 Cek Diagnosa Stroke</button>
-<p id="diagnosa-hasil"></p>
-<ul id="diagnosa-summary"></ul>
+  <hr>
 
+  <!-- Diagnosa -->
+  <button id="btn-diagnosa" onclick="diagnosaStroke()" disabled>🔍 Cek Diagnosa Stroke</button>
+  <p id="diagnosa-hasil"></p>
+  <ul id="diagnosa-summary"></ul>
 
   <script>
-    // Menyimpan hasil dari ketiga deteksi
     const hasilDeteksi = {
-    wajah: null,
-    tangan: null,
-    suara: null
+      wajah: null,
+      tangan: null,
+      suara: null
     };
 
     function updateDiagnosaButton() {
-    const btn = document.getElementById("btn-diagnosa");
-    btn.disabled = !(hasilDeteksi.wajah && hasilDeteksi.tangan && hasilDeteksi.suara);
+      const btn = document.getElementById("btn-diagnosa");
+      btn.disabled = !(hasilDeteksi.wajah && hasilDeteksi.tangan && hasilDeteksi.suara);
     }
 
     // Aktifkan Webcam
     const video = document.getElementById("video");
     navigator.mediaDevices.getUserMedia({ video: true })
-      .then(stream => {
-        video.srcObject = stream;
-      })
-      .catch(error => {
-        alert("Webcam tidak tersedia: " + error);
-      });
+      .then(stream => { video.srcObject = stream; })
+      .catch(error => { alert("Webcam tidak tersedia: " + error); });
 
-    // Dummy Function: Deteksi Wajah (Nanti kita konek ke backend OpenCV)
     function deteksiWajah() {
-    const el = document.getElementById("hasil-wajah");
-    el.innerText = "👁️ Mendeteksi ekspresi wajah...";
-    
-    fetch("/detect-face", { method: "POST" })
+      const el = document.getElementById("hasil-wajah");
+      const detail = document.getElementById("detail-wajah");
+
+      el.innerText = "👁️ Mendeteksi ekspresi wajah...";
+      detail.innerHTML = "";
+
+      fetch("/detect-face", { method: "POST" })
         .then(res => res.json())
         .then(data => {
-        hasilDeteksi.wajah = data.hasil;
-        el.innerText = "✅ Wajah: " + data.hasil;
-        updateDiagnosaButton();
+          if (data.status !== "ok") {
+            el.innerText = "❌ Gagal deteksi wajah: " + data.message;
+            return;
+          }
+
+          hasilDeteksi.wajah = data.kategori;
+          el.innerText = `✅ Wajah: ${data.kategori}`;
+          detail.innerHTML = `
+            <li>🔸 Delta Bibir (y): ${data.delta_mouth}</li>
+            <li>🔸 Delta Alis (y): ${data.delta_brow}</li>
+            <li>🔸 Skor Simetri: ${data.score}</li>
+            <li>💡 Saran: ${data.saran}</li>
+          `;
+          updateDiagnosaButton();
         })
         .catch(err => {
-        el.innerText = "❌ Gagal deteksi wajah";
+          el.innerText = "❌ Gagal deteksi wajah";
         });
-}
+    }
 
     function deteksiTangan() {
-    const el = document.getElementById("hasil-tangan");
-    el.innerText = "🖐️ Mendeteksi posisi tangan...";
+      const el = document.getElementById("hasil-tangan");
+      el.innerText = "🖐️ Mendeteksi posisi tangan...";
 
-    fetch("/detect-hand", { method: "POST" })
+      fetch("/detect-hand", { method: "POST" })
         .then(res => res.json())
         .then(data => {
-        hasilDeteksi.tangan = data.hasil;
-        el.innerText = "✅ Tangan: " + data.hasil;
-        updateDiagnosaButton();
+          hasilDeteksi.tangan = data.hasil;
+          el.innerText = "✅ Tangan: " + data.hasil;
+          updateDiagnosaButton();
         })
         .catch(err => {
-        el.innerText = "❌ Gagal deteksi tangan";
+          el.innerText = "❌ Gagal deteksi tangan";
         });
     }
 
-
-
-    // Tes Ucapan dengan Batas Waktu 5 detik
     function mulaiTesSuara() {
-    const status = document.getElementById("status-audio");
-    const transkrip = document.getElementById("transkrip-audio");
-    const btn = document.getElementById("btn-voice");
+      const status = document.getElementById("status-audio");
+      const transkrip = document.getElementById("transkrip-audio");
+      const btn = document.getElementById("btn-voice");
 
-    btn.disabled = true;
-    status.innerText = "⏱️ Merekam suara selama 5 detik...";
-    transkrip.innerText = "";
+      btn.disabled = true;
+      status.innerText = "⏱️ Merekam suara selama 5 detik...";
+      transkrip.innerText = "";
 
-    setTimeout(() => {
+      setTimeout(() => {
         status.innerText = "🧠 Menganalisis suara...";
-    }, 5000);
+      }, 5000);
 
-    fetch('/analyze-audio', { method: 'POST' })
+      fetch('/analyze-audio', { method: 'POST' })
         .then(res => res.json())
         .then(data => {
-        hasilDeteksi.suara = data.hasil;
-        status.innerText = "✅ Hasil Suara: " + data.hasil;
-        transkrip.innerText = "🗣️ Transkrip: " + data.transkrip;
-        btn.disabled = false;
-        updateDiagnosaButton();
+          hasilDeteksi.suara = data.hasil;
+          status.innerText = "✅ Hasil Suara: " + data.hasil;
+          transkrip.innerText = "🗣️ Transkrip: " + data.transkrip;
+          btn.disabled = false;
+          updateDiagnosaButton();
         })
         .catch(err => {
-        status.innerText = "❌ Gagal menganalisis suara.";
-        btn.disabled = false;
+          status.innerText = "❌ Gagal menganalisis suara.";
+          btn.disabled = false;
         });
     }
 
+    function diagnosaStroke() {
+      const output = document.getElementById("diagnosa-hasil");
+      const summary = document.getElementById("diagnosa-summary");
 
-        function diagnosaStroke() {
-        const output = document.getElementById("diagnosa-hasil");
-        const summary = document.getElementById("diagnosa-summary");
+      output.innerText = "⏳ Menganalisis semua indikator...";
+      summary.innerHTML = "";
 
-        output.innerText = "⏳ Menganalisis semua indikator...";
-        summary.innerHTML = "";
-
-        fetch("/diagnosa", {
-            method: "POST"
+      fetch("/diagnosa", { method: "POST" })
+        .then(res => res.json())
+        .then(data => {
+          output.innerText = `🧠 Skor NIHSS: ${data.skor} (${data.kategori})\n📢 ${data.saran}`;
+          data.summary.forEach(item => {
+            const li = document.createElement("li");
+            li.innerText = item;
+            summary.appendChild(li);
+          });
         })
-            .then(res => res.json())
-            .then(data => {
-            output.innerText = `🧠 Skor NIHSS: ${data.skor} (${data.kategori})\n📢 ${data.saran}`;
-            data.summary.forEach(item => {
-                const li = document.createElement("li");
-                li.innerText = item;
-                summary.appendChild(li);
-            });
-            })
-            .catch(err => {
-            output.innerText = "❌ Terjadi error saat diagnosa.";
-            });
-        }
-
+        .catch(err => {
+          output.innerText = "❌ Terjadi error saat diagnosa.";
+        });
+    }
   </script>
 </body>
 </html>
