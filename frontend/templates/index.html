@@ -59,22 +59,35 @@
     function deteksiWajah() {
     const el = document.getElementById("hasil-wajah");
     el.innerText = "👁️ Mendeteksi ekspresi wajah...";
-    setTimeout(() => {
-        hasilDeteksi.wajah = "Miring"; // ← Bisa diganti nanti dari backend
-        el.innerText = "✅ Wajah: Miring";
+    
+    fetch("/detect-face", { method: "POST" })
+        .then(res => res.json())
+        .then(data => {
+        hasilDeteksi.wajah = data.hasil;
+        el.innerText = "✅ Wajah: " + data.hasil;
         updateDiagnosaButton();
-    }, 1500);
-    }
+        })
+        .catch(err => {
+        el.innerText = "❌ Gagal deteksi wajah";
+        });
+}
 
     function deteksiTangan() {
     const el = document.getElementById("hasil-tangan");
     el.innerText = "🖐️ Mendeteksi posisi tangan...";
-    setTimeout(() => {
-        hasilDeteksi.tangan = "Tangan kanan turun";
-        el.innerText = "✅ Tangan: Tangan kanan turun";
+
+    fetch("/detect-hand", { method: "POST" })
+        .then(res => res.json())
+        .then(data => {
+        hasilDeteksi.tangan = data.hasil;
+        el.innerText = "✅ Tangan: " + data.hasil;
         updateDiagnosaButton();
-    }, 1500);
+        })
+        .catch(err => {
+        el.innerText = "❌ Gagal deteksi tangan";
+        });
     }
+
 
 
     // Tes Ucapan dengan Batas Waktu 5 detik

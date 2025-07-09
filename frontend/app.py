@@ -31,6 +31,30 @@ def analyze_audio():
         'transkrip': raw_text
     })
     
+@app.route('/detect-face', methods=['POST'])
+def detect_face():
+    cap = cv2.VideoCapture(0)
+    ret, frame = cap.read()
+    cap.release()
+
+    if not ret:
+        return jsonify({'status': 'error', 'message': 'Gagal akses kamera'}), 500
+
+    result = detect_facial_droop_from_frame(frame)
+    return jsonify({'status': 'ok', 'hasil': result})
+
+@app.route('/detect-hand', methods=['POST'])
+def detect_hand():
+    cap = cv2.VideoCapture(0)
+    ret, frame = cap.read()
+    cap.release()
+
+    if not ret:
+        return jsonify({'status': 'error', 'message': 'Gagal akses kamera'}), 500
+
+    result = detect_arm_drift_from_frame(frame)
+    return jsonify({'status': 'ok', 'hasil': result})
+    
 @app.route('/diagnosa', methods=['POST'])
 def diagnosa():
     # Ambil frame dari webcam
