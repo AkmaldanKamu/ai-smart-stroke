@@ -39,7 +39,7 @@ def analyze_audio():
 # -------------------------------
 @app.route('/detect-face', methods=['POST'])
 def detect_face():
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(1)
     ret, frame = cap.read()
     cap.release()
 
@@ -65,7 +65,7 @@ def detect_hand():
 @app.route('/diagnosa', methods=['POST'])
 def diagnosa():
     # Ambil frame untuk analisis wajah
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(1)
     ret, frame = cap.read()
     cap.release()
 
