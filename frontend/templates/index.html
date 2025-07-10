@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <title>AI-SMART - Deteksi Stroke</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 <body>
   <h1>🧠 AI-SMART: Sistem Deteksi Stroke</h1>
@@ -56,55 +57,89 @@
       .catch(error => { alert("Webcam tidak tersedia: " + error); });
 
     function deteksiWajah() {
-    const el = document.getElementById("hasil-wajah");
-    const detail = document.getElementById("detail-wajah");
+  Swal.fire({
+    title: '📸 Siap untuk Deteksi Wajah',
+    text: 'Senyum ke kamera, wajah di tengah, jangan miring.',
+    icon: 'info',
+    confirmButtonText: 'Mulai'
+  }).then(() => {
+    lanjutDeteksiWajah();  // 🔁 panggil fungsi fetch
+  });
+}
 
-    el.innerText = "👁️ Mendeteksi ekspresi wajah...";
-    detail.innerHTML = "";
+  function lanjutDeteksiWajah() {
+  const el = document.getElementById("hasil-wajah");
+  const detail = document.getElementById("detail-wajah");
 
-    fetch("/detect-face", { method: "POST" })
-        .then(res => res.json())
-        .then(data => {
-        if (data.status !== "ok") {
-            el.innerText = "❌ Gagal deteksi wajah: " + data.message;
-            return;
-        }
+  el.innerText = "👁️ Mendeteksi ekspresi wajah...";
+  detail.innerHTML = "";
 
-        hasilDeteksi.wajah = data.kategori;
-        el.innerText = `✅ Wajah: ${data.kategori}`;
+  fetch("/detect-face", { method: "POST" })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status !== "ok") {
+        el.innerText = "❌ Gagal deteksi wajah: " + data.message;
+        return;
+      }
 
-        detail.innerHTML = `
-            <li>🔸 Delta Bibir (y): ${data.delta_bibir}</li>
-            <li>🔸 Delta Alis (y): ${data.delta_alis}</li>
-            <li>🔸 Delta Pipi (y): ${data.delta_pipi}</li>
-            <li>🔸 Delta Mata (y): ${data.delta_mata}</li>
-            <li>🔁 Sudut Kemiringan Wajah: ${data.angle}°</li>
-            <li>🧠 Skor Simetri Final: ${data.score}</li>
-            <li>💡 Saran: ${data.saran}</li>
-        `;
+      hasilDeteksi.wajah = data.kategori;
+      el.innerText = `✅ Wajah: ${data.kategori}`;
 
-        updateDiagnosaButton();
-        })
-        .catch(err => {
-        el.innerText = "❌ Gagal deteksi wajah";
-        });
-    }
+      // Ambil data detail
+      const p = data.penilaian;
+      detail.innerHTML = `
+        <li><strong>👄 Bibir</strong></li>
+        <ul>
+          <li>Skor: ${p.bibir.nilai}/2</li>
+        </ul>
+        <li><strong>👁️ Mata</strong></li>
+        <ul>
+          <li>Skor: ${p.mata.nilai}/2</li>
+        </ul>
+        <li><strong>🧭 Pipi / Kemiringan</strong></li>
+        <ul>
+          <li>Skor: ${p.pipi.nilai}/2</li>
+        </ul>
+
+        <li><strong>🧠 Total Skor Wajah:</strong> ${data.score_total}/6</li>
+        <li><strong>💡 Saran:</strong> ${data.saran}</li>
+        <hr>
+      `;
+
+      updateDiagnosaButton();
+    })
+    .catch(err => {
+      el.innerText = "❌ Gagal deteksi wajah";
+    });
+}
 
     function deteksiTangan() {
-      const el = document.getElementById("hasil-tangan");
-      el.innerText = "🖐️ Mendeteksi posisi tangan...";
+  const el = document.getElementById("hasil-tangan");
+  el.innerText = "🖐️ Mendeteksi posisi tangan selama 5 detik...";
 
-      fetch("/detect-hand", { method: "POST" })
-        .then(res => res.json())
-        .then(data => {
-          hasilDeteksi.tangan = data.hasil;
-          el.innerText = "✅ Tangan: " + data.hasil;
-          updateDiagnosaButton();
-        })
-        .catch(err => {
-          el.innerText = "❌ Gagal deteksi tangan";
-        });
-    }
+  fetch("/detect-hand", { method: "POST" })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status !== "ok") {
+        el.innerText = "❌ Gagal deteksi tangan: " + data.message;
+        return;
+      }
+
+      hasilDeteksi.tangan = data.kategori;
+
+      el.innerHTML = `
+        ✅ <strong>Hasil Deteksi Tangan:</strong> ${data.kategori}<br>
+        📏 <strong>Selisih Y (delta):</strong> ${data.delta_y ?? "Tidak tersedia"}<br>
+        💡 <strong>Saran:</strong> ${data.saran}
+      `;
+
+      updateDiagnosaButton();
+    })
+    .catch(err => {
+      el.innerText = "❌ Terjadi error saat deteksi tangan";
+    });
+}
+
 
     function mulaiTesSuara() {
       const status = document.getElementById("status-audio");

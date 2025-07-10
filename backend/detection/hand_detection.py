@@ -1,25 +1,18 @@
-# backend/detection/hand_detection.py
+import os
+from detection.pose_hand_detector import PoseHandDetector
 
-import cv2
-import mediapipe as mp
+try:
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+    model_path = os.path.join(project_root, "models", "openvino_models", "pose", "human-pose-estimation-0001", "human-pose-estimation-0001")
+    pose_detector = PoseHandDetector(model_path)
+except Exception as e:
+    print(f"[ERROR] Gagal load model hand detection: {e}")
+    pose_detector = None
 
-def detect_arm_drift_from_frame(frame):
-    mp_pose = mp.solutions.pose
-    pose = mp_pose.Pose()
-
-    image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    results = pose.process(image_rgb)
-
-    if not results.pose_landmarks:
-        return "Tangan tidak terdeteksi"
-
-    left = results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_WRIST]
-    right = results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_WRIST]
-
-    diff = abs(left.y - right.y)
-    if diff < 0.05:
-        return "Kedua tangan naik"
-    elif left.y > right.y:
-        return "Tangan kiri turun"
-    else:
-        return "Tangan kanan turun"
+def detect_arm_drift_openvino():
+    if pose_detector is None:
+        return {
+            "status": "error",
+            "message": "Model deteksi tangan gagal di-load"
+        }
+    return pose_detector.detect_arm_drift()
