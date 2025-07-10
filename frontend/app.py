@@ -10,7 +10,7 @@ from detection.voice_detection import detect_speech_clarity
 from detection.face_detection import detect_facial_droop_from_frame
 from detection.hand_detection import detect_arm_drift_openvino
 from detection.nihss_scoring import score_nihss, generate_diagnosis_summary
-
+from smart_camera_selector import find_real_camera
 app = Flask(__name__, template_folder="templates", static_folder="static")
 
 # -------------------------------
@@ -39,7 +39,7 @@ def analyze_audio():
 # -------------------------------
 @app.route('/detect-face', methods=['POST'])
 def detect_face():
-    cap = cv2.VideoCapture(1)
+    cap = cv2.VideoCapture(find_real_camera())
     ret, frame = cap.read()
     cap.release()
 
@@ -65,7 +65,7 @@ def detect_hand():
 @app.route('/diagnosa', methods=['POST'])
 def diagnosa():
     # Ambil frame untuk analisis wajah
-    cap = cv2.VideoCapture(1)
+    cap = cv2.VideoCapture(find_real_camera())
     ret, frame = cap.read()
     cap.release()
 
