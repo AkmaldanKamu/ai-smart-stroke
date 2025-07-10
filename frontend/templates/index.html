@@ -25,9 +25,7 @@
   <h3>📌 Hasil Deteksi:</h3>
   <p id="hasil-wajah"></p>
   <ul id="detail-wajah"></ul>
-
   <p id="hasil-tangan"></p>
-
   <p id="status-audio"></p>
   <p id="transkrip-audio"></p>
 
@@ -38,36 +36,42 @@
   <p id="diagnosa-hasil"></p>
   <ul id="diagnosa-summary"></ul>
 
-  <script defer>
-    const hasilDeteksi = {
-      wajah: null,
-      tangan: null,
-      suara: null
-    };
+<script defer>
+const video = document.getElementById("video");
+const hasilDeteksi = { wajah: null, tangan: null, suara: null };
 
-    function updateDiagnosaButton() {
-      const btn = document.getElementById("btn-diagnosa");
-      btn.disabled = !(hasilDeteksi.wajah && hasilDeteksi.tangan && hasilDeteksi.suara);
-    }
+// Cari kamera yang bukan Iriun
+navigator.mediaDevices.enumerateDevices().then(devices => {
+  const videoDevices = devices.filter(d => d.kind === 'videoinput');
+  const preferred = videoDevices.find(d => !d.label.toLowerCase().includes('iriun')) || videoDevices[0];
 
-    // Aktifkan Webcam
-    const video = document.getElementById("video");
-    navigator.mediaDevices.getUserMedia({ video: true })
-      .then(stream => { video.srcObject = stream; })
-      .catch(error => { alert("Webcam tidak tersedia: " + error); });
+  if (!preferred) {
+    alert("❌ Tidak ada kamera yang tersedia.");
+    return;
+  }
 
-    function deteksiWajah() {
+  navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: preferred.deviceId } } })
+    .then(stream => { video.srcObject = stream; })
+    .catch(err => { alert("Gagal akses kamera: " + err); });
+});
+
+function updateDiagnosaButton() {
+  const btn = document.getElementById("btn-diagnosa");
+  btn.disabled = !(hasilDeteksi.wajah && hasilDeteksi.tangan && hasilDeteksi.suara);
+}
+
+function deteksiWajah() {
   Swal.fire({
     title: '📸 Siap untuk Deteksi Wajah',
     text: 'Senyum ke kamera, wajah di tengah, jangan miring.',
     icon: 'info',
     confirmButtonText: 'Mulai'
   }).then(() => {
-    lanjutDeteksiWajah();  // 🔁 panggil fungsi fetch
+    lanjutDeteksiWajah();
   });
 }
 
-  function lanjutDeteksiWajah() {
+function lanjutDeteksiWajah() {
   const el = document.getElementById("hasil-wajah");
   const detail = document.getElementById("detail-wajah");
 
@@ -85,29 +89,28 @@
       hasilDeteksi.wajah = data.kategori;
       el.innerText = `✅ Wajah: ${data.kategori}`;
 
-      // Ambil data detail
       const p = data.penilaian;
       detail.innerHTML = `
         <li><strong>🧠 Total Skor Wajah:</strong> ${data.score_total}/6</li>
-          <li><strong>💡 Saran:</strong> ${data.saran}</li>
-          <hr>
-          <li><strong>👄 Bibir</strong></li>
-          <ul>
-            <li>Delta Y: ${p.bibir.delta_y}</li>
-            <li>Rasio X: ${p.bibir.rasio_x}</li>
-            <li>Skor: ${p.bibir.nilai}/2</li>
-          </ul>
-          <li><strong>👁️ Mata</strong></li>
-          <ul>
-            <li>Delta Openness: ${p.mata.delta_openness}</li>
-            <li>Ptosis Suspect: ${p.mata.ptosis_suspect ? "Ya" : "Tidak"}</li>
-            <li>Skor: ${p.mata.nilai}/2</li>
-          </ul>
-          <li><strong>🧭 Pipi / Kemiringan</strong></li>
-          <ul>
-            <li>Sudut Derajat: ${p.pipi.kemiringan_derajat}°</li>
-            <li>Skor: ${p.pipi.nilai}/2</li>
-          </ul>
+        <li><strong>💡 Saran:</strong> ${data.saran}</li>
+        <hr>
+        <li><strong>👄 Bibir</strong></li>
+        <ul>
+          <li>Delta Y: ${p.bibir.delta_y}</li>
+          <li>Rasio X: ${p.bibir.rasio_x}</li>
+          <li>Skor: ${p.bibir.nilai}/2</li>
+        </ul>
+        <li><strong>👁️ Mata</strong></li>
+        <ul>
+          <li>Delta Openness: ${p.mata.delta_openness}</li>
+          <li>Ptosis Suspect: ${p.mata.ptosis_suspect ? "Ya" : "Tidak"}</li>
+          <li>Skor: ${p.mata.nilai}/2</li>
+        </ul>
+        <li><strong>🧭 Pipi / Kemiringan</strong></li>
+        <ul>
+          <li>Sudut Derajat: ${p.pipi.kemiringan_derajat}°</li>
+          <li>Skor: ${p.pipi.nilai}/2</li>
+        </ul>
       `;
 
       updateDiagnosaButton();
@@ -117,7 +120,7 @@
     });
 }
 
-    function deteksiTangan() {
+function deteksiTangan() {
   const el = document.getElementById("hasil-tangan");
   el.innerText = "🖐️ Mendeteksi posisi tangan selama 5 detik...";
 
@@ -130,13 +133,11 @@
       }
 
       hasilDeteksi.tangan = data.kategori;
-
       el.innerHTML = `
         ✅ <strong>Hasil Deteksi Tangan:</strong> ${data.kategori}<br>
         📏 <strong>Selisih Y (delta):</strong> ${data.delta_y ?? "Tidak tersedia"}<br>
         💡 <strong>Saran:</strong> ${data.saran}
       `;
-
       updateDiagnosaButton();
     })
     .catch(err => {
@@ -144,56 +145,53 @@
     });
 }
 
+function mulaiTesSuara() {
+  const status = document.getElementById("status-audio");
+  const transkrip = document.getElementById("transkrip-audio");
+  const btn = document.getElementById("btn-voice");
 
-    function mulaiTesSuara() {
-      const status = document.getElementById("status-audio");
-      const transkrip = document.getElementById("transkrip-audio");
-      const btn = document.getElementById("btn-voice");
+  btn.disabled = true;
+  status.innerText = "⏱️ Merekam suara selama 5 detik...";
+  transkrip.innerText = "";
 
-      btn.disabled = true;
-      status.innerText = "⏱️ Merekam suara selama 5 detik...";
-      transkrip.innerText = "";
+  setTimeout(() => { status.innerText = "🧠 Menganalisis suara..."; }, 5000);
 
-      setTimeout(() => {
-        status.innerText = "🧠 Menganalisis suara...";
-      }, 5000);
+  fetch("/analyze-audio", { method: "POST" })
+    .then(res => res.json())
+    .then(data => {
+      hasilDeteksi.suara = data.hasil;
+      status.innerText = "✅ Hasil Suara: " + data.hasil;
+      transkrip.innerText = "🗣️ Transkrip: " + data.transkrip;
+      btn.disabled = false;
+      updateDiagnosaButton();
+    })
+    .catch(err => {
+      status.innerText = "❌ Gagal menganalisis suara.";
+      btn.disabled = false;
+    });
+}
 
-      fetch('/analyze-audio', { method: 'POST' })
-        .then(res => res.json())
-        .then(data => {
-          hasilDeteksi.suara = data.hasil;
-          status.innerText = "✅ Hasil Suara: " + data.hasil;
-          transkrip.innerText = "🗣️ Transkrip: " + data.transkrip;
-          btn.disabled = false;
-          updateDiagnosaButton();
-        })
-        .catch(err => {
-          status.innerText = "❌ Gagal menganalisis suara.";
-          btn.disabled = false;
-        });
-    }
+function diagnosaStroke() {
+  const output = document.getElementById("diagnosa-hasil");
+  const summary = document.getElementById("diagnosa-summary");
 
-    function diagnosaStroke() {
-      const output = document.getElementById("diagnosa-hasil");
-      const summary = document.getElementById("diagnosa-summary");
+  output.innerText = "⏳ Menganalisis semua indikator...";
+  summary.innerHTML = "";
 
-      output.innerText = "⏳ Menganalisis semua indikator...";
-      summary.innerHTML = "";
-
-      fetch("/diagnosa", { method: "POST" })
-        .then(res => res.json())
-        .then(data => {
-          output.innerText = `🧠 Skor NIHSS: ${data.skor} (${data.kategori})\n📢 ${data.saran}`;
-          data.summary.forEach(item => {
-            const li = document.createElement("li");
-            li.innerText = item;
-            summary.appendChild(li);
-          });
-        })
-        .catch(err => {
-          output.innerText = "❌ Terjadi error saat diagnosa.";
-        });
-    }
-  </script>
+  fetch("/diagnosa", { method: "POST" })
+    .then(res => res.json())
+    .then(data => {
+      output.innerText = `🧠 Skor NIHSS: ${data.skor} (${data.kategori})\n📢 ${data.saran}`;
+      data.summary.forEach(item => {
+        const li = document.createElement("li");
+        li.innerText = item;
+        summary.appendChild(li);
+      });
+    })
+    .catch(err => {
+      output.innerText = "❌ Terjadi error saat diagnosa.";
+    });
+}
+</script>
 </body>
 </html>

@@ -1,12 +1,7 @@
-from smart_camera_selector import find_real_camera
-import cv2
+from detection.analyze_symmetry_pro import analyze_symmetry_pro
 
-def detect_facial_droop_from_frame(frame=None, return_detail=False):
-    if frame is None:
-        cap = cv2.VideoCapture(find_real_camera())
-        ret, frame = cap.read()
-        cap.release()
-        if not ret:
-            return {"status": "error", "message": "Gagal akses kamera"}
-    
-    # ... (deteksi landmark & analisis simetri)
+def detect_facial_droop_from_frame(frame, return_detail=False):
+    result = analyze_symmetry_pro(frame)
+    if result["status"] != "ok":
+        return result if return_detail else "Tidak terdeteksi"
+    return result if return_detail else result["kategori"]

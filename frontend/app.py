@@ -2,19 +2,20 @@ import sys
 import os
 import cv2
 
-# Tambahkan path ke folder backend
+# Tambahkan path ke backend
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'backend')))
 
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, jsonify
 from detection.voice_detection import detect_speech_clarity
 from detection.face_detection import detect_facial_droop_from_frame
 from detection.hand_detection import detect_arm_drift_openvino
 from detection.nihss_scoring import score_nihss, generate_diagnosis_summary
 from smart_camera_selector import find_real_camera
+
 app = Flask(__name__, template_folder="templates", static_folder="static")
 
 # -------------------------------
-# HALAMAN UTAMA
+# ROUTE HALAMAN UTAMA
 # -------------------------------
 @app.route('/')
 def index():
@@ -22,7 +23,7 @@ def index():
 
 
 # -------------------------------
-# ANALISIS SUARA
+# ROUTE ANALISIS SUARA
 # -------------------------------
 @app.route('/analyze-audio', methods=['POST'])
 def analyze_audio():
@@ -35,7 +36,7 @@ def analyze_audio():
 
 
 # -------------------------------
-# DETEKSI WAJAH
+# ROUTE DETEKSI WAJAH
 # -------------------------------
 @app.route('/detect-face', methods=['POST'])
 def detect_face():
@@ -51,7 +52,7 @@ def detect_face():
 
 
 # -------------------------------
-# DETEKSI TANGAN (via OpenVINO Pose)
+# ROUTE DETEKSI TANGAN
 # -------------------------------
 @app.route('/detect-hand', methods=['POST'])
 def detect_hand():
@@ -60,17 +61,16 @@ def detect_hand():
 
 
 # -------------------------------
-# DIAGNOSA LENGKAP
+# ROUTE DIAGNOSA KOMBINASI (Wajah + Tangan + Suara)
 # -------------------------------
 @app.route('/diagnosa', methods=['POST'])
 def diagnosa():
-    # Ambil frame untuk analisis wajah
     cap = cv2.VideoCapture(find_real_camera())
     ret, frame = cap.read()
     cap.release()
 
     if not ret:
-        return jsonify({'status': 'error', 'message': 'Gagal mengambil gambar dari kamera.'}), 500
+        return jsonify({'status': 'error', 'message': 'Gagal mengambil gambar dari kamera'}), 500
 
     # Deteksi multimodal
     face_result_detail = detect_facial_droop_from_frame(frame, return_detail=True)
@@ -81,9 +81,7 @@ def diagnosa():
 
     voice_result, _ = detect_speech_clarity(return_text=True)
 
-    print(f"[Diagnosa] Wajah: {face_result} | Tangan: {hand_result} | Suara: {voice_result}")
-
-    # Skor & Ringkasan
+    # Skoring NIHSS & rekomendasi
     scoring = score_nihss(face_result, hand_result, voice_result)
     summary = generate_diagnosis_summary(face_result, hand_result, voice_result, scoring)
 
@@ -103,7 +101,7 @@ def diagnosa():
 
 
 # -------------------------------
-# JALANKAN APP
+# JALANKAN FLASK APP
 # -------------------------------
 if __name__ == '__main__':
     app.run(debug=True)
