@@ -38,7 +38,7 @@
   <p id="diagnosa-hasil"></p>
   <ul id="diagnosa-summary"></ul>
 
-  <script>
+  <script defer>
     const hasilDeteksi = {
       wajah: null,
       tangan: null,
@@ -100,7 +100,7 @@
           <li><strong>👁️ Mata</strong></li>
           <ul>
             <li>Delta Openness: ${p.mata.delta_openness}</li>
-            <li>Ptosis Suspect: ${p.ma ta.ptosis_suspect ? "Ya" : "Tidak"}</li>
+            <li>Ptosis Suspect: ${p.mata.ptosis_suspect ? "Ya" : "Tidak"}</li>
             <li>Skor: ${p.mata.nilai}/2</li>
           </ul>
           <li><strong>🧭 Pipi / Kemiringan</strong></li>
