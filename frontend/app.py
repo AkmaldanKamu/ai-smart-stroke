@@ -1,21 +1,41 @@
 import sys
 import os
 import cv2
+import base64
+import numpy as np
+from flask import Flask, render_template, request, jsonify
 
 # Tambahkan path ke backend
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'backend')))
 
-from flask import Flask, render_template, jsonify
 from detection.voice_detection import detect_speech_clarity
 from detection.face_detection import detect_facial_droop_from_frame
-from detection.hand_detection import detect_arm_drift_openvino
+from detection.hand_detection import StrokeDetector
 from detection.nihss_scoring import score_nihss, generate_diagnosis_summary
-from smart_camera_selector import find_real_camera
 
+detector = StrokeDetector()
 app = Flask(__name__, template_folder="templates", static_folder="static")
 
+# --------------------------
+# UTIL FUNCTIONS
+# --------------------------
+def decode_base64_image(base64_string):
+    try:
+        header, encoded = base64_string.split(',', 1)
+        img_bytes = base64.b64decode(encoded)
+        img_array = np.frombuffer(img_bytes, dtype=np.uint8)
+        img = cv2.imdecode(img_array, cv2.IMREAD_COLOR)
+        return img
+    except Exception as e:
+        print(f"[❌] Gagal decode base64: {e}")
+        return None
+
+def encode_image_to_base64(img):
+    _, buffer = cv2.imencode('.jpg', img)
+    return base64.b64encode(buffer).decode('utf-8')
+
 # -------------------------------
-# ROUTE HALAMAN UTAMA
+# ROUTE: Halaman Utama
 # -------------------------------
 @app.route('/')
 def index():
@@ -23,7 +43,7 @@ def index():
 
 
 # -------------------------------
-# ROUTE ANALISIS SUARA
+# ROUTE: Deteksi Suara
 # -------------------------------
 @app.route('/analyze-audio', methods=['POST'])
 def analyze_audio():
@@ -39,62 +59,69 @@ def analyze_audio():
 
 
 # -------------------------------
-# ROUTE DETEKSI WAJAH
+# ROUTE: Deteksi Wajah
 # -------------------------------
 @app.route('/detect-face', methods=['POST'])
 def detect_face():
-    cap = cv2.VideoCapture(find_real_camera())
-    if not cap.isOpened():
-        return jsonify({'status': 'error', 'message': 'Gagal membuka kamera'}), 500
+    data = request.get_json()
+    image_b64 = data.get("image")
+    frame = decode_base64_image(image_b64)
 
-    ret, frame = cap.read()
-    cap.release()
+    if frame is None:
+        return jsonify({'status': 'error', 'message': 'Frame tidak valid'}), 400
 
-    if not ret:
-        return jsonify({'status': 'error', 'message': 'Gagal membaca frame kamera'}), 500
-
-    result = detect_facial_droop_from_frame(frame, return_detail=True)
-    return jsonify(result)
-
-
-# -------------------------------
-# ROUTE DETEKSI TANGAN
-# -------------------------------
-@app.route('/detect-hand', methods=['POST'])
-def detect_hand():
     try:
-        result = detect_arm_drift_openvino()
+        result = detect_facial_droop_from_frame(frame, return_detail=True)
         return jsonify(result)
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
 
 # -------------------------------
-# ROUTE DIAGNOSA KOMBINASI (Wajah + Tangan + Suara)
+# ROUTE: Deteksi Tangan
+# -------------------------------
+@app.route('/detect-hand', methods=['POST'])
+def detect_hand():
+    data = request.get_json()
+    image_b64 = data.get("image")
+    frame = decode_base64_image(image_b64)
+
+    if frame is None:
+        return jsonify({'status': 'error', 'message': 'Frame tidak valid'}), 400
+
+    result = detector.detect_from_single_frame(frame)
+
+    return jsonify(result)
+
+
+# -------------------------------
+# ROUTE: Diagnosa Stroke Gabungan
 # -------------------------------
 @app.route('/diagnosa', methods=['POST'])
 def diagnosa():
-    cap = cv2.VideoCapture(find_real_camera())
-    if not cap.isOpened():
-        return jsonify({'status': 'error', 'message': 'Gagal membuka kamera'}), 500
+    data = request.get_json()
+    image_b64 = data.get("image")
 
-    ret, frame = cap.read()
-    cap.release()
+    if not data or not image_b64:
+        return jsonify({'status': 'error', 'message': 'Gambar tidak ditemukan'}), 400
 
-    if not ret:
-        return jsonify({'status': 'error', 'message': 'Gagal membaca gambar dari kamera'}), 500
+    frame = decode_base64_image(image_b64)
+    if frame is None:
+        return jsonify({'status': 'error', 'message': 'Gagal memproses gambar'}), 500
 
     try:
-        # Deteksi multimodal
+        # Deteksi wajah
         face_result_detail = detect_facial_droop_from_frame(frame, return_detail=True)
         face_result = face_result_detail.get('kategori', 'Tidak diketahui')
 
-        hand_result_obj = detect_arm_drift_openvino()
+        # Deteksi tangan
+        hand_result_obj = detector.detect_from_single_frame(frame)
         hand_result = hand_result_obj.get('kategori', 'Tidak diketahui')
 
+        # Deteksi suara
         voice_result, _ = detect_speech_clarity(return_text=True)
 
-        # Skoring NIHSS & Ringkasan
+        # Skoring NIHSS
         scoring = score_nihss(face_result, hand_result, voice_result)
         summary = generate_diagnosis_summary(face_result, hand_result, voice_result, scoring)
 
@@ -117,7 +144,7 @@ def diagnosa():
 
 
 # -------------------------------
-# JALANKAN FLASK APP
+# RUN SERVER
 # -------------------------------
 if __name__ == '__main__':
     app.run(debug=True)

@@ -2,6 +2,7 @@ flask
 opencv-python
 mediapipe
 openvino
+openvino-dev
 torch
 transformers
 pydub

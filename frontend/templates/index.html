@@ -1,214 +1,264 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
-  <meta charset="UTF-8">
-  <title>AI-SMART - Deteksi Stroke</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <meta charset="UTF-8">
+    <title>AI-SMART - Deteksi Stroke</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
+
 <body>
-  <h1>🧠 AI-SMART: Sistem Deteksi Stroke</h1>
+    <h1>🧠 AI-SMART: Sistem Deteksi Stroke</h1>
 
-  <!-- Webcam Preview -->
-  <video id="video" width="400" height="300" autoplay muted></video>
+    <!-- Webcam Preview -->
+    <video id="video" width="400" height="300" autoplay muted></video>
 
-  <hr>
+    <hr>
 
-  <!-- Tombol Tes Deteksi -->
-  <button onclick="deteksiWajah()">😊 Tes Ekspresi Wajah</button>
-  <button onclick="deteksiTangan()">🖐️ Tes Gerakan Tangan</button>
-  <button id="btn-voice" onclick="mulaiTesSuara()">🎤 Tes Ucapan</button>
+    <!-- Tombol Tes Deteksi -->
+    <button onclick="deteksiWajah()">😊 Tes Ekspresi Wajah</button>
+    <button onclick="deteksiTangan()">🖐️ Tes Gerakan Tangan</button>
+    <button id="btn-voice" onclick="mulaiTesSuara()">🎤 Tes Ucapan</button>
 
-  <hr>
+    <hr>
 
-  <!-- Hasil Deteksi -->
-  <h3>📌 Hasil Deteksi:</h3>
-  <p id="hasil-wajah"></p>
-  <ul id="detail-wajah"></ul>
-  <p id="hasil-tangan"></p>
-  <p id="status-audio"></p>
-  <p id="transkrip-audio"></p>
+    <!-- Hasil Deteksi -->
+    <h3>📌 Hasil Deteksi:</h3>
+    <p id="hasil-wajah"></p>
+    <ul id="detail-wajah"></ul>
+    <p id="hasil-tangan"></p>
+    <img id="preview-hand" width="300" style="display:none; border: 1px solid #ccc;" />
+    <p id="status-audio"></p>
+    <p id="transkrip-audio"></p>
 
-  <hr>
+    <hr>
+    <h3>🖼️ Visual Deteksi Tangan</h3>
+    <img id="hand-image" width="400" alt="Hasil deteksi tangan" />
 
-  <!-- Diagnosa -->
-  <button id="btn-diagnosa" onclick="diagnosaStroke()" disabled>🔍 Cek Diagnosa Stroke</button>
-  <p id="diagnosa-hasil"></p>
-  <ul id="diagnosa-summary"></ul>
 
-<script defer>
-const video = document.getElementById("video");
-const hasilDeteksi = { wajah: null, tangan: null, suara: null };
+    <!-- Diagnosa -->
+    <button id="btn-diagnosa" onclick="diagnosaStroke()" disabled>🔍 Cek Diagnosa Stroke</button>
+    <p id="diagnosa-hasil"></p>
+    <ul id="diagnosa-summary"></ul>
 
-// Fungsi memulai kamera dengan fallback cerdas
-function startSmartCamera() {
-  navigator.mediaDevices.enumerateDevices().then(devices => {
-    const cams = devices.filter(d => d.kind === 'videoinput');
-    if (!cams.length) {
-      alert("❌ Tidak ada kamera terdeteksi.");
-      return;
-    }
+    <!-- Ganti bagian <script defer> di bawah -->
+    <script defer>
+        const video = document.getElementById("video");
+        const hasilDeteksi = {
+            wajah: null,
+            tangan: null,
+            suara: null
+        };
 
-    // Hindari kamera Iriun
-    const selected = cams.find(d => !d.label.toLowerCase().includes("iriun")) || cams[0];
+        function startSmartCamera() {
+            navigator.mediaDevices.enumerateDevices().then(devices => {
+                const cams = devices.filter(d => d.kind === 'videoinput');
+                const selected = cams.find(d => !d.label.toLowerCase().includes("iriun")) || cams[0];
 
-    navigator.mediaDevices.getUserMedia({
-      video: { deviceId: { ideal: selected.deviceId } }  // Lebih fleksibel dari "exact"
-    })
-    .then(stream => {
-      video.srcObject = stream;
-    })
-    .catch(err => {
-      console.warn("🎥 Fallback ke kamera default:", err);
-      // Coba akses kamera default jika gagal
-      navigator.mediaDevices.getUserMedia({ video: true })
-        .then(stream => { video.srcObject = stream; })
-        .catch(error => {
-          alert("❌ Gagal akses kamera: " + error.name);
-        });
-    });
-  });
-}
+                if (!selected) {
+                    alert("❌ Tidak ada kamera terdeteksi.");
+                    return;
+                }
 
-startSmartCamera();
+                navigator.mediaDevices.getUserMedia({
+                        video: {
+                            deviceId: {
+                                ideal: selected.deviceId
+                            }
+                        }
+                    })
+                    .then(stream => {
+                        video.srcObject = stream;
+                    })
+                    .catch(err => {
+                        alert("❌ Gagal akses kamera: " + err.name);
+                    });
+            });
+        }
 
-function updateDiagnosaButton() {
-  const btn = document.getElementById("btn-diagnosa");
-  btn.disabled = !(hasilDeteksi.wajah && hasilDeteksi.tangan && hasilDeteksi.suara);
-}
+        startSmartCamera();
 
-function deteksiWajah() {
-  Swal.fire({
-    title: '📸 Siap untuk Deteksi Wajah',
-    text: 'Senyum ke kamera, wajah di tengah, jangan miring.',
-    icon: 'info',
-    confirmButtonText: 'Mulai'
-  }).then(() => {
-    lanjutDeteksiWajah();
-  });
-}
+        function ambilFrameBase64() {
+            const canvas = document.createElement("canvas");
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext("2d").drawImage(video, 0, 0);
+            return canvas.toDataURL("image/jpeg");
+        }
 
-function lanjutDeteksiWajah() {
-  const el = document.getElementById("hasil-wajah");
-  const detail = document.getElementById("detail-wajah");
+        function updateDiagnosaButton() {
+            const btn = document.getElementById("btn-diagnosa");
+            btn.disabled = !(hasilDeteksi.wajah && hasilDeteksi.tangan && hasilDeteksi.suara);
+        }
 
-  el.innerText = "👁️ Mendeteksi ekspresi wajah...";
-  detail.innerHTML = "";
+        function deteksiWajah() {
+            Swal.fire({
+                title: '📸 Siap untuk Deteksi Wajah',
+                text: 'Senyum ke kamera, wajah di tengah, jangan miring.',
+                icon: 'info',
+                confirmButtonText: 'Mulai'
+            }).then(() => lanjutDeteksiWajah());
+        }
 
-  fetch("/detect-face", { method: "POST" })
-    .then(res => res.json())
-    .then(data => {
-      if (data.status !== "ok") {
-        el.innerText = "❌ Gagal deteksi wajah: " + data.message;
-        return;
-      }
+        function lanjutDeteksiWajah() {
+            const el = document.getElementById("hasil-wajah");
+            const detail = document.getElementById("detail-wajah");
+            el.innerText = "👁️ Mendeteksi ekspresi wajah...";
+            detail.innerHTML = "";
 
-      hasilDeteksi.wajah = data.kategori;
-      el.innerText = `✅ Wajah: ${data.kategori}`;
+            const imageBase64 = ambilFrameBase64();
 
-      const p = data.penilaian;
-      detail.innerHTML = `
+            fetch("/detect-face", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        image: imageBase64
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status !== "ok") {
+                        el.innerText = "❌ Gagal deteksi wajah: " + data.message;
+                        return;
+                    }
+
+                    hasilDeteksi.wajah = data.kategori;
+                    el.innerText = `✅ Wajah: ${data.kategori}`;
+                    const p = data.penilaian;
+                    detail.innerHTML = `
         <li><strong>🧠 Total Skor Wajah:</strong> ${data.score_total}/6</li>
         <li><strong>💡 Saran:</strong> ${data.saran}</li>
         <hr>
         <li><strong>👄 Bibir</strong></li>
-        <ul>
-          <li>Delta Y: ${p.bibir.delta_y}</li>
-          <li>Rasio X: ${p.bibir.rasio_x}</li>
-          <li>Skor: ${p.bibir.nilai}/2</li>
-        </ul>
+        <ul><li>Delta Y: ${p.bibir.delta_y}</li><li>Rasio X: ${p.bibir.rasio_x}</li><li>Skor: ${p.bibir.nilai}/2</li></ul>
         <li><strong>👁️ Mata</strong></li>
-        <ul>
-          <li>Delta Openness: ${p.mata.delta_openness}</li>
-          <li>Ptosis Suspect: ${p.mata.ptosis_suspect ? "Ya" : "Tidak"}</li>
-          <li>Skor: ${p.mata.nilai}/2</li>
-        </ul>
-        <li><strong>🧭 Pipi / Kemiringan</strong></li>
-        <ul>
-          <li>Sudut Derajat: ${p.pipi.kemiringan_derajat}°</li>
-          <li>Skor: ${p.pipi.nilai}/2</li>
-        </ul>
+        <ul><li>Delta Openness: ${p.mata.delta_openness}</li><li>Ptosis: ${p.mata.ptosis_suspect ? "Ya" : "Tidak"}</li><li>Skor: ${p.mata.nilai}/2</li></ul>
+        <li><strong>🧭 Pipi</strong></li>
+        <ul><li>Kemiringan: ${p.pipi.kemiringan_derajat}°</li><li>Skor: ${p.pipi.nilai}/2</li></ul>
       `;
+                    updateDiagnosaButton();
+                })
+                .catch(() => el.innerText = "❌ Gagal deteksi wajah");
+        }
 
-      updateDiagnosaButton();
-    })
-    .catch(err => {
-      el.innerText = "❌ Gagal deteksi wajah";
-    });
-}
 
-function deteksiTangan() {
-  const el = document.getElementById("hasil-tangan");
-  el.innerText = "🖐️ Mendeteksi posisi tangan selama 5 detik...";
+        function deteksiTangan() {
+            const el = document.getElementById("hasil-tangan");
+            const img = document.getElementById("hand-image");
 
-  fetch("/detect-hand", { method: "POST" })
-    .then(res => res.json())
-    .then(data => {
-      if (data.status !== "ok") {
-        el.innerText = "❌ Gagal deteksi tangan: " + data.message;
-        return;
-      }
+            el.innerText = "🖐️ Mendeteksi posisi tangan selama 5 detik...";
+            img.src = "";
 
-      hasilDeteksi.tangan = data.kategori;
-      el.innerHTML = `
-        ✅ <strong>Hasil Deteksi Tangan:</strong> ${data.kategori}<br>
-        📏 <strong>Selisih Y (delta):</strong> ${data.delta_y ?? "Tidak tersedia"}<br>
-        💡 <strong>Saran:</strong> ${data.saran}
-      `;
-      updateDiagnosaButton();
-    })
-    .catch(err => {
-      el.innerText = "❌ Terjadi error saat deteksi tangan";
-    });
-}
+            if (data.image_base64) {
+                const preview = document.getElementById("preview-hand");
+                preview.src = data.image_base64;
+                preview.style.display = "block";
+            }
 
-function mulaiTesSuara() {
-  const status = document.getElementById("status-audio");
-  const transkrip = document.getElementById("transkrip-audio");
-  const btn = document.getElementById("btn-voice");
+            const imageBase64 = ambilFrameBase64(); // ✅ Tambahkan ini
 
-  btn.disabled = true;
-  status.innerText = "⏱️ Merekam suara selama 5 detik...";
-  transkrip.innerText = "";
+            fetch("/detect-hand", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                            image: imageBase64
+                        }) // ✅ Kirim gambar
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status !== "ok") {
+                        el.innerText = "❌ Gagal deteksi tangan: " + data.message;
+                        return;
+                    }
 
-  setTimeout(() => { status.innerText = "🧠 Menganalisis suara..."; }, 5000);
+                    hasilDeteksi.tangan = data.kategori;
+                    el.innerHTML = `
+            ✅ <strong>Hasil Deteksi Tangan:</strong> ${data.kategori}<br>
+            📏 <strong>Selisih Y (delta):</strong> ${data.delta_y ?? "Tidak tersedia"}<br>
+            💡 <strong>Saran:</strong> ${data.saran}
+        `;
 
-  fetch("/analyze-audio", { method: "POST" })
-    .then(res => res.json())
-    .then(data => {
-      hasilDeteksi.suara = data.hasil;
-      status.innerText = "✅ Hasil Suara: " + data.hasil;
-      transkrip.innerText = "🗣️ Transkrip: " + data.transkrip;
-      btn.disabled = false;
-      updateDiagnosaButton();
-    })
-    .catch(err => {
-      status.innerText = "❌ Gagal menganalisis suara.";
-      btn.disabled = false;
-    });
-}
+                    if (data.image_base64) {
+                        img.src = "data:image/jpeg;base64," + data.image_base64;
+                    }
 
-function diagnosaStroke() {
-  const output = document.getElementById("diagnosa-hasil");
-  const summary = document.getElementById("diagnosa-summary");
+                    updateDiagnosaButton();
+                })
+                .catch(err => {
+                    el.innerText = "❌ Terjadi error saat deteksi tangan";
+                });
+        }
 
-  output.innerText = "⏳ Menganalisis semua indikator...";
-  summary.innerHTML = "";
 
-  fetch("/diagnosa", { method: "POST" })
-    .then(res => res.json())
-    .then(data => {
-      output.innerText = `🧠 Skor NIHSS: ${data.skor} (${data.kategori})\n📢 ${data.saran}`;
-      data.summary.forEach(item => {
-        const li = document.createElement("li");
-        li.innerText = item;
-        summary.appendChild(li);
-      });
-    })
-    .catch(err => {
-      output.innerText = "❌ Terjadi error saat diagnosa.";
-    });
-}
-</script>
+
+        function mulaiTesSuara() {
+            const status = document.getElementById("status-audio");
+            const transkrip = document.getElementById("transkrip-audio");
+            const btn = document.getElementById("btn-voice");
+
+            btn.disabled = true;
+            status.innerText = "⏱️ Merekam suara selama 5 detik...";
+            transkrip.innerText = "";
+
+            setTimeout(() => {
+                status.innerText = "🧠 Menganalisis suara...";
+            }, 5000);
+
+            fetch("/analyze-audio", {
+                    method: "POST"
+                })
+                .then(res => res.json())
+                .then(data => {
+                    hasilDeteksi.suara = data.hasil;
+                    status.innerText = "✅ Hasil Suara: " + data.hasil;
+                    transkrip.innerText = "🗣️ Transkrip: " + data.transkrip;
+                    btn.disabled = false;
+                    updateDiagnosaButton();
+                })
+                .catch(err => {
+                    status.innerText = "❌ Gagal menganalisis suara.";
+                    btn.disabled = false;
+                });
+        }
+
+        function diagnosaStroke() {
+            const output = document.getElementById("diagnosa-hasil");
+            const summary = document.getElementById("diagnosa-summary");
+
+            output.innerText = "⏳ Menganalisis semua indikator...";
+            summary.innerHTML = "";
+
+            const imageBase64 = ambilFrameBase64(); // ✅ Pastikan ambil gambar
+
+            fetch("/diagnosa", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        image: imageBase64
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    output.innerText = `🧠 Skor NIHSS: ${data.skor} (${data.kategori})\n📢 ${data.saran}`;
+                    data.summary.forEach(item => {
+                        const li = document.createElement("li");
+                        li.innerText = item;
+                        summary.appendChild(li);
+                    });
+                })
+                .catch(err => {
+                    output.innerText = "❌ Terjadi error saat diagnosa.";
+                });
+        }
+    </script>
+
 </body>
+
 </html>

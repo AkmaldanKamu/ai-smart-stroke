@@ -3,6 +3,7 @@ from detection.face_detection import detect_facial_droop_from_frame
 from detection.hand_detection import detect_arm_drift_openvino
 from smart_camera_selector import find_real_camera
 
+
 # Gunakan kamera utama (hindari Iriun/virtual)
 camera_index = find_real_camera()
 cap = cv2.VideoCapture(camera_index)
