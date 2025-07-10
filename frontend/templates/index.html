@@ -40,20 +40,37 @@
 const video = document.getElementById("video");
 const hasilDeteksi = { wajah: null, tangan: null, suara: null };
 
-// Cari kamera yang bukan Iriun
-navigator.mediaDevices.enumerateDevices().then(devices => {
-  const videoDevices = devices.filter(d => d.kind === 'videoinput');
-  const preferred = videoDevices.find(d => !d.label.toLowerCase().includes('iriun')) || videoDevices[0];
+// Fungsi memulai kamera dengan fallback cerdas
+function startSmartCamera() {
+  navigator.mediaDevices.enumerateDevices().then(devices => {
+    const cams = devices.filter(d => d.kind === 'videoinput');
+    if (!cams.length) {
+      alert("❌ Tidak ada kamera terdeteksi.");
+      return;
+    }
 
-  if (!preferred) {
-    alert("❌ Tidak ada kamera yang tersedia.");
-    return;
-  }
+    // Hindari kamera Iriun
+    const selected = cams.find(d => !d.label.toLowerCase().includes("iriun")) || cams[0];
 
-  navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: preferred.deviceId } } })
-    .then(stream => { video.srcObject = stream; })
-    .catch(err => { alert("Gagal akses kamera: " + err); });
-});
+    navigator.mediaDevices.getUserMedia({
+      video: { deviceId: { ideal: selected.deviceId } }  // Lebih fleksibel dari "exact"
+    })
+    .then(stream => {
+      video.srcObject = stream;
+    })
+    .catch(err => {
+      console.warn("🎥 Fallback ke kamera default:", err);
+      // Coba akses kamera default jika gagal
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => { video.srcObject = stream; })
+        .catch(error => {
+          alert("❌ Gagal akses kamera: " + error.name);
+        });
+    });
+  });
+}
+
+startSmartCamera();
 
 function updateDiagnosaButton() {
   const btn = document.getElementById("btn-diagnosa");

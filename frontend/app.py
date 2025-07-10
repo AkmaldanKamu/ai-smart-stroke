@@ -27,12 +27,15 @@ def index():
 # -------------------------------
 @app.route('/analyze-audio', methods=['POST'])
 def analyze_audio():
-    clarity, raw_text = detect_speech_clarity(return_text=True)
-    return jsonify({
-        'status': 'ok',
-        'hasil': clarity,
-        'transkrip': raw_text
-    })
+    try:
+        clarity, raw_text = detect_speech_clarity(return_text=True)
+        return jsonify({
+            'status': 'ok',
+            'hasil': clarity,
+            'transkrip': raw_text
+        })
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
 
 # -------------------------------
@@ -41,11 +44,14 @@ def analyze_audio():
 @app.route('/detect-face', methods=['POST'])
 def detect_face():
     cap = cv2.VideoCapture(find_real_camera())
+    if not cap.isOpened():
+        return jsonify({'status': 'error', 'message': 'Gagal membuka kamera'}), 500
+
     ret, frame = cap.read()
     cap.release()
 
     if not ret:
-        return jsonify({'status': 'error', 'message': 'Gagal akses kamera'}), 500
+        return jsonify({'status': 'error', 'message': 'Gagal membaca frame kamera'}), 500
 
     result = detect_facial_droop_from_frame(frame, return_detail=True)
     return jsonify(result)
@@ -56,8 +62,11 @@ def detect_face():
 # -------------------------------
 @app.route('/detect-hand', methods=['POST'])
 def detect_hand():
-    result = detect_arm_drift_openvino()
-    return jsonify(result)
+    try:
+        result = detect_arm_drift_openvino()
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
 
 # -------------------------------
@@ -66,38 +75,45 @@ def detect_hand():
 @app.route('/diagnosa', methods=['POST'])
 def diagnosa():
     cap = cv2.VideoCapture(find_real_camera())
+    if not cap.isOpened():
+        return jsonify({'status': 'error', 'message': 'Gagal membuka kamera'}), 500
+
     ret, frame = cap.read()
     cap.release()
 
     if not ret:
-        return jsonify({'status': 'error', 'message': 'Gagal mengambil gambar dari kamera'}), 500
+        return jsonify({'status': 'error', 'message': 'Gagal membaca gambar dari kamera'}), 500
 
-    # Deteksi multimodal
-    face_result_detail = detect_facial_droop_from_frame(frame, return_detail=True)
-    face_result = face_result_detail.get('kategori', 'Tidak diketahui')
+    try:
+        # Deteksi multimodal
+        face_result_detail = detect_facial_droop_from_frame(frame, return_detail=True)
+        face_result = face_result_detail.get('kategori', 'Tidak diketahui')
 
-    hand_result_obj = detect_arm_drift_openvino()
-    hand_result = hand_result_obj.get('kategori', 'Tidak diketahui')
+        hand_result_obj = detect_arm_drift_openvino()
+        hand_result = hand_result_obj.get('kategori', 'Tidak diketahui')
 
-    voice_result, _ = detect_speech_clarity(return_text=True)
+        voice_result, _ = detect_speech_clarity(return_text=True)
 
-    # Skoring NIHSS & rekomendasi
-    scoring = score_nihss(face_result, hand_result, voice_result)
-    summary = generate_diagnosis_summary(face_result, hand_result, voice_result, scoring)
+        # Skoring NIHSS & Ringkasan
+        scoring = score_nihss(face_result, hand_result, voice_result)
+        summary = generate_diagnosis_summary(face_result, hand_result, voice_result, scoring)
 
-    return jsonify({
-        'status': 'ok',
-        'face': face_result,
-        'hand': hand_result,
-        'voice': voice_result,
-        'skor': scoring['score'],
-        'kategori': scoring['kategori'],
-        'saran': scoring['saran'],
-        'rincian': scoring['rincian'],
-        'summary': summary,
-        'face_details': face_result_detail,
-        'hand_details': hand_result_obj
-    })
+        return jsonify({
+            'status': 'ok',
+            'face': face_result,
+            'hand': hand_result,
+            'voice': voice_result,
+            'skor': scoring['score'],
+            'kategori': scoring['kategori'],
+            'saran': scoring['saran'],
+            'rincian': scoring['rincian'],
+            'summary': summary,
+            'face_details': face_result_detail,
+            'hand_details': hand_result_obj
+        })
+
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
 
 # -------------------------------
