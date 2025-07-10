@@ -88,22 +88,26 @@
       // Ambil data detail
       const p = data.penilaian;
       detail.innerHTML = `
-        <li><strong>👄 Bibir</strong></li>
-        <ul>
-          <li>Skor: ${p.bibir.nilai}/2</li>
-        </ul>
-        <li><strong>👁️ Mata</strong></li>
-        <ul>
-          <li>Skor: ${p.mata.nilai}/2</li>
-        </ul>
-        <li><strong>🧭 Pipi / Kemiringan</strong></li>
-        <ul>
-          <li>Skor: ${p.pipi.nilai}/2</li>
-        </ul>
-
         <li><strong>🧠 Total Skor Wajah:</strong> ${data.score_total}/6</li>
-        <li><strong>💡 Saran:</strong> ${data.saran}</li>
-        <hr>
+          <li><strong>💡 Saran:</strong> ${data.saran}</li>
+          <hr>
+          <li><strong>👄 Bibir</strong></li>
+          <ul>
+            <li>Delta Y: ${p.bibir.delta_y}</li>
+            <li>Rasio X: ${p.bibir.rasio_x}</li>
+            <li>Skor: ${p.bibir.nilai}/2</li>
+          </ul>
+          <li><strong>👁️ Mata</strong></li>
+          <ul>
+            <li>Delta Openness: ${p.mata.delta_openness}</li>
+            <li>Ptosis Suspect: ${p.ma ta.ptosis_suspect ? "Ya" : "Tidak"}</li>
+            <li>Skor: ${p.mata.nilai}/2</li>
+          </ul>
+          <li><strong>🧭 Pipi / Kemiringan</strong></li>
+          <ul>
+            <li>Sudut Derajat: ${p.pipi.kemiringan_derajat}°</li>
+            <li>Skor: ${p.pipi.nilai}/2</li>
+          </ul>
       `;
 
       updateDiagnosaButton();
