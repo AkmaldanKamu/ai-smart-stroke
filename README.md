@@ -1,0 +1,1 @@
+jangan lupa install choco install ffmpeg
