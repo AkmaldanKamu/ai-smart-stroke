@@ -3,37 +3,437 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SiTANGGAP - Sistem Tangkap Gejala Stroke Cepat</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header .subtitle {
+            font-size: 1.1rem;
+            color: #7f8c8d;
+            font-weight: 500;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .camera-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .camera-section h2 {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        #video {
+            width: 100%;
+            height: 300px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            object-fit: cover;
+            border: 3px solid #3498db;
+        }
+        
+        .controls-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .controls-section h2 {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn:hover::before {
+            left: 100%;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #3498db, #2980b9);
+            color: white;
+            box-shadow: 0 8px 20px rgba(52, 152, 219, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(52, 152, 219, 0.4);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            box-shadow: 0 8px 20px rgba(231, 76, 60, 0.3);
+        }
+        
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(231, 76, 60, 0.4);
+        }
+        
+        .btn-success {
+            background: linear-gradient(45deg, #27ae60, #229954);
+            color: white;
+            box-shadow: 0 8px 20px rgba(39, 174, 96, 0.3);
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 25px rgba(39, 174, 96, 0.4);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        .results-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            margin-bottom: 30px;
+        }
+        
+        .results-section h2 {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .result-item {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #3498db;
+            transition: all 0.3s ease;
+        }
+        
+        .result-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .result-item p {
+            margin: 0;
+            font-size: 1rem;
+            color: #2c3e50;
+            font-weight: 500;
+        }
+        
+        .result-item ul {
+            margin-top: 15px;
+            padding-left: 20px;
+        }
+        
+        .result-item li {
+            margin-bottom: 8px;
+            color: #34495e;
+        }
+        
+        .result-item li strong {
+            color: #2c3e50;
+        }
+        
+        .diagnosis-section {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .diagnosis-section h2 {
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .diagnosis-result {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #e74c3c;
+        }
+        
+        .diagnosis-result p {
+            margin: 0;
+            font-size: 1rem;
+            color: #2c3e50;
+            font-weight: 500;
+            white-space: pre-line;
+        }
+        
+        .diagnosis-summary {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+        
+        .diagnosis-summary ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .diagnosis-summary li {
+            background: white;
+            padding: 12px;
+            margin-bottom: 8px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-left: 3px solid #3498db;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .status-warning {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .header h1 {
+                font-size: 2rem;
+            }
+            .container {
+                padding: 10px;
+            }
+            .camera-section,
+            .controls-section,
+            .results-section,
+            .diagnosis-section {
+                padding: 20px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            .btn {
+                padding: 12px 20px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
 </head>
 
 <body>
-    <h1>🧠 SiTANGGAP: Sistem Tangkap Gejala Stroke Cepat</h1>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-brain"></i> SiTANGGAP</h1>
+            <p class="subtitle">Sistem Tangkap Gejala Stroke Cepat - Deteksi Dini untuk Penanganan Tepat</p>
+        </div>
 
-    <!-- Webcam Preview -->
-    <video id="video" width="400" height="300" autoplay muted></video>
+        <div class="main-content">
+            <div class="camera-section">
+                <h2><i class="fas fa-camera"></i> Kamera Deteksi</h2>
+                <video id="video" width="400" height="300" autoplay muted></video>
+            </div>
 
-    <hr>
+            <div class="controls-section">
+                <h2><i class="fas fa-cogs"></i> Kontrol Tes</h2>
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="deteksiWajah()">
+                        <i class="fas fa-smile"></i> Tes Ekspresi Wajah
+                    </button>
+                    <button id="btn-voice" class="btn btn-secondary" onclick="mulaiTesSuara()">
+                        <i class="fas fa-microphone"></i> Tes Ucapan
+                    </button>
+                    <button id="btn-diagnosa" class="btn btn-success" onclick="diagnosaStroke()" disabled>
+                        <i class="fas fa-search"></i> Cek Diagnosa Stroke
+                    </button>
+                </div>
+            </div>
+        </div>
 
-    <!-- Tombol Tes Deteksi -->
-    <button onclick="deteksiWajah()">😊 Tes Ekspresi Wajah</button>
-    <button id="btn-voice" onclick="mulaiTesSuara()">🎤 Tes Ucapan</button>
+        <div class="results-section">
+            <h2><i class="fas fa-chart-line"></i> Hasil Deteksi</h2>
 
-    <hr>
+            <div class="result-item">
+                <p id="hasil-wajah">Belum ada hasil deteksi wajah</p>
+                <ul id="detail-wajah"></ul>
+            </div>
 
-    <!-- Hasil Deteksi -->
-    <h3>📌 Hasil Deteksi:</h3>
-    <p id="hasil-wajah"></p>
-    <ul id="detail-wajah"></ul>
-    <p id="status-audio"></p>
-    <p id="transkrip-audio"></p>
-    <p id="skor-audio"></p>
+            <div class="result-item">
+                <p id="status-audio">Belum ada hasil deteksi suara</p>
+                <p id="transkrip-audio"></p>
+                <p id="skor-audio"></p>
+            </div>
+        </div>
 
-    <!-- Diagnosa -->
-    <button id="btn-diagnosa" onclick="diagnosaStroke()" disabled>🔍 Cek Diagnosa Stroke</button>
-    <p id="diagnosa-hasil"></p>
-    <ul id="diagnosa-summary"></ul>
+        <div class="diagnosis-section">
+            <h2><i class="fas fa-stethoscope"></i> Diagnosa Stroke</h2>
+
+            <div class="diagnosis-result">
+                <p id="diagnosa-hasil">Silakan lakukan tes wajah dan suara terlebih dahulu</p>
+                <p id="diagnosa-penanganan"></p>
+            </div>
+
+            <div class="diagnosis-summary">
+                <ul id="diagnosa-summary"></ul>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>&copy; 2024 SiTANGGAP - Sistem Deteksi Stroke Dini | Kesehatan adalah prioritas utama</p>
+        </div>
+    </div>
 
     <script defer>
         const video = document.getElementById("video");
@@ -90,14 +490,17 @@
                 title: '📸 Siap untuk Deteksi Wajah',
                 text: 'Senyum ke kamera, wajah di tengah, jangan miring.',
                 icon: 'info',
-                confirmButtonText: 'Mulai'
+                confirmButtonText: 'Mulai',
+                customClass: {
+                    popup: 'swal-custom'
+                }
             }).then(() => lanjutDeteksiWajah());
         }
 
         function lanjutDeteksiWajah() {
             const el = document.getElementById("hasil-wajah");
             const detail = document.getElementById("detail-wajah");
-            el.innerText = "👁️ Mendeteksi ekspresi wajah...";
+            el.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mendeteksi ekspresi wajah...';
             detail.innerHTML = "";
 
             const imageBase64 = ambilFrameBase64();
@@ -114,29 +517,29 @@
                 .then(res => res.json())
                 .then(data => {
                     if (data.status !== "ok") {
-                        el.innerText = "❌ Gagal deteksi wajah: " + data.message;
+                        el.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Gagal deteksi wajah: ${data.message}`;
                         return;
                     }
 
                     hasilDeteksi.wajah = data.kategori;
                     hasilDeteksi.face_score = data.score_total;
 
-                    el.innerText = `✅ Wajah: ${data.kategori}`;
+                    el.innerHTML = `<i class="fas fa-check-circle"></i> Wajah: <span class="status-badge status-success">${data.kategori}</span>`;
                     const p = data.penilaian;
                     detail.innerHTML = `
-                        <li><strong>🧠 Total Skor Wajah:</strong> ${data.score_total}/6</li>
-                        <li><strong>💡 Saran:</strong> ${data.saran}</li>
+                        <li><strong><i class="fas fa-brain"></i> Total Skor Wajah:</strong> ${data.score_total}/6</li>
+                        <li><strong><i class="fas fa-lightbulb"></i> Saran:</strong> ${data.saran}</li>
                         <hr>
-                        <li><strong>👄 Bibir</strong></li>
+                        <li><strong><i class="fas fa-lips"></i> Bibir</strong></li>
                         <ul><li>Delta Y: ${p.bibir.delta_y}</li><li>Rasio X: ${p.bibir.rasio_x}</li><li>Skor: ${p.bibir.nilai}/2</li></ul>
-                        <li><strong>👁️ Mata</strong></li>
+                        <li><strong><i class="fas fa-eye"></i> Mata</strong></li>
                         <ul><li>Delta Openness: ${p.mata.delta_openness}</li><li>Ptosis: ${p.mata.ptosis_suspect ? "Ya" : "Tidak"}</li><li>Skor: ${p.mata.nilai}/2</li></ul>
-                        <li><strong>🧭 Pipi</strong></li>
+                        <li><strong><i class="fas fa-smile"></i> Pipi</strong></li>
                         <ul><li>Kemiringan: ${p.pipi.kemiringan_derajat}°</li><li>Skor: ${p.pipi.nilai}/2</li></ul>
                     `;
                     updateDiagnosaButton();
                 })
-                .catch(() => el.innerText = "❌ Gagal deteksi wajah");
+                .catch(() => el.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Gagal deteksi wajah');
         }
 
         function mulaiTesSuara() {
@@ -146,12 +549,12 @@
             const btn = document.getElementById("btn-voice");
 
             btn.disabled = true;
-            status.innerText = "⏱️ Merekam suara selama 5 detik...";
+            status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Merekam suara selama 5 detik...';
             transkrip.innerText = "";
             skor.innerText = "";
 
             setTimeout(() => {
-                status.innerText = "🧠 Menganalisis suara...";
+                status.innerHTML = '<i class="fas fa-brain"></i> Menganalisis suara...';
             }, 5000);
 
             fetch("/analyze-audio", {
@@ -162,15 +565,15 @@
                     hasilDeteksi.suara = data.hasil;
                     hasilDeteksi.suara_score = data.score || 0;
 
-                    status.innerText = "✅ Hasil Suara: " + data.hasil;
-                    transkrip.innerText = "🗣️ Transkrip: " + data.transkrip;
-                    skor.innerText = `🎯 Skor Suara: ${data.score || 0}/2`;
+                    status.innerHTML = `<i class="fas fa-check-circle"></i> Hasil Suara: <span class="status-badge status-success">${data.hasil}</span>`;
+                    transkrip.innerHTML = `<i class="fas fa-quote-left"></i> Transkrip: ${data.transkrip}`;
+                    skor.innerHTML = `<i class="fas fa-target"></i> Skor Suara: ${data.score || 0}/2`;
 
                     btn.disabled = false;
                     updateDiagnosaButton();
                 })
                 .catch(err => {
-                    status.innerText = "❌ Gagal menganalisis suara.";
+                    status.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Gagal menganalisis suara.';
                     btn.disabled = false;
                 });
         }
@@ -178,9 +581,11 @@
         function diagnosaStroke() {
             const output = document.getElementById("diagnosa-hasil");
             const summary = document.getElementById("diagnosa-summary");
+            const penanganan = document.getElementById("diagnosa-penanganan");
 
-            output.innerText = "⏳ Menganalisis semua indikator...";
+            output.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menganalisis semua indikator...';
             summary.innerHTML = "";
+            penanganan.innerText = "";
 
             fetch("/diagnosa", {
                     method: "POST",
@@ -198,19 +603,21 @@
                 .then(res => res.json())
                 .then(data => {
                     if (data.status !== "ok") {
-                        output.innerText = "❌ Gagal diagnosa: " + data.message;
+                        output.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Gagal diagnosa: ${data.message}`;
                         return;
                     }
 
-                    output.innerText = `🧠 Skor NIHSS: ${data.skor} (${data.kategori})\n📢 ${data.saran}`;
+                    output.innerHTML = `<i class="fas fa-brain"></i> Skor NIHSS: <strong>${data.skor}</strong> (${data.kategori})\n<i class="fas fa-bullhorn"></i> ${data.saran}`;
+                    penanganan.innerHTML = `<i class="fas fa-stethoscope"></i> Tindakan: ${data.penanganan}`;
+
                     data.summary.forEach(item => {
                         const li = document.createElement("li");
-                        li.innerText = item;
+                        li.innerHTML = `<i class="fas fa-check-circle"></i> ${item}`;
                         summary.appendChild(li);
                     });
                 })
                 .catch(err => {
-                    output.innerText = "❌ Terjadi error saat diagnosa.";
+                    output.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Terjadi error saat diagnosa.';
                 });
         }
     </script>

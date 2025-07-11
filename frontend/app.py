@@ -114,26 +114,38 @@ def diagnosa():
         summary.append(f"Wajah menunjukkan gejala: {face_kategori}.")
 
         # Interpretasi suara
-        if voice_score == 0:
-            summary.append("Ucapan terdengar normal.")
-        elif voice_score == 1:
-            summary.append("Ucapan terdengar tidak jelas, indikasi gangguan bicara (dysarthria).")
+        if total_score == 0:
+            kategori = "Normal"
+            saran = "Pasien tidak menunjukkan tanda stroke."
+            penanganan = "Tidak perlu tindakan khusus."
+        elif total_score <= 2:
+            kategori = "Ringan"
+            saran = "Amati, bisa konsultasi dokter."
+            penanganan = "Rujuk ke dokter umum atau klinik untuk evaluasi lebih lanjut."
+        elif total_score <= 4:
+            kategori = "Sedang"
+            saran = "Segera ke rumah sakit."
+            penanganan = "Bawa pasien ke rumah sakit terdekat secepatnya."
         else:
-            summary.append("Pasien tidak dapat berbicara, kemungkinan afasia berat.")
+            kategori = "Berat"
+            saran = "Panggil ambulans secepatnya!"
+            penanganan = "Hubungi 119 dan siapkan tindakan darurat."
+
 
         # Hasil akhir
         summary.append(f"Kategori stroke: {kategori} ({total_score} poin).")
         summary.append(f"Saran tindakan: {saran}")
 
         return jsonify({
-            'status': 'ok',
-            'skor': total_score,
-            'kategori': kategori,
-            'saran': saran,
-            'summary': summary,
-            'face': face_kategori,
-            'voice': voice_result
-        })
+        'status': 'ok',
+        'skor': total_score,
+        'kategori': kategori,
+        'saran': saran,
+        'penanganan': penanganan,  # ✅ Tambahkan ini
+        'summary': summary,
+        'face': face_kategori,
+        'voice': voice_result
+    })
 
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
