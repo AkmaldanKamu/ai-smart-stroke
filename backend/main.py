@@ -27,11 +27,7 @@ while True:
     key = cv2.waitKey(1) & 0xFF
     if key == ord('q'):
         break
-    elif key == ord('t'):
-        print("▶️ Mulai Tes Gerakan Tangan (5 detik)...")
-        hand_result = stroke_detector.detect_with_duration(duration_sec=5)
-        print("📋 Hasil Deteksi Tangan:", hand_result['kategori'])
-        print("ℹ️", hand_result['saran'])
+
 
 cap.release()
 cv2.destroyAllWindows()
