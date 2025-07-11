@@ -11,3 +11,4 @@ scikit-learn
 numpy
 pandas
 openai-whisper
+ffmpeg-python
