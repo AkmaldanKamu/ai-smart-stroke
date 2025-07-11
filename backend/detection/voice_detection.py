@@ -6,6 +6,7 @@ import tempfile
 import sounddevice as sd
 import scipy.io.wavfile
 
+
 # Load model Whisper hanya sekali
 model = whisper.load_model("base")  # dari 'base' ganti ke 'tiny'
 
