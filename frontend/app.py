@@ -4,12 +4,14 @@ import cv2
 import base64
 import numpy as np
 import tempfile
+import subprocess
+import whisper
 from flask import Flask, render_template, request, jsonify
 
 
 # Tambahkan path ke backend
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'backend')))
-
+from detection.voice_detection import detect_speech_clarity, is_speech_clear
 from detection.voice_detection import detect_speech_clarity
 from detection.face_detection import detect_facial_droop_from_frame
 from detection.nihss_scoring import score_nihss, generate_diagnosis_summary
@@ -47,36 +49,43 @@ def index():
 @app.route('/analyze-audio', methods=['POST'])
 def analyze_audio():
     try:
-        if 'audio' not in request.files:
-            return jsonify({'status': 'error', 'message': 'File audio tidak ditemukan'}), 400
+        # ======== [SMARTPHONE / BROWSER UPLOAD] ========
+        if 'audio' in request.files:
+            audio_file = request.files['audio']
 
-        audio_file = request.files['audio']
+            # Simpan dan konversi ke .wav
+            temp_input = os.path.join(tempfile.gettempdir(), 'input.webm')
+            temp_output = os.path.join(tempfile.gettempdir(), 'output.wav')
+            audio_file.save(temp_input)
 
-        temp_input = os.path.join(tempfile.gettempdir(), 'input.webm')
-        temp_output = os.path.join(tempfile.gettempdir(), 'output.wav')
-        audio_file.save(temp_input)
+            # Konversi webm -> wav pakai ffmpeg
+            subprocess.call(['ffmpeg', '-y', '-i', temp_input, temp_output],
+                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
-        # Konversi webm ke wav
-        import subprocess
-        subprocess.call(['ffmpeg', '-y', '-i', temp_input, temp_output])
+            # Transkripsi dengan whisper
+            model = whisper.load_model("base")
+            result = model.transcribe(temp_output, language='id')
+            text = result.get("text", "").strip()
 
-        # Transkripsi dengan whisper
-        import whisper
-        model = whisper.load_model("base")
-        result = model.transcribe(temp_output, language='id')
-        text = result.get("text", "").strip()
+            clarity = is_speech_clear(text)
+            score = 0 if "jelas" in clarity else 1 if "tidak jelas" in clarity else 2
 
-        # Evaluasi skor
-        from detection.voice_detection import is_speech_clear
-        clarity = is_speech_clear(text)
-        score = 0 if "jelas" in clarity else 1 if "tidak jelas" in clarity else 2
+            return jsonify({
+                'status': 'ok',
+                'hasil': clarity,
+                'transkrip': text,
+                'score': score
+            })
 
-        return jsonify({
-            'status': 'ok',
-            'hasil': clarity,
-            'transkrip': text,
-            'score': score
-        })
+        # ======== [LAPTOP / DESKTOP VIA SOUNDEVICE] ========
+        else:
+            clarity, raw_text, score = detect_speech_clarity(return_text=True)
+            return jsonify({
+                'status': 'ok',
+                'hasil': clarity,
+                'transkrip': raw_text,
+                'score': score
+            })
 
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
