@@ -79,42 +79,34 @@ def detect_face():
 def diagnosa():
     data = request.get_json()
     image_b64 = data.get("image")
+    face_score = data.get("face_score")
+    face_kategori = data.get("face_kategori")
+    voice_result = data.get("voice_result")
 
-    if not data or not image_b64:
-        return jsonify({'status': 'error', 'message': 'Gambar tidak ditemukan'}), 400
-
-    frame = decode_base64_image(image_b64)
-    if frame is None:
-        return jsonify({'status': 'error', 'message': 'Gagal memproses gambar'}), 500
+    if not all([image_b64, face_score is not None, face_kategori, voice_result]):
+        return jsonify({'status': 'error', 'message': 'Data tidak lengkap'}), 400
 
     try:
-        # Deteksi wajah
-        face_result_detail = detect_facial_droop_from_frame(frame, return_detail=True)
-        face_result = face_result_detail.get('kategori', 'Tidak diketahui')
+        # 💡 Skoring hanya berdasarkan hasil deteksi sebelumnya
+        from detection.nihss_scoring import score_nihss, generate_diagnosis_summary
 
-        # Deteksi suara
-        voice_result, _ = detect_speech_clarity(return_text=True)
-
-        # Skoring NIHSS
-        hand_result = "Tidak tersedia"
-        scoring = score_nihss(face_result, hand_result, voice_result)
-        summary = generate_diagnosis_summary(face_result, hand_result, voice_result, scoring)
+        scoring = score_nihss(face_score, voice_result)
+        summary = generate_diagnosis_summary(face_kategori, voice_result, scoring)
 
         return jsonify({
             'status': 'ok',
-            'face': face_result,
-            'hand': hand_result,
-            'voice': voice_result,
             'skor': scoring['score'],
             'kategori': scoring['kategori'],
             'saran': scoring['saran'],
             'rincian': scoring['rincian'],
             'summary': summary,
-            'face_details': face_result_detail
+            'face': face_kategori,
+            'voice': voice_result
         })
 
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
+
 
 # -------------------------------
 # RUN SERVER

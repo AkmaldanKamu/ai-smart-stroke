@@ -1,23 +1,30 @@
 # backend/detection/nihss_scoring.py
 
-def score_nihss(face_result, voice_result):
+def score_nihss(face_score, voice_result):
+    """
+    Menghitung skor NIHSS berdasarkan skor wajah dan hasil suara.
+    face_score: integer dari 0–6
+    voice_result: string ('Suara jelas', 'Suara tidak jelas', 'Tidak ada suara')
+    """
     score = 0
-    keterangan = []
+    rincian = []
 
-    # Facial Droop (1A)
-    if face_result.lower() == "miring":
-        score += 1
-        keterangan.append("Wajah miring (1 poin)")
+    # ✅ Skor wajah langsung ditambahkan
+    score += face_score
+    rincian.append(f"Ekspresi wajah (skor: {face_score}/6)")
 
-    # Speech (1C)
-    if voice_result.lower() == "tidak ada suara":
+    # ✅ Skor suara
+    voice_result = voice_result.lower().strip()
+    if "tidak ada suara" in voice_result:
         score += 2
-        keterangan.append("Tidak ada suara (2 poin)")
-    elif voice_result.lower() == "suara tidak jelas":
+        rincian.append("Tidak ada suara (2 poin)")
+    elif "tidak jelas" in voice_result:
         score += 1
-        keterangan.append("Suara tidak jelas (1 poin)")
+        rincian.append("Suara tidak jelas (1 poin)")
+    else:
+        rincian.append("Suara normal (0 poin)")
 
-    # Interpretasi
+    # ✅ Interpretasi total
     if score == 0:
         kategori = "Normal"
         saran = "Pasien tidak menunjukkan tanda stroke."
@@ -32,30 +39,34 @@ def score_nihss(face_result, voice_result):
         saran = "Panggil ambulans secepatnya!"
 
     return {
-        "score": score,
-        "kategori": kategori,
-        "rincian": keterangan,
-        "saran": saran
+        'score': score,
+        'kategori': kategori,
+        'rincian': rincian,
+        'saran': saran
     }
 
-def generate_diagnosis_summary(face_result, voice_result, scoring):
+def generate_diagnosis_summary(face_kategori, voice_result, scoring):
+    """
+    Ringkasan interpretasi untuk user berdasarkan input dan hasil scoring.
+    """
     summary = []
 
-    # Interpretasi Wajah
-    if face_result.lower() == "miring":
-        summary.append("Terjadi asimetri wajah saat diminta tersenyum, menunjukkan kemungkinan facial palsy.")
-    else:
+    # Interpretasi wajah
+    if face_kategori.lower() == "normal":
         summary.append("Tidak ditemukan kelainan pada otot wajah.")
+    else:
+        summary.append(f"Wajah menunjukkan gejala: {face_kategori}.")
 
-    # Interpretasi Suara
-    if voice_result.lower() == "tidak ada suara":
+    # Interpretasi suara
+    voice = voice_result.lower()
+    if "tidak ada suara" in voice:
         summary.append("Pasien tidak dapat berbicara saat diminta, gejala afasia berat.")
-    elif voice_result.lower() == "suara tidak jelas":
-        summary.append("Ucapan terdengar tidak jelas, indikasi awal gangguan bicara (dysarthria).")
+    elif "tidak jelas" in voice:
+        summary.append("Ucapan terdengar tidak jelas, indikasi gangguan bicara (dysarthria).")
     else:
         summary.append("Ucapan terdengar normal.")
 
-    # Tambahkan hasil akhir dari scoring
+    # Kesimpulan dan saran
     summary.append(f"Kategori stroke: {scoring['kategori']} ({scoring['score']} poin).")
     summary.append(f"Saran tindakan: {scoring['saran']}")
 

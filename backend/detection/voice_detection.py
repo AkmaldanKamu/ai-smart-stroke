@@ -3,12 +3,11 @@
 import whisper
 import os
 import tempfile
-import time
 import sounddevice as sd
 import scipy.io.wavfile
 
 # Load model Whisper hanya sekali
-model = whisper.load_model("base")  # bisa diganti 'base' kalau ingin lebih ringan
+model = whisper.load_model("tiny")  # dari 'base' ganti ke 'tiny'
 
 def record_audio(duration=5, sample_rate=16000, device_index=2):
     """
@@ -33,6 +32,27 @@ def record_audio(duration=5, sample_rate=16000, device_index=2):
         print(f"❌ ERROR saat merekam: {e}")
         return None
 
+def is_speech_clear(text):
+    if not text.strip():
+        return "Tidak ada suara"
+
+    text = text.lower()
+    count = 0
+    if "makan" in text:
+        count += 1
+    if "nasi" in text:
+        count += 1
+    if "sedang makan" in text or "saya makan" in text:
+        count += 1
+
+    if count >= 2:
+        return "Suara jelas"
+    elif count == 1:
+        return "Suara tidak jelas"
+    else:
+        return "Tidak ada suara"
+
+
 def detect_speech_clarity(return_text=False):
     """
     Merekam suara, transkrip menggunakan Whisper, dan menentukan apakah suara jelas.
@@ -50,13 +70,8 @@ def detect_speech_clarity(return_text=False):
 
         os.remove(audio_file)
 
-        if not text:
-            return ("Tidak ada suara", "") if return_text else "Tidak ada suara"
-
-        if "makan" in text.lower() and "nasi" in text.lower():
-            return ("Suara jelas", text) if return_text else "Suara jelas"
-        else:
-            return ("Suara tidak jelas", text) if return_text else "Suara tidak jelas"
+        hasil = is_speech_clear(text)
+        return (hasil, text) if return_text else hasil
 
     except Exception as e:
         print(f"❌ Error Whisper: {e}")

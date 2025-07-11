@@ -116,22 +116,25 @@
                     }
 
                     hasilDeteksi.wajah = data.kategori;
+                    hasilDeteksi.face_score = data.score_total; // ✅ Tambahkan ini!
+
                     el.innerText = `✅ Wajah: ${data.kategori}`;
                     const p = data.penilaian;
                     detail.innerHTML = `
-                        <li><strong>🧠 Total Skor Wajah:</strong> ${data.score_total}/6</li>
-                        <li><strong>💡 Saran:</strong> ${data.saran}</li>
-                        <hr>
-                        <li><strong>👄 Bibir</strong></li>
-                        <ul><li>Delta Y: ${p.bibir.delta_y}</li><li>Rasio X: ${p.bibir.rasio_x}</li><li>Skor: ${p.bibir.nilai}/2</li></ul>
-                        <li><strong>👁️ Mata</strong></li>
-                        <ul><li>Delta Openness: ${p.mata.delta_openness}</li><li>Ptosis: ${p.mata.ptosis_suspect ? "Ya" : "Tidak"}</li><li>Skor: ${p.mata.nilai}/2</li></ul>
-                        <li><strong>🧭 Pipi</strong></li>
-                        <ul><li>Kemiringan: ${p.pipi.kemiringan_derajat}°</li><li>Skor: ${p.pipi.nilai}/2</li></ul>
-                    `;
+                    <li><strong>🧠 Total Skor Wajah:</strong> ${data.score_total}/6</li>
+                    <li><strong>💡 Saran:</strong> ${data.saran}</li>
+                    <hr>
+                    <li><strong>👄 Bibir</strong></li>
+                    <ul><li>Delta Y: ${p.bibir.delta_y}</li><li>Rasio X: ${p.bibir.rasio_x}</li><li>Skor: ${p.bibir.nilai}/2</li></ul>
+                    <li><strong>👁️ Mata</strong></li>
+                    <ul><li>Delta Openness: ${p.mata.delta_openness}</li><li>Ptosis: ${p.mata.ptosis_suspect ? "Ya" : "Tidak"}</li><li>Skor: ${p.mata.nilai}/2</li></ul>
+                    <li><strong>🧭 Pipi</strong></li>
+                    <ul><li>Kemiringan: ${p.pipi.kemiringan_derajat}°</li><li>Skor: ${p.pipi.nilai}/2</li></ul>
+                `;
                     updateDiagnosaButton();
                 })
-                .catch(() => el.innerText = "❌ Gagal deteksi wajah");
+
+            .catch(() => el.innerText = "❌ Gagal deteksi wajah");
         }
 
         function mulaiTesSuara() {
@@ -171,19 +174,25 @@
             output.innerText = "⏳ Menganalisis semua indikator...";
             summary.innerHTML = "";
 
-            const imageBase64 = ambilFrameBase64();
-
             fetch("/diagnosa", {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json"
                     },
                     body: JSON.stringify({
-                        image: imageBase64
+                        image: ambilFrameBase64(),
+                        face_score: hasilDeteksi.face_score,
+                        face_kategori: hasilDeteksi.wajah,
+                        voice_result: hasilDeteksi.suara
                     })
                 })
                 .then(res => res.json())
                 .then(data => {
+                    if (data.status !== "ok") {
+                        output.innerText = "❌ Gagal diagnosa: " + data.message;
+                        return;
+                    }
+
                     output.innerText = `🧠 Skor NIHSS: ${data.skor} (${data.kategori})\n📢 ${data.saran}`;
                     data.summary.forEach(item => {
                         const li = document.createElement("li");
