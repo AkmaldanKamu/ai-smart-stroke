@@ -40,7 +40,7 @@ def score_nihss(face_score, voice_result):
         'kategori': kategori,
         'rincian': rincian,
         'saran': saran,
-        'penanganan': penanganan  # ✅ Tambahkan tindakan
+        'penanganan': penanganan  
     }
 
 def generate_diagnosis_summary(face_kategori, voice_result, scoring):
@@ -67,6 +67,6 @@ def generate_diagnosis_summary(face_kategori, voice_result, scoring):
     # Kesimpulan dan saran
     summary.append(f"Kategori stroke: {scoring['kategori']} ({scoring['score']} poin).")
     summary.append(f"Saran tindakan: {scoring['saran']}")
-    summary.append(f"🩺 Penanganan: {scoring['penanganan']}")  # ✅ Tambahkan ke ringkasan
+    summary.append(f"🩺 Penanganan: {scoring['penanganan']}")  
 
     return summary

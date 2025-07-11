@@ -141,7 +141,7 @@ def diagnosa():
         'skor': total_score,
         'kategori': kategori,
         'saran': saran,
-        'penanganan': penanganan,  # ✅ Tambahkan ini
+        'penanganan': penanganan,  
         'summary': summary,
         'face': face_kategori,
         'voice': voice_result
