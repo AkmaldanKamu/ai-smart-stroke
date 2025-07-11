@@ -3,7 +3,9 @@ import os
 import cv2
 import base64
 import numpy as np
+import tempfile
 from flask import Flask, render_template, request, jsonify
+
 
 # Tambahkan path ke backend
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'backend')))
@@ -45,15 +47,40 @@ def index():
 @app.route('/analyze-audio', methods=['POST'])
 def analyze_audio():
     try:
-        clarity, raw_text, score = detect_speech_clarity(return_text=True)
+        if 'audio' not in request.files:
+            return jsonify({'status': 'error', 'message': 'File audio tidak ditemukan'}), 400
+
+        audio_file = request.files['audio']
+
+        temp_input = os.path.join(tempfile.gettempdir(), 'input.webm')
+        temp_output = os.path.join(tempfile.gettempdir(), 'output.wav')
+        audio_file.save(temp_input)
+
+        # Konversi webm ke wav
+        import subprocess
+        subprocess.call(['ffmpeg', '-y', '-i', temp_input, temp_output])
+
+        # Transkripsi dengan whisper
+        import whisper
+        model = whisper.load_model("base")
+        result = model.transcribe(temp_output, language='id')
+        text = result.get("text", "").strip()
+
+        # Evaluasi skor
+        from detection.voice_detection import is_speech_clear
+        clarity = is_speech_clear(text)
+        score = 0 if "jelas" in clarity else 1 if "tidak jelas" in clarity else 2
+
         return jsonify({
             'status': 'ok',
             'hasil': clarity,
-            'transkrip': raw_text,
-            'score': score 
+            'transkrip': text,
+            'score': score
         })
+
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
+
 
 # -------------------------------
 # ROUTE: Deteksi Wajah
@@ -150,9 +177,44 @@ def diagnosa():
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
 
+@app.route('/upload-audio', methods=['POST'])
+def upload_audio():
+    try:
+        file = request.files['audio']
+        if not file:
+            return jsonify({'status': 'error', 'message': 'File audio kosong'}), 400
+
+        # Simpan file sementara
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".webm")
+        file.save(temp_file.name)
+
+        # Konversi webm -> wav dengan ffmpeg
+        wav_path = temp_file.name.replace(".webm", ".wav")
+        os.system(f"ffmpeg -i {temp_file.name} -ar 16000 -ac 1 -y {wav_path}")
+
+        # Transkripsi dengan Whisper
+        result = model.transcribe(wav_path, language='id')
+        text = result.get("text", "").strip()
+        print(f"🗣️ Transkrip: {text}")
+
+        if not text:
+            return jsonify({'status': 'ok', 'hasil': "Tidak ada suara", 'transkrip': "", 'score': 2})
+
+        text_lower = text.lower()
+        if all(word in text_lower for word in ["makan", "nasi"]):
+            return jsonify({'status': 'ok', 'hasil': "Suara jelas", 'transkrip': text, 'score': 0})
+        else:
+            return jsonify({'status': 'ok', 'hasil': "Suara tidak jelas", 'transkrip': text, 'score': 1})
+
+    except Exception as e:
+        print("❌ ERROR saat upload_audio:", e)
+        return jsonify({'status': 'error', 'message': str(e)}), 500
+
 
 # -------------------------------
 # RUN SERVER
 # -------------------------------
+# if __name__ == '__main__':
+#     app.run(debug=True)
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)

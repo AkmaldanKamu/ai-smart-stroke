@@ -285,40 +285,27 @@
                     .catch(() => el.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Gagal deteksi wajah');
             }
 
+            let mediaRecorder;
+            let recordedChunks = [];
+
             function mulaiTesSuara() {
                 Swal.fire({
                     title: '🎤 Siap untuk Tes Ucapan',
                     html: `
-                    <div style="text-align: center; padding: 20px;">
-                        <p style="font-size: 1.2rem; margin-bottom: 20px; color: #2c3e50;">
-                            Silakan ucapkan kalimat berikut dengan jelas:
-                        </p>
-                        <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; border-left: 4px solid #3498db; margin: 20px 0;">
-                            <h3 style="color: #e74c3c; font-size: 1.5rem; margin: 0;">
-                                "Hari Ini Saya Makan Nasi"
-                            </h3>
-                        </div>
-                        <p style="font-size: 1rem; color: #7f8c8d; margin-top: 15px;">
-                            <i class="fas fa-info-circle"></i> Pastikan Anda berada di tempat yang tenang dan bicara dengan jelas
-                        </p>
-                    </div>
-                `,
+            <p>Silakan ucapkan kalimat: <br><strong>"Hari Ini Saya Makan Nasi"</strong></p>
+        `,
                     icon: 'info',
-                    confirmButtonText: 'Mulai Rekam',
-                    confirmButtonColor: '#e74c3c',
                     showCancelButton: true,
-                    cancelButtonText: 'Batal',
-                    customClass: {
-                        popup: 'swal-custom'
-                    }
+                    confirmButtonText: 'Mulai Rekam',
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        lanjutTesSuara();
+                        mulaiRekamanAudio();
                     }
                 });
             }
 
-            function lanjutTesSuara() {
+
+            function mulaiRekamanAudio() {
                 const status = document.getElementById("status-audio");
                 const transkrip = document.getElementById("transkrip-audio");
                 const skor = document.getElementById("skor-audio");
@@ -329,107 +316,58 @@
                 transkrip.innerText = "";
                 skor.innerText = "";
 
-                // Countdown untuk memulai rekaman
-                Swal.fire({
-                    title: '🎤 Ayo Ucapkan',
-                    html: `
-                    <div style="text-align: center;">
-                        <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin: 20px 0;">
-                            <h4 style="color: #e74c3c; margin: 0;">Ucapkan: "Hari Ini Saya Makan Nasi"</h4>
-                        </div>
-                        <p style="font-size: 1.1rem; color: #2c3e50;">
-                            Rekaman Dimulai
-                        </p>
-                    </div>
-                `,
-                    showConfirmButton: false,
-                    timer: 3000,
-                    timerProgressBar: true,
-                    didOpen: () => {
-                        let counter = 3;
-                        const countdownElement = document.getElementById('countdown');
-                        const interval = setInterval(() => {
-                            counter--;
-                            if (countdownElement) {
-                                countdownElement.textContent = counter;
-                            }
-                            if (counter <= 0) {
-                                clearInterval(interval);
-                            }
-                        }, 1000);
-                    }
-                }).then(() => {
-                    Swal.fire({
-                        title: '🔴 REKAMAN DI SIMPAN',
-                        html: `
-                        <div style="text-align: center;">
-                            <p style="font-size: 1.1rem; color: #2c3e50;">
-                                <i class="fas fa-microphone" style="color: #e74c3c;"></i> Nice Rekaman Berhasil Tersimpan
-                            </p>
-                        </div>
-                    `,
-                        showConfirmButton: false,
-                        timer: 5000,
-                        timerProgressBar: true
-                    });
-                });
-
-                setTimeout(() => {
-                    status.innerHTML = '<i class="fas fa-brain"></i> Menganalisis suara...';
-                    Swal.fire({
-                        title: '🧠 Menganalisis Suara',
-                        html: '<p>AI sedang menganalisis kualitas ucapan Anda...</p>',
-                        showConfirmButton: false,
-                        allowOutsideClick: false
-                    });
-                }, 5000);
-
-                fetch("/analyze-audio", {
-                        method: "POST"
+                navigator.mediaDevices.getUserMedia({
+                        audio: true
                     })
-                    .then(res => res.json())
-                    .then(data => {
-                        hasilDeteksi.suara = data.hasil;
-                        hasilDeteksi.suara_score = data.score || 0;
+                    .then(stream => {
+                        recordedChunks = [];
+                        mediaRecorder = new MediaRecorder(stream);
 
-                        status.innerHTML = `<i class="fas fa-check-circle"></i> Hasil Suara: <span class="status-badge status-success">${data.hasil}</span>`;
-                        transkrip.innerHTML = `<i class="fas fa-quote-left"></i> Transkrip: ${data.transkrip}`;
-                        skor.innerHTML = `<i class="fas fa-target"></i> Skor Suara: ${data.score || 0}/2`;
+                        mediaRecorder.ondataavailable = (e) => {
+                            if (e.data.size > 0) recordedChunks.push(e.data);
+                        };
 
-                        btn.disabled = false;
-                        updateDiagnosaButton();
+                        mediaRecorder.onstop = () => {
+                            const audioBlob = new Blob(recordedChunks, {
+                                type: 'audio/webm'
+                            });
+                            const formData = new FormData();
+                            formData.append('audio', audioBlob);
 
-                        // Tutup loading dialog
-                        Swal.close();
+                            status.innerHTML = '<i class="fas fa-brain"></i> Menganalisis suara...';
 
-                        // Tampilkan hasil
-                        Swal.fire({
-                            title: '✅ Analisis Selesai',
-                            html: `
-                            <div style="text-align: center;">
-                                <p style="font-size: 1.1rem; color: #2c3e50; margin-bottom: 15px;">
-                                    <strong>Hasil Analisis Suara:</strong> ${data.hasil}
-                                </p>
-                                <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin: 15px 0;">
-                                    <p style="margin: 0;"><strong>Transkrip:</strong> ${data.transkrip}</p>
-                                    <p style="margin: 10px 0 0 0;"><strong>Skor:</strong> ${data.score || 0}/2</p>
-                                </div>
-                            </div>
-                        `,
-                            icon: 'success',
-                            confirmButtonText: 'OK'
-                        });
+                            fetch('/analyze-audio', {
+                                    method: 'POST',
+                                    body: formData
+                                })
+                                .then(res => res.json())
+                                .then(data => {
+                                    hasilDeteksi.suara = data.hasil;
+                                    hasilDeteksi.suara_score = data.score || 0;
+
+                                    status.innerHTML = `<i class="fas fa-check-circle"></i> Hasil Suara: ${data.hasil}`;
+                                    transkrip.innerHTML = `🗣️ Transkrip: ${data.transkrip}`;
+                                    skor.innerHTML = `🎯 Skor Suara: ${data.score || 0}/2`;
+
+                                    btn.disabled = false;
+                                    updateDiagnosaButton();
+                                })
+                                .catch(err => {
+                                    status.innerHTML = "❌ Gagal menganalisis suara.";
+                                    btn.disabled = false;
+                                });
+                        };
+
+                        mediaRecorder.start();
+
+                        setTimeout(() => {
+                            mediaRecorder.stop();
+                            stream.getTracks().forEach(track => track.stop());
+                        }, 5000);
                     })
                     .catch(err => {
-                        status.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Gagal menganalisis suara.';
+                        Swal.fire('❌ Gagal akses mic', err.message, 'error');
                         btn.disabled = false;
-                        Swal.close();
-                        Swal.fire({
-                            title: '❌ Error',
-                            text: 'Gagal menganalisis suara. Silakan coba lagi.',
-                            icon: 'error',
-                            confirmButtonText: 'OK'
-                        });
                     });
             }
 
