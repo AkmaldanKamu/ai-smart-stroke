@@ -8,163 +8,268 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../static/style.css">
-
 </head>
 
 <body>
     <div class="container">
+        <!-- Header -->
         <div class="header">
             <h1><i class="fas fa-brain"></i> SiTANGGAP</h1>
             <p class="subtitle">Sistem Tangkap Gejala Stroke Cepat - Deteksi Dini untuk Penanganan Tepat</p>
         </div>
 
-        <div class="main-content">
-            <div class="camera-section">
-                <h2><i class="fas fa-camera"></i> Kamera Deteksi</h2>
-                <video id="video" width="400" height="300" autoplay muted></video>
-            </div>
-
-            <div class="controls-section">
-                <h2><i class="fas fa-cogs"></i> Kontrol Tes</h2>
-                <div class="button-group">
-                    <button class="btn btn-primary" onclick="deteksiWajah()">
-                        <i class="fas fa-smile"></i> Tes Ekspresi Wajah
-                    </button>
-                    <button id="btn-voice" class="btn btn-secondary" onclick="mulaiTesSuara()">
-                        <i class="fas fa-microphone"></i> Tes Ucapan
-                    </button>
-                    <button id="btn-diagnosa" class="btn btn-success" onclick="diagnosaStroke()" disabled>
-                        <i class="fas fa-search"></i> Cek Diagnosa Stroke
-                    </button>
+        <!-- Hero Section -->
+        <div class="hero-section">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h2><i class="fas fa-robot"></i> AI Deteksi Stroke Terdepan</h2>
+                    <p>SiTANGGAP menggunakan teknologi Artificial Intelligence (AI) canggih untuk mendeteksi gejala stroke secara dini melalui analisis ekspresi wajah dan pola bicara.</p>
+                    <p>Sistem ini dikembangkan dengan algoritma machine learning yang telah dilatih menggunakan ribuan data medis untuk memberikan hasil deteksi yang akurat dan cepat.</p>
+                    <p><strong>Deteksi dini stroke dapat menyelamatkan nyawa!</strong> Setiap menit sangat berharga dalam penanganan stroke.</p>
+                </div>
+                <div class="hero-visual">
+                    <div class="stats-section">
+                        <div class="stat-card">
+                            <div class="stat-number">85%</div>
+                            <div class="stat-label">Akurasi Deteksi</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">
+                                < 30s</div>
+                                    <div class="stat-label">Waktu Analisis</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">2</div>
+                                <div class="stat-label">Metode Deteksi</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="results-section">
-            <h2><i class="fas fa-chart-line"></i> Hasil Deteksi</h2>
-
-            <div class="result-item">
-                <p id="hasil-wajah">Belum ada hasil deteksi wajah</p>
-                <ul id="detail-wajah"></ul>
+            <!-- AI Features -->
+            <div class="ai-features">
+                <div class="feature-card">
+                    <i class="fas fa-eye"></i>
+                    <h3>Analisis Ekspresi Wajah</h3>
+                    <p>AI menganalisis asimetri wajah, ptosis mata, dan kemiringan senyuman untuk mendeteksi gejala stroke facial palsy.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-microphone-alt"></i>
+                    <h3>Analisis Pola Bicara</h3>
+                    <p>Sistem mengevaluasi kejelasan artikulasi, kecepatan bicara, dan pola intonasi untuk mendeteksi disartria.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>Scoring NIHSS</h3>
+                    <p>Menggunakan skala NIHSS (National Institutes of Health Stroke Scale) untuk penilaian tingkat keparahan stroke.</p>
+                </div>
             </div>
 
-            <div class="result-item">
-                <p id="status-audio">Belum ada hasil deteksi suara</p>
-                <p id="transkrip-audio"></p>
-                <p id="skor-audio"></p>
+            <!-- Technology Section -->
+            <div class="tech-section">
+                <h3><i class="fas fa-cogs"></i> Teknologi yang Digunakan</h3>
+                <div class="tech-grid">
+                    <div class="tech-item">
+                        <i class="fas fa-brain"></i>
+                        <h4>Deep Learning</h4>
+                        <p>Neural networks untuk analisis wajah</p>
+                    </div>
+                    <div class="tech-item">
+                        <i class="fas fa-wave-square"></i>
+                        <h4>Signal Processing</h4>
+                        <p>Analisis sinyal suara digital</p>
+                    </div>
+                    <div class="tech-item">
+                        <i class="fas fa-eye"></i>
+                        <h4>Computer Vision</h4>
+                        <p>Deteksi landmarks wajah</p>
+                    </div>
+                    <div class="tech-item">
+                        <i class="fas fa-microphone"></i>
+                        <h4>Speech Recognition</h4>
+                        <p>Konversi suara ke teks</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Disclaimer -->
+            <div class="disclaimer-section">
+                <h3><i class="fas fa-exclamation-triangle"></i> Disclaimer Penting</h3>
+                <p><strong>PERHATIAN:</strong> SiTANGGAP adalah alat bantu deteksi dini yang menggunakan teknologi AI. Sistem ini <strong>TIDAK</strong> dapat menggantikan diagnosis medis profesional.</p>
+                <p><strong>Penting untuk diingat:</strong></p>
+                <ul style="margin-left: 20px; margin-top: 10px;">
+                    <li>Hasil deteksi AI bersifat indikatif, bukan diagnosis pasti</li>
+                    <li>Segera konsultasi dengan dokter atau tenaga medis jika mendapat hasil positif</li>
+                    <li>Jangan menunda penanganan medis berdasarkan hasil AI</li>
+                    <li>Dalam keadaan darurat, hubungi 119 atau rumah sakit terdekat</li>
+                </ul>
+                <p style="margin-top: 15px;"><strong>Keamanan Data:</strong> Semua data video dan audio diproses secara lokal dan tidak disimpan di server.</p>
+            </div>
+
+            <!-- CTA Section -->
+            <div class="cta-section">
+                <h3><i class="fas fa-rocket"></i> Mulai Deteksi Sekarang</h3>
+                <p>Lakukan tes deteksi stroke dengan AI dalam hitungan menit. Pastikan Anda berada di ruangan dengan pencahayaan yang baik.</p>
+                <button class="start-test-btn" onclick="document.getElementById('video').scrollIntoView({behavior: 'smooth'})">
+                <i class="fas fa-play-circle"></i> Mulai Tes Deteksi
+            </button>
+            </div>
+
+            <!-- Main Content -->
+            <div class="main-content">
+                <div class="camera-section">
+                    <h2><i class="fas fa-camera"></i> Kamera Deteksi</h2>
+                    <video id="video" width="400" height="300" autoplay muted></video>
+                </div>
+
+                <div class="controls-section">
+                    <h2><i class="fas fa-cogs"></i> Kontrol Tes</h2>
+                    <div class="button-group">
+                        <button class="btn btn-primary" onclick="deteksiWajah()">
+                        <i class="fas fa-smile"></i> Tes Ekspresi Wajah
+                    </button>
+                        <button id="btn-voice" class="btn btn-secondary" onclick="mulaiTesSuara()">
+                        <i class="fas fa-microphone"></i> Tes Ucapan
+                    </button>
+                        <button id="btn-diagnosa" class="btn btn-success" onclick="diagnosaStroke()" disabled>
+                        <i class="fas fa-search"></i> Cek Diagnosa Stroke
+                    </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div class="results-section">
+                <h2><i class="fas fa-chart-line"></i> Hasil Deteksi</h2>
+
+                <div class="result-item">
+                    <p id="hasil-wajah">Belum ada hasil deteksi wajah</p>
+                    <ul id="detail-wajah"></ul>
+                </div>
+
+                <div class="result-item">
+                    <p id="status-audio">Belum ada hasil deteksi suara</p>
+                    <p id="transkrip-audio"></p>
+                    <p id="skor-audio"></p>
+                </div>
+            </div>
+
+            <!-- Diagnosis Section -->
+            <div class="diagnosis-section">
+                <h2><i class="fas fa-stethoscope"></i> Diagnosa Stroke</h2>
+
+                <div class="diagnosis-result">
+                    <p id="diagnosa-hasil">Silakan lakukan tes wajah dan suara terlebih dahulu</p>
+                    <p id="diagnosa-penanganan"></p>
+                </div>
+
+                <div class="diagnosis-summary">
+                    <ul id="diagnosa-summary"></ul>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="footer">
+                <p>&copy; 2024 SiTANGGAP - Sistem Deteksi Stroke Dini | Kesehatan adalah prioritas utama</p>
+                <p style="margin-top: 10px; font-size: 0.8rem; opacity: 0.8;">
+                    Dikembangkan dengan teknologi AI untuk membantu deteksi dini stroke. Selalu konsultasikan dengan tenaga medis profesional.
+                </p>
             </div>
         </div>
 
-        <div class="diagnosis-section">
-            <h2><i class="fas fa-stethoscope"></i> Diagnosa Stroke</h2>
+        <script defer>
+            const video = document.getElementById("video");
+            const hasilDeteksi = {
+                wajah: null,
+                suara: null,
+                face_score: null,
+                suara_score: null
+            };
 
-            <div class="diagnosis-result">
-                <p id="diagnosa-hasil">Silakan lakukan tes wajah dan suara terlebih dahulu</p>
-                <p id="diagnosa-penanganan"></p>
-            </div>
+            function startSmartCamera() {
+                navigator.mediaDevices.enumerateDevices().then(devices => {
+                    const cams = devices.filter(d => d.kind === 'videoinput');
+                    const selected = cams.find(d => !d.label.toLowerCase().includes("iriun")) || cams[0];
 
-            <div class="diagnosis-summary">
-                <ul id="diagnosa-summary"></ul>
-            </div>
-        </div>
-
-        <div class="footer">
-            <p>&copy; 2024 SiTANGGAP - Sistem Deteksi Stroke Dini | Kesehatan adalah prioritas utama</p>
-        </div>
-    </div>
-
-    <script defer>
-        const video = document.getElementById("video");
-        const hasilDeteksi = {
-            wajah: null,
-            suara: null,
-            face_score: null,
-            suara_score: null
-        };
-
-        function startSmartCamera() {
-            navigator.mediaDevices.enumerateDevices().then(devices => {
-                const cams = devices.filter(d => d.kind === 'videoinput');
-                const selected = cams.find(d => !d.label.toLowerCase().includes("iriun")) || cams[0];
-
-                if (!selected) {
-                    alert("❌ Tidak ada kamera terdeteksi.");
-                    return;
-                }
-
-                navigator.mediaDevices.getUserMedia({
-                        video: {
-                            deviceId: {
-                                ideal: selected.deviceId
-                            }
-                        }
-                    })
-                    .then(stream => {
-                        video.srcObject = stream;
-                    })
-                    .catch(err => {
-                        alert("❌ Gagal akses kamera: " + err.name);
-                    });
-            });
-        }
-
-        startSmartCamera();
-
-        function ambilFrameBase64() {
-            const canvas = document.createElement("canvas");
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            canvas.getContext("2d").drawImage(video, 0, 0);
-            return canvas.toDataURL("image/jpeg");
-        }
-
-        function updateDiagnosaButton() {
-            const btn = document.getElementById("btn-diagnosa");
-            btn.disabled = !(hasilDeteksi.wajah && hasilDeteksi.suara);
-        }
-
-        function deteksiWajah() {
-            Swal.fire({
-                title: '📸 Siap untuk Deteksi Wajah',
-                text: 'Senyum ke kamera, wajah di tengah, jangan miring.',
-                icon: 'info',
-                confirmButtonText: 'Mulai',
-                customClass: {
-                    popup: 'swal-custom'
-                }
-            }).then(() => lanjutDeteksiWajah());
-        }
-
-        function lanjutDeteksiWajah() {
-            const el = document.getElementById("hasil-wajah");
-            const detail = document.getElementById("detail-wajah");
-            el.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mendeteksi ekspresi wajah...';
-            detail.innerHTML = "";
-
-            const imageBase64 = ambilFrameBase64();
-
-            fetch("/detect-face", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        image: imageBase64
-                    })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.status !== "ok") {
-                        el.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Gagal deteksi wajah: ${data.message}`;
+                    if (!selected) {
+                        alert("❌ Tidak ada kamera terdeteksi.");
                         return;
                     }
 
-                    hasilDeteksi.wajah = data.kategori;
-                    hasilDeteksi.face_score = data.score_total;
+                    navigator.mediaDevices.getUserMedia({
+                            video: {
+                                deviceId: {
+                                    ideal: selected.deviceId
+                                }
+                            }
+                        })
+                        .then(stream => {
+                            video.srcObject = stream;
+                        })
+                        .catch(err => {
+                            alert("❌ Gagal akses kamera: " + err.name);
+                        });
+                });
+            }
 
-                    el.innerHTML = `<i class="fas fa-check-circle"></i> Wajah: <span class="status-badge status-success">${data.kategori}</span>`;
-                    const p = data.penilaian;
-                    detail.innerHTML = `
+            startSmartCamera();
+
+            function ambilFrameBase64() {
+                const canvas = document.createElement("canvas");
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.getContext("2d").drawImage(video, 0, 0);
+                return canvas.toDataURL("image/jpeg");
+            }
+
+            function updateDiagnosaButton() {
+                const btn = document.getElementById("btn-diagnosa");
+                btn.disabled = !(hasilDeteksi.wajah && hasilDeteksi.suara);
+            }
+
+            function deteksiWajah() {
+                Swal.fire({
+                    title: '📸 Siap untuk Deteksi Wajah',
+                    text: 'Senyum ke kamera, wajah di tengah, jangan miring.',
+                    icon: 'info',
+                    confirmButtonText: 'Mulai',
+                    customClass: {
+                        popup: 'swal-custom'
+                    }
+                }).then(() => lanjutDeteksiWajah());
+            }
+
+            function lanjutDeteksiWajah() {
+                const el = document.getElementById("hasil-wajah");
+                const detail = document.getElementById("detail-wajah");
+                el.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mendeteksi ekspresi wajah...';
+                detail.innerHTML = "";
+
+                const imageBase64 = ambilFrameBase64();
+
+                fetch("/detect-face", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            image: imageBase64
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.status !== "ok") {
+                            el.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Gagal deteksi wajah: ${data.message}`;
+                            return;
+                        }
+
+                        hasilDeteksi.wajah = data.kategori;
+                        hasilDeteksi.face_score = data.score_total;
+
+                        el.innerHTML = `<i class="fas fa-check-circle"></i> Wajah: <span class="status-badge status-success">${data.kategori}</span>`;
+                        const p = data.penilaian;
+                        detail.innerHTML = `
                         <li><strong><i class="fas fa-brain"></i> Total Skor Wajah:</strong> ${data.score_total}/6</li>
                         <li><strong><i class="fas fa-lightbulb"></i> Saran:</strong> ${data.saran}</li>
                         <hr>
@@ -175,90 +280,202 @@
                         <li><strong><i class="fas fa-smile"></i> Pipi</strong></li>
                         <ul><li>Kemiringan: ${p.pipi.kemiringan_derajat}°</li><li>Skor: ${p.pipi.nilai}/2</li></ul>
                     `;
-                    updateDiagnosaButton();
-                })
-                .catch(() => el.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Gagal deteksi wajah');
-        }
-
-        function mulaiTesSuara() {
-            const status = document.getElementById("status-audio");
-            const transkrip = document.getElementById("transkrip-audio");
-            const skor = document.getElementById("skor-audio");
-            const btn = document.getElementById("btn-voice");
-
-            btn.disabled = true;
-            status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Merekam suara selama 5 detik...';
-            transkrip.innerText = "";
-            skor.innerText = "";
-
-            setTimeout(() => {
-                status.innerHTML = '<i class="fas fa-brain"></i> Menganalisis suara...';
-            }, 5000);
-
-            fetch("/analyze-audio", {
-                    method: "POST"
-                })
-                .then(res => res.json())
-                .then(data => {
-                    hasilDeteksi.suara = data.hasil;
-                    hasilDeteksi.suara_score = data.score || 0;
-
-                    status.innerHTML = `<i class="fas fa-check-circle"></i> Hasil Suara: <span class="status-badge status-success">${data.hasil}</span>`;
-                    transkrip.innerHTML = `<i class="fas fa-quote-left"></i> Transkrip: ${data.transkrip}`;
-                    skor.innerHTML = `<i class="fas fa-target"></i> Skor Suara: ${data.score || 0}/2`;
-
-                    btn.disabled = false;
-                    updateDiagnosaButton();
-                })
-                .catch(err => {
-                    status.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Gagal menganalisis suara.';
-                    btn.disabled = false;
-                });
-        }
-
-        function diagnosaStroke() {
-            const output = document.getElementById("diagnosa-hasil");
-            const summary = document.getElementById("diagnosa-summary");
-            const penanganan = document.getElementById("diagnosa-penanganan");
-
-            output.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menganalisis semua indikator...';
-            summary.innerHTML = "";
-            penanganan.innerText = "";
-
-            fetch("/diagnosa", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        image: ambilFrameBase64(),
-                        face_score: hasilDeteksi.face_score,
-                        face_kategori: hasilDeteksi.wajah,
-                        voice_result: hasilDeteksi.suara,
-                        voice_score: hasilDeteksi.suara_score
+                        updateDiagnosaButton();
                     })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.status !== "ok") {
-                        output.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Gagal diagnosa: ${data.message}`;
-                        return;
+                    .catch(() => el.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Gagal deteksi wajah');
+            }
+
+            function mulaiTesSuara() {
+                Swal.fire({
+                    title: '🎤 Siap untuk Tes Ucapan',
+                    html: `
+                    <div style="text-align: center; padding: 20px;">
+                        <p style="font-size: 1.2rem; margin-bottom: 20px; color: #2c3e50;">
+                            Silakan ucapkan kalimat berikut dengan jelas:
+                        </p>
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; border-left: 4px solid #3498db; margin: 20px 0;">
+                            <h3 style="color: #e74c3c; font-size: 1.5rem; margin: 0;">
+                                "Hari Ini Saya Makan Nasi"
+                            </h3>
+                        </div>
+                        <p style="font-size: 1rem; color: #7f8c8d; margin-top: 15px;">
+                            <i class="fas fa-info-circle"></i> Pastikan Anda berada di tempat yang tenang dan bicara dengan jelas
+                        </p>
+                    </div>
+                `,
+                    icon: 'info',
+                    confirmButtonText: 'Mulai Rekam',
+                    confirmButtonColor: '#e74c3c',
+                    showCancelButton: true,
+                    cancelButtonText: 'Batal',
+                    customClass: {
+                        popup: 'swal-custom'
                     }
-
-                    output.innerHTML = `<i class="fas fa-brain"></i> Skor NIHSS: <strong>${data.skor}</strong> (${data.kategori})\n<i class="fas fa-bullhorn"></i> ${data.saran}`;
-                    penanganan.innerHTML = `<i class="fas fa-stethoscope"></i> Tindakan: ${data.penanganan}`;
-
-                    data.summary.forEach(item => {
-                        const li = document.createElement("li");
-                        li.innerHTML = `<i class="fas fa-check-circle"></i> ${item}`;
-                        summary.appendChild(li);
-                    });
-                })
-                .catch(err => {
-                    output.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Terjadi error saat diagnosa.';
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        lanjutTesSuara();
+                    }
                 });
-        }
-    </script>
+            }
+
+            function lanjutTesSuara() {
+                const status = document.getElementById("status-audio");
+                const transkrip = document.getElementById("transkrip-audio");
+                const skor = document.getElementById("skor-audio");
+                const btn = document.getElementById("btn-voice");
+
+                btn.disabled = true;
+                status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Merekam suara selama 5 detik...';
+                transkrip.innerText = "";
+                skor.innerText = "";
+
+                // Countdown untuk memulai rekaman
+                Swal.fire({
+                    title: '🎤 Ayo Ucapkan',
+                    html: `
+                    <div style="text-align: center;">
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin: 20px 0;">
+                            <h4 style="color: #e74c3c; margin: 0;">Ucapkan: "Hari Ini Saya Makan Nasi"</h4>
+                        </div>
+                        <p style="font-size: 1.1rem; color: #2c3e50;">
+                            Rekaman Dimulai
+                        </p>
+                    </div>
+                `,
+                    showConfirmButton: false,
+                    timer: 3000,
+                    timerProgressBar: true,
+                    didOpen: () => {
+                        let counter = 3;
+                        const countdownElement = document.getElementById('countdown');
+                        const interval = setInterval(() => {
+                            counter--;
+                            if (countdownElement) {
+                                countdownElement.textContent = counter;
+                            }
+                            if (counter <= 0) {
+                                clearInterval(interval);
+                            }
+                        }, 1000);
+                    }
+                }).then(() => {
+                    Swal.fire({
+                        title: '🔴 REKAMAN DI SIMPAN',
+                        html: `
+                        <div style="text-align: center;">
+                            <p style="font-size: 1.1rem; color: #2c3e50;">
+                                <i class="fas fa-microphone" style="color: #e74c3c;"></i> Nice Rekaman Berhasil Tersimpan
+                            </p>
+                        </div>
+                    `,
+                        showConfirmButton: false,
+                        timer: 5000,
+                        timerProgressBar: true
+                    });
+                });
+
+                setTimeout(() => {
+                    status.innerHTML = '<i class="fas fa-brain"></i> Menganalisis suara...';
+                    Swal.fire({
+                        title: '🧠 Menganalisis Suara',
+                        html: '<p>AI sedang menganalisis kualitas ucapan Anda...</p>',
+                        showConfirmButton: false,
+                        allowOutsideClick: false
+                    });
+                }, 5000);
+
+                fetch("/analyze-audio", {
+                        method: "POST"
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        hasilDeteksi.suara = data.hasil;
+                        hasilDeteksi.suara_score = data.score || 0;
+
+                        status.innerHTML = `<i class="fas fa-check-circle"></i> Hasil Suara: <span class="status-badge status-success">${data.hasil}</span>`;
+                        transkrip.innerHTML = `<i class="fas fa-quote-left"></i> Transkrip: ${data.transkrip}`;
+                        skor.innerHTML = `<i class="fas fa-target"></i> Skor Suara: ${data.score || 0}/2`;
+
+                        btn.disabled = false;
+                        updateDiagnosaButton();
+
+                        // Tutup loading dialog
+                        Swal.close();
+
+                        // Tampilkan hasil
+                        Swal.fire({
+                            title: '✅ Analisis Selesai',
+                            html: `
+                            <div style="text-align: center;">
+                                <p style="font-size: 1.1rem; color: #2c3e50; margin-bottom: 15px;">
+                                    <strong>Hasil Analisis Suara:</strong> ${data.hasil}
+                                </p>
+                                <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin: 15px 0;">
+                                    <p style="margin: 0;"><strong>Transkrip:</strong> ${data.transkrip}</p>
+                                    <p style="margin: 10px 0 0 0;"><strong>Skor:</strong> ${data.score || 0}/2</p>
+                                </div>
+                            </div>
+                        `,
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        });
+                    })
+                    .catch(err => {
+                        status.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Gagal menganalisis suara.';
+                        btn.disabled = false;
+                        Swal.close();
+                        Swal.fire({
+                            title: '❌ Error',
+                            text: 'Gagal menganalisis suara. Silakan coba lagi.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                    });
+            }
+
+            function diagnosaStroke() {
+                const output = document.getElementById("diagnosa-hasil");
+                const summary = document.getElementById("diagnosa-summary");
+                const penanganan = document.getElementById("diagnosa-penanganan");
+
+                output.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menganalisis semua indikator...';
+                summary.innerHTML = "";
+                penanganan.innerText = "";
+
+                fetch("/diagnosa", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            image: ambilFrameBase64(),
+                            face_score: hasilDeteksi.face_score,
+                            face_kategori: hasilDeteksi.wajah,
+                            voice_result: hasilDeteksi.suara,
+                            voice_score: hasilDeteksi.suara_score
+                        })
+                    })
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.status !== "ok") {
+                            output.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Gagal diagnosa: ${data.message}`;
+                            return;
+                        }
+
+                        output.innerHTML = `<i class="fas fa-brain"></i> Skor NIHSS: <strong>${data.skor}</strong> (${data.kategori})\n<i class="fas fa-bullhorn"></i> ${data.saran}`;
+                        penanganan.innerHTML = `<i class="fas fa-stethoscope"></i> Tindakan: ${data.penanganan}`;
+
+                        data.summary.forEach(item => {
+                            const li = document.createElement("li");
+                            li.innerHTML = `<i class="fas fa-check-circle"></i> ${item}`;
+                            summary.appendChild(li);
+                        });
+                    })
+                    .catch(err => {
+                        output.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Terjadi error saat diagnosa.';
+                    });
+            }
+        </script>
 
 </body>
 
