@@ -1,6 +1,6 @@
 # backend/detection/nihss_scoring.py
 
-def score_nihss(face_result, hand_result, voice_result):
+def score_nihss(face_result, voice_result):
     score = 0
     keterangan = []
 
@@ -8,14 +8,6 @@ def score_nihss(face_result, hand_result, voice_result):
     if face_result.lower() == "miring":
         score += 1
         keterangan.append("Wajah miring (1 poin)")
-
-    # Arm Drift (1B)
-    if "kedua tangan turun" in hand_result.lower():
-        score += 2
-        keterangan.append("Kedua tangan turun (2 poin)")
-    elif "tangan" in hand_result.lower() and "turun" in hand_result.lower():
-        score += 1
-        keterangan.append("Satu tangan turun (1 poin)")
 
     # Speech (1C)
     if voice_result.lower() == "tidak ada suara":
@@ -45,8 +37,8 @@ def score_nihss(face_result, hand_result, voice_result):
         "rincian": keterangan,
         "saran": saran
     }
-    
-def generate_diagnosis_summary(face_result, hand_result, voice_result, scoring):
+
+def generate_diagnosis_summary(face_result, voice_result, scoring):
     summary = []
 
     # Interpretasi Wajah
@@ -54,14 +46,6 @@ def generate_diagnosis_summary(face_result, hand_result, voice_result, scoring):
         summary.append("Terjadi asimetri wajah saat diminta tersenyum, menunjukkan kemungkinan facial palsy.")
     else:
         summary.append("Tidak ditemukan kelainan pada otot wajah.")
-
-    # Interpretasi Tangan
-    if "kedua tangan turun" in hand_result.lower():
-        summary.append("Kedua tangan tidak dapat diangkat sejajar, mengindikasikan kelemahan otot bilateral.")
-    elif "turun" in hand_result.lower():
-        summary.append("Salah satu tangan tidak bisa diangkat sejajar, menunjukkan kelemahan otot satu sisi tubuh.")
-    else:
-        summary.append("Kedua tangan dapat diangkat sejajar.")
 
     # Interpretasi Suara
     if voice_result.lower() == "tidak ada suara":

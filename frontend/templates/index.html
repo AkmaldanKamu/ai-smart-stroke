@@ -18,7 +18,6 @@
 
     <!-- Tombol Tes Deteksi -->
     <button onclick="deteksiWajah()">😊 Tes Ekspresi Wajah</button>
-    <button onclick="deteksiTangan()">🖐️ Tes Gerakan Tangan</button>
     <button id="btn-voice" onclick="mulaiTesSuara()">🎤 Tes Ucapan</button>
 
     <hr>
@@ -27,27 +26,18 @@
     <h3>📌 Hasil Deteksi:</h3>
     <p id="hasil-wajah"></p>
     <ul id="detail-wajah"></ul>
-    <p id="hasil-tangan"></p>
-    <img id="preview-hand" width="300" style="display:none; border: 1px solid #ccc;" />
     <p id="status-audio"></p>
     <p id="transkrip-audio"></p>
-
-    <hr>
-    <h3>🖼️ Visual Deteksi Tangan</h3>
-    <img id="hand-image" width="400" alt="Hasil deteksi tangan" />
-
 
     <!-- Diagnosa -->
     <button id="btn-diagnosa" onclick="diagnosaStroke()" disabled>🔍 Cek Diagnosa Stroke</button>
     <p id="diagnosa-hasil"></p>
     <ul id="diagnosa-summary"></ul>
 
-    <!-- Ganti bagian <script defer> di bawah -->
     <script defer>
         const video = document.getElementById("video");
         const hasilDeteksi = {
             wajah: null,
-            tangan: null,
             suara: null
         };
 
@@ -89,7 +79,7 @@
 
         function updateDiagnosaButton() {
             const btn = document.getElementById("btn-diagnosa");
-            btn.disabled = !(hasilDeteksi.wajah && hasilDeteksi.tangan && hasilDeteksi.suara);
+            btn.disabled = !(hasilDeteksi.wajah && hasilDeteksi.suara);
         }
 
         function deteksiWajah() {
@@ -129,72 +119,20 @@
                     el.innerText = `✅ Wajah: ${data.kategori}`;
                     const p = data.penilaian;
                     detail.innerHTML = `
-        <li><strong>🧠 Total Skor Wajah:</strong> ${data.score_total}/6</li>
-        <li><strong>💡 Saran:</strong> ${data.saran}</li>
-        <hr>
-        <li><strong>👄 Bibir</strong></li>
-        <ul><li>Delta Y: ${p.bibir.delta_y}</li><li>Rasio X: ${p.bibir.rasio_x}</li><li>Skor: ${p.bibir.nilai}/2</li></ul>
-        <li><strong>👁️ Mata</strong></li>
-        <ul><li>Delta Openness: ${p.mata.delta_openness}</li><li>Ptosis: ${p.mata.ptosis_suspect ? "Ya" : "Tidak"}</li><li>Skor: ${p.mata.nilai}/2</li></ul>
-        <li><strong>🧭 Pipi</strong></li>
-        <ul><li>Kemiringan: ${p.pipi.kemiringan_derajat}°</li><li>Skor: ${p.pipi.nilai}/2</li></ul>
-      `;
+                        <li><strong>🧠 Total Skor Wajah:</strong> ${data.score_total}/6</li>
+                        <li><strong>💡 Saran:</strong> ${data.saran}</li>
+                        <hr>
+                        <li><strong>👄 Bibir</strong></li>
+                        <ul><li>Delta Y: ${p.bibir.delta_y}</li><li>Rasio X: ${p.bibir.rasio_x}</li><li>Skor: ${p.bibir.nilai}/2</li></ul>
+                        <li><strong>👁️ Mata</strong></li>
+                        <ul><li>Delta Openness: ${p.mata.delta_openness}</li><li>Ptosis: ${p.mata.ptosis_suspect ? "Ya" : "Tidak"}</li><li>Skor: ${p.mata.nilai}/2</li></ul>
+                        <li><strong>🧭 Pipi</strong></li>
+                        <ul><li>Kemiringan: ${p.pipi.kemiringan_derajat}°</li><li>Skor: ${p.pipi.nilai}/2</li></ul>
+                    `;
                     updateDiagnosaButton();
                 })
                 .catch(() => el.innerText = "❌ Gagal deteksi wajah");
         }
-
-
-        function deteksiTangan() {
-            const el = document.getElementById("hasil-tangan");
-            const img = document.getElementById("hand-image");
-
-            el.innerText = "🖐️ Mendeteksi posisi tangan selama 5 detik...";
-            img.src = "";
-
-            if (data.image_base64) {
-                const preview = document.getElementById("preview-hand");
-                preview.src = data.image_base64;
-                preview.style.display = "block";
-            }
-
-            const imageBase64 = ambilFrameBase64(); // ✅ Tambahkan ini
-
-            fetch("/detect-hand", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                            image: imageBase64
-                        }) // ✅ Kirim gambar
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.status !== "ok") {
-                        el.innerText = "❌ Gagal deteksi tangan: " + data.message;
-                        return;
-                    }
-
-                    hasilDeteksi.tangan = data.kategori;
-                    el.innerHTML = `
-            ✅ <strong>Hasil Deteksi Tangan:</strong> ${data.kategori}<br>
-            📏 <strong>Selisih Y (delta):</strong> ${data.delta_y ?? "Tidak tersedia"}<br>
-            💡 <strong>Saran:</strong> ${data.saran}
-        `;
-
-                    if (data.image_base64) {
-                        img.src = "data:image/jpeg;base64," + data.image_base64;
-                    }
-
-                    updateDiagnosaButton();
-                })
-                .catch(err => {
-                    el.innerText = "❌ Terjadi error saat deteksi tangan";
-                });
-        }
-
-
 
         function mulaiTesSuara() {
             const status = document.getElementById("status-audio");
@@ -233,7 +171,7 @@
             output.innerText = "⏳ Menganalisis semua indikator...";
             summary.innerHTML = "";
 
-            const imageBase64 = ambilFrameBase64(); // ✅ Pastikan ambil gambar
+            const imageBase64 = ambilFrameBase64();
 
             fetch("/diagnosa", {
                     method: "POST",

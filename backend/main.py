@@ -1,8 +1,7 @@
 import cv2
 from detection.face_detection import detect_facial_droop_from_frame
-from detection.hand_detection import detect_arm_drift_openvino
+from detection.hand_detection import stroke_detector  # ✅ Gunakan class detector langsung
 from smart_camera_selector import find_real_camera
-
 
 # Gunakan kamera utama (hindari Iriun/virtual)
 camera_index = find_real_camera()
@@ -17,23 +16,25 @@ while True:
     if not ret:
         break
 
-    # Deteksi wajah (simetri wajah)
+    # Deteksi wajah
     face_result = detect_facial_droop_from_frame(frame)
 
-    # Deteksi tangan menggunakan model OpenVINO
-    hand_result_obj = detect_arm_drift_openvino()
-    hand_result = hand_result_obj.get('kategori', 'Tidak diketahui')
-
-    # Tampilkan hasil deteksi di layar
+    # Tampilkan informasi awal
     cv2.putText(frame, f"Wajah: {face_result}", (10, 30),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 0), 2)
-    cv2.putText(frame, f"Tangan: {hand_result}", (10, 60),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 255), 2)
+    cv2.putText(frame, f"Tekan 't' untuk Tes Tangan", (10, 60),
+                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (100, 255, 100), 2)
 
     cv2.imshow("AI-SMART - Deteksi Stroke", frame)
 
-    if cv2.waitKey(1) & 0xFF == ord('q'):
+    key = cv2.waitKey(1) & 0xFF
+    if key == ord('q'):
         break
+    elif key == ord('t'):
+        print("▶️ Mulai Tes Gerakan Tangan (5 detik)...")
+        hand_result = stroke_detector.detect_with_duration(duration_sec=5)
+        print("📋 Hasil Deteksi Tangan:", hand_result['kategori'])
+        print("ℹ️", hand_result['saran'])
 
 cap.release()
 cv2.destroyAllWindows()
