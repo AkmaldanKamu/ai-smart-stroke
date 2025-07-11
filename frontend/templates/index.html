@@ -28,6 +28,7 @@
     <ul id="detail-wajah"></ul>
     <p id="status-audio"></p>
     <p id="transkrip-audio"></p>
+    <p id="skor-audio"></p>
 
     <!-- Diagnosa -->
     <button id="btn-diagnosa" onclick="diagnosaStroke()" disabled>🔍 Cek Diagnosa Stroke</button>
@@ -38,7 +39,9 @@
         const video = document.getElementById("video");
         const hasilDeteksi = {
             wajah: null,
-            suara: null
+            suara: null,
+            face_score: null,
+            suara_score: null
         };
 
         function startSmartCamera() {
@@ -116,35 +119,36 @@
                     }
 
                     hasilDeteksi.wajah = data.kategori;
-                    hasilDeteksi.face_score = data.score_total; // ✅ Tambahkan ini!
+                    hasilDeteksi.face_score = data.score_total;
 
                     el.innerText = `✅ Wajah: ${data.kategori}`;
                     const p = data.penilaian;
                     detail.innerHTML = `
-                    <li><strong>🧠 Total Skor Wajah:</strong> ${data.score_total}/6</li>
-                    <li><strong>💡 Saran:</strong> ${data.saran}</li>
-                    <hr>
-                    <li><strong>👄 Bibir</strong></li>
-                    <ul><li>Delta Y: ${p.bibir.delta_y}</li><li>Rasio X: ${p.bibir.rasio_x}</li><li>Skor: ${p.bibir.nilai}/2</li></ul>
-                    <li><strong>👁️ Mata</strong></li>
-                    <ul><li>Delta Openness: ${p.mata.delta_openness}</li><li>Ptosis: ${p.mata.ptosis_suspect ? "Ya" : "Tidak"}</li><li>Skor: ${p.mata.nilai}/2</li></ul>
-                    <li><strong>🧭 Pipi</strong></li>
-                    <ul><li>Kemiringan: ${p.pipi.kemiringan_derajat}°</li><li>Skor: ${p.pipi.nilai}/2</li></ul>
-                `;
+                        <li><strong>🧠 Total Skor Wajah:</strong> ${data.score_total}/6</li>
+                        <li><strong>💡 Saran:</strong> ${data.saran}</li>
+                        <hr>
+                        <li><strong>👄 Bibir</strong></li>
+                        <ul><li>Delta Y: ${p.bibir.delta_y}</li><li>Rasio X: ${p.bibir.rasio_x}</li><li>Skor: ${p.bibir.nilai}/2</li></ul>
+                        <li><strong>👁️ Mata</strong></li>
+                        <ul><li>Delta Openness: ${p.mata.delta_openness}</li><li>Ptosis: ${p.mata.ptosis_suspect ? "Ya" : "Tidak"}</li><li>Skor: ${p.mata.nilai}/2</li></ul>
+                        <li><strong>🧭 Pipi</strong></li>
+                        <ul><li>Kemiringan: ${p.pipi.kemiringan_derajat}°</li><li>Skor: ${p.pipi.nilai}/2</li></ul>
+                    `;
                     updateDiagnosaButton();
                 })
-
-            .catch(() => el.innerText = "❌ Gagal deteksi wajah");
+                .catch(() => el.innerText = "❌ Gagal deteksi wajah");
         }
 
         function mulaiTesSuara() {
             const status = document.getElementById("status-audio");
             const transkrip = document.getElementById("transkrip-audio");
+            const skor = document.getElementById("skor-audio");
             const btn = document.getElementById("btn-voice");
 
             btn.disabled = true;
             status.innerText = "⏱️ Merekam suara selama 5 detik...";
             transkrip.innerText = "";
+            skor.innerText = "";
 
             setTimeout(() => {
                 status.innerText = "🧠 Menganalisis suara...";
@@ -156,8 +160,12 @@
                 .then(res => res.json())
                 .then(data => {
                     hasilDeteksi.suara = data.hasil;
+                    hasilDeteksi.suara_score = data.score || 0;
+
                     status.innerText = "✅ Hasil Suara: " + data.hasil;
                     transkrip.innerText = "🗣️ Transkrip: " + data.transkrip;
+                    skor.innerText = `🎯 Skor Suara: ${data.score || 0}/2`;
+
                     btn.disabled = false;
                     updateDiagnosaButton();
                 })
@@ -183,7 +191,8 @@
                         image: ambilFrameBase64(),
                         face_score: hasilDeteksi.face_score,
                         face_kategori: hasilDeteksi.wajah,
-                        voice_result: hasilDeteksi.suara
+                        voice_result: hasilDeteksi.suara,
+                        voice_score: hasilDeteksi.suara_score
                     })
                 })
                 .then(res => res.json())

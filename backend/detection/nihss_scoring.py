@@ -1,11 +1,6 @@
 # backend/detection/nihss_scoring.py
 
 def score_nihss(face_score, voice_result):
-    """
-    Menghitung skor NIHSS berdasarkan skor wajah dan hasil suara.
-    face_score: integer dari 0–6
-    voice_result: string ('Suara jelas', 'Suara tidak jelas', 'Tidak ada suara')
-    """
     score = 0
     rincian = []
 
