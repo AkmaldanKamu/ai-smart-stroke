@@ -1,6 +1,5 @@
 import cv2
 from detection.face_detection import detect_facial_droop_from_frame
-from detection.hand_detection import stroke_detector  # ✅ Gunakan class detector langsung
 from smart_camera_selector import find_real_camera
 
 # Gunakan kamera utama (hindari Iriun/virtual)
@@ -22,8 +21,6 @@ while True:
     # Tampilkan informasi awal
     cv2.putText(frame, f"Wajah: {face_result}", (10, 30),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 255, 0), 2)
-    cv2.putText(frame, f"Tekan 't' untuk Tes Tangan", (10, 60),
-                cv2.FONT_HERSHEY_SIMPLEX, 0.7, (100, 255, 100), 2)
 
     cv2.imshow("AI-SMART - Deteksi Stroke", frame)
 
