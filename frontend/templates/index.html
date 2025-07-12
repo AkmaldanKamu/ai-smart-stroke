@@ -228,15 +228,15 @@
                 btn.disabled = !(hasilDeteksi.wajah && hasilDeteksi.suara);
             }
 
+            // =====================
+            // 🚨 DETEKSI WAJAH
+            // =====================
             function deteksiWajah() {
                 Swal.fire({
                     title: '📸 Siap untuk Deteksi Wajah',
                     text: 'Senyum ke kamera, wajah di tengah, jangan miring.',
                     icon: 'info',
-                    confirmButtonText: 'Mulai',
-                    customClass: {
-                        popup: 'swal-custom'
-                    }
+                    confirmButtonText: 'Mulai'
                 }).then(() => lanjutDeteksiWajah());
             }
 
@@ -260,59 +260,56 @@
                     .then(res => res.json())
                     .then(data => {
                         if (data.status !== "ok") {
-                            el.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Gagal deteksi wajah: ${data.message}`;
+                            el.innerHTML = `❌ Gagal deteksi wajah: ${data.message}`;
                             return;
                         }
 
                         hasilDeteksi.wajah = data.kategori;
                         hasilDeteksi.face_score = data.score_total;
 
-                        el.innerHTML = `<i class="fas fa-check-circle"></i> Wajah: <span class="status-badge status-success">${data.kategori}</span>`;
+                        el.innerHTML = `✅ Wajah: ${data.kategori}`;
                         const p = data.penilaian;
                         detail.innerHTML = `
-                        <li><strong><i class="fas fa-brain"></i> Total Skor Wajah:</strong> ${data.score_total}/6</li>
-                        <li><strong><i class="fas fa-lightbulb"></i> Saran:</strong> ${data.saran}</li>
+                        <li><strong>🧠 Total Skor Wajah:</strong> ${data.score_total}/6</li>
+                        <li><strong>💡 Saran:</strong> ${data.saran}</li>
                         <hr>
-                        <li><strong><i class="fas fa-lips"></i> Bibir</strong></li>
+                        <li><strong>👄 Bibir</strong></li>
                         <ul><li>Delta Y: ${p.bibir.delta_y}</li><li>Rasio X: ${p.bibir.rasio_x}</li><li>Skor: ${p.bibir.nilai}/2</li></ul>
-                        <li><strong><i class="fas fa-eye"></i> Mata</strong></li>
+                        <li><strong>👁️ Mata</strong></li>
                         <ul><li>Delta Openness: ${p.mata.delta_openness}</li><li>Ptosis: ${p.mata.ptosis_suspect ? "Ya" : "Tidak"}</li><li>Skor: ${p.mata.nilai}/2</li></ul>
-                        <li><strong><i class="fas fa-smile"></i> Pipi</strong></li>
+                        <li><strong>🧭 Pipi</strong></li>
                         <ul><li>Kemiringan: ${p.pipi.kemiringan_derajat}°</li><li>Skor: ${p.pipi.nilai}/2</li></ul>
                     `;
                         updateDiagnosaButton();
                     })
-                    .catch(() => el.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Gagal deteksi wajah');
+                    .catch(() => el.innerHTML = "❌ Gagal deteksi wajah");
             }
 
-            let mediaRecorder;
-            let recordedChunks = [];
-
+            // =====================
+            // 🎤 DETEKSI SUARA
+            // =====================
             function mulaiTesSuara() {
                 Swal.fire({
-                    title: '🎤 Siap untuk Tes Ucapan',
-                    html: `
-            <p>Silakan ucapkan kalimat: <br><strong>"Hari Ini Saya Makan Nasi"</strong></p>
-        `,
+                    title: '🎤 Siap Tes Ucapan',
+                    html: 'Ucapkan dengan jelas: <br><b>"Hari ini saya makan nasi"</b>',
                     icon: 'info',
                     showCancelButton: true,
-                    confirmButtonText: 'Mulai Rekam',
-                }).then((result) => {
+                    confirmButtonText: 'Mulai Rekam'
+                }).then(result => {
                     if (result.isConfirmed) {
-                        mulaiRekamanAudio();
+                        rekamSuaraDanKirim();
                     }
                 });
             }
 
-
-            function mulaiRekamanAudio() {
+            function rekamSuaraDanKirim() {
                 const status = document.getElementById("status-audio");
                 const transkrip = document.getElementById("transkrip-audio");
                 const skor = document.getElementById("skor-audio");
                 const btn = document.getElementById("btn-voice");
 
                 btn.disabled = true;
-                status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Merekam suara selama 5 detik...';
+                status.innerText = "⏺️ Merekam suara selama 5 detik...";
                 transkrip.innerText = "";
                 skor.innerText = "";
 
@@ -320,63 +317,65 @@
                         audio: true
                     })
                     .then(stream => {
-                        recordedChunks = [];
-                        mediaRecorder = new MediaRecorder(stream);
+                        const mediaRecorder = new MediaRecorder(stream);
+                        const chunks = [];
 
-                        mediaRecorder.ondataavailable = (e) => {
-                            if (e.data.size > 0) recordedChunks.push(e.data);
+                        mediaRecorder.ondataavailable = e => {
+                            if (e.data.size > 0) chunks.push(e.data);
                         };
 
                         mediaRecorder.onstop = () => {
-                            const audioBlob = new Blob(recordedChunks, {
+                            const audioBlob = new Blob(chunks, {
                                 type: 'audio/webm'
                             });
                             const formData = new FormData();
                             formData.append('audio', audioBlob);
 
-                            status.innerHTML = '<i class="fas fa-brain"></i> Menganalisis suara...';
+                            status.innerText = "🧠 Menganalisis suara...";
 
-                            fetch('/analyze-audio', {
-                                    method: 'POST',
+                            fetch("/analyze-audio", {
+                                    method: "POST",
                                     body: formData
                                 })
                                 .then(res => res.json())
                                 .then(data => {
                                     hasilDeteksi.suara = data.hasil;
-                                    hasilDeteksi.suara_score = data.score || 0;
+                                    hasilDeteksi.suara_score = data.score;
 
-                                    status.innerHTML = `<i class="fas fa-check-circle"></i> Hasil Suara: ${data.hasil}`;
-                                    transkrip.innerHTML = `🗣️ Transkrip: ${data.transkrip}`;
-                                    skor.innerHTML = `🎯 Skor Suara: ${data.score || 0}/2`;
+                                    status.innerText = `✅ Hasil Suara: ${data.hasil}`;
+                                    transkrip.innerText = `🗣️ Transkrip: ${data.transkrip}`;
+                                    skor.innerText = `🎯 Skor Suara: ${data.score}/2`;
 
                                     btn.disabled = false;
                                     updateDiagnosaButton();
                                 })
-                                .catch(err => {
-                                    status.innerHTML = "❌ Gagal menganalisis suara.";
+                                .catch(() => {
+                                    status.innerText = "❌ Gagal menganalisis suara.";
                                     btn.disabled = false;
                                 });
                         };
 
                         mediaRecorder.start();
-
                         setTimeout(() => {
                             mediaRecorder.stop();
-                            stream.getTracks().forEach(track => track.stop());
+                            stream.getTracks().forEach(t => t.stop());
                         }, 5000);
                     })
                     .catch(err => {
-                        Swal.fire('❌ Gagal akses mic', err.message, 'error');
+                        Swal.fire('❌ Gagal akses mikrofon', err.message, 'error');
                         btn.disabled = false;
                     });
             }
 
+            // =====================
+            // 🔍 DIAGNOSA FINAL
+            // =====================
             function diagnosaStroke() {
                 const output = document.getElementById("diagnosa-hasil");
                 const summary = document.getElementById("diagnosa-summary");
                 const penanganan = document.getElementById("diagnosa-penanganan");
 
-                output.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menganalisis semua indikator...';
+                output.innerText = "⏳ Menganalisis semua indikator...";
                 summary.innerHTML = "";
                 penanganan.innerText = "";
 
@@ -396,24 +395,25 @@
                     .then(res => res.json())
                     .then(data => {
                         if (data.status !== "ok") {
-                            output.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Gagal diagnosa: ${data.message}`;
+                            output.innerText = `❌ Gagal diagnosa: ${data.message}`;
                             return;
                         }
 
-                        output.innerHTML = `<i class="fas fa-brain"></i> Skor NIHSS: <strong>${data.skor}</strong> (${data.kategori})\n<i class="fas fa-bullhorn"></i> ${data.saran}`;
-                        penanganan.innerHTML = `<i class="fas fa-stethoscope"></i> Tindakan: ${data.penanganan}`;
+                        output.innerText = `🧠 Skor NIHSS: ${data.skor} (${data.kategori})\n📢 ${data.saran}`;
+                        penanganan.innerText = `🩺 Tindakan: ${data.penanganan || "-"}`;
 
                         data.summary.forEach(item => {
                             const li = document.createElement("li");
-                            li.innerHTML = `<i class="fas fa-check-circle"></i> ${item}`;
+                            li.innerText = item;
                             summary.appendChild(li);
                         });
                     })
-                    .catch(err => {
-                        output.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Terjadi error saat diagnosa.';
+                    .catch(() => {
+                        output.innerText = "❌ Terjadi error saat diagnosa.";
                     });
             }
         </script>
+
 
 </body>
 

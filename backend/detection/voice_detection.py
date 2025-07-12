@@ -8,7 +8,7 @@ import scipy.io.wavfile
 
 
 # Load model Whisper hanya sekali
-model = whisper.load_model("base")  # dari 'base' ganti ke 'tiny'
+model = whisper.load_model("tiny")  # dari 'base' ganti ke 'tiny'
 
 def record_audio(duration=5, sample_rate=16000, device_index=2):
     try:

@@ -42,37 +42,50 @@ def encode_image_to_base64(img):
 @app.route('/')
 def index():
     return render_template("index.html")
+
+# -------------------------------
+# ROUTE: Deteksi Suara
+# -------------------------------
 @app.route('/analyze-audio', methods=['POST'])
 def analyze_audio():
     try:
-        if 'audio' not in request.files:
-            return jsonify({'status': 'error', 'message': 'File audio tidak ditemukan'}), 400
+        # ======== [SMARTPHONE / BROWSER UPLOAD] ========
+        if 'audio' in request.files:
+            audio_file = request.files['audio']
 
-        audio_file = request.files['audio']
+            # Simpan dan konversi ke .wav
+            temp_input = os.path.join(tempfile.gettempdir(), 'input.webm')
+            temp_output = os.path.join(tempfile.gettempdir(), 'output.wav')
+            audio_file.save(temp_input)
 
-        temp_input = os.path.join(tempfile.gettempdir(), 'input.webm')
-        temp_output = os.path.join(tempfile.gettempdir(), 'output.wav')
-        audio_file.save(temp_input)
+            # Konversi webm -> wav pakai ffmpeg
+            subprocess.call(['ffmpeg', '-y', '-i', temp_input, temp_output],
+                            stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
-        # Konversi webm -> wav
-        subprocess.call(['ffmpeg', '-y', '-i', temp_input, temp_output],
-                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            # Transkripsi dengan whisper
+            model = whisper.load_model("base")
+            result = model.transcribe(temp_output, language='id')
+            text = result.get("text", "").strip()
 
-        # Transkripsi dengan Whisper
-        model = whisper.load_model("base")
-        result = model.transcribe(temp_output, language='id')
-        text = result.get("text", "").strip()
+            clarity = is_speech_clear(text)
+            score = 0 if "jelas" in clarity else 1 if "tidak jelas" in clarity else 2
 
-        from detection.voice_detection import is_speech_clear
-        clarity = is_speech_clear(text)
-        score = 0 if "jelas" in clarity else 1 if "tidak jelas" in clarity else 2
+            return jsonify({
+                'status': 'ok',
+                'hasil': clarity,
+                'transkrip': text,
+                'score': score
+            })
 
-        return jsonify({
-            'status': 'ok',
-            'hasil': clarity,
-            'transkrip': text,
-            'score': score
-        })
+        # ======== [LAPTOP / DESKTOP VIA SOUNDEVICE] ========
+        else:
+            clarity, raw_text, score = detect_speech_clarity(return_text=True)
+            return jsonify({
+                'status': 'ok',
+                'hasil': clarity,
+                'transkrip': raw_text,
+                'score': score
+            })
 
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
