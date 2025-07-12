@@ -29,40 +29,145 @@
                 </div>
                 <div class="hero-visual">
                     <div class="stats-section">
-                        <div class="stat-card">
-                            <div class="stat-number">85%</div>
-                            <div class="stat-label">Akurasi Deteksi</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-number">
-                                < 30s</div>
-                                    <div class="stat-label">Waktu Analisis</div>
+                        <div class="stats-section-center">
+                            <div class="stat-card">
+                                <div class="stat-number">85%</div>
+                                <div class="stat-label">Akurasi Deteksi</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-number">&lt; 30s</div>
+                                <div class="stat-label">Waktu Analisis</div>
                             </div>
                             <div class="stat-card">
                                 <div class="stat-number">2</div>
                                 <div class="stat-label">Metode Deteksi</div>
                             </div>
                         </div>
+                        </div>
                     </div>
                 </div>
             </div>
+            <section class="accordion-section">
+        <div class="container two-column-accordion">
+
+            <!-- Kolom Kiri: Kenapa Penting -->
+            <div class="accordion-column">
+            <h2 class="accordion-title">Kenapa <span>SiTANGGAP Penting?</span></h2>
+
+            <div class="accordion-item">
+                <div class="accordion-header">
+                <i class="fas fa-brain"></i>
+                <h3>Stroke = Darurat Medis</h3>
+                <span class="arrow">&#9662;</span>
+                </div>
+                <div class="accordion-content">
+                <p>Setiap tahun, 15 juta orang mengalami stroke. 5 juta di antaranya mengalami kecacatan permanen.</p>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <div class="accordion-header">
+                <i class="fas fa-stopwatch"></i>
+                <h3>Golden Hour 3 Jam</h3>
+                <span class="arrow">&#9662;</span>
+                </div>
+                <div class="accordion-content">
+                <p>Waktu krusial hanya 3 jam pertama setelah serangan stroke. Deteksi dini bisa menyelamatkan otak.</p>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <div class="accordion-header">
+                <i class="fas fa-house-medical"></i>
+                <h3>Banyak Terjadi di Rumah</h3>
+                <span class="arrow">&#9662;</span>
+                </div>
+                <div class="accordion-content">
+                <p>Kebanyakan stroke terjadi tanpa disadari di rumah, dan sering terlambat ditangani.</p>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <div class="accordion-header">
+                <i class="fas fa-map-marked-alt"></i>
+                <h3>Solusi untuk Wilayah Terpencil</h3>
+                <span class="arrow">&#9662;</span>
+                </div>
+                <div class="accordion-content">
+                <p>SiTANGGAP bisa digunakan di daerah tanpa rumah sakit — cukup kamera dan mikrofon.</p>
+                </div>
+            </div>
+            </div>
+
+            <!-- Kolom Kanan: Kenapa Efektif -->
+            <div class="accordion-column">
+            <h2 class="accordion-title">Kenapa <span>SiTANGGAP Efektif?</span></h2>
+
+            <div class="accordion-item">
+                <div class="accordion-header">
+                <i class="fas fa-bolt"></i>
+                <h3>Deteksi Cepat & Akurat</h3>
+                <span class="arrow">&#9662;</span>
+                </div>
+                <div class="accordion-content">
+                <p>Hasil analisis wajah dan suara keluar dalam kurang dari 30 detik dengan akurasi hingga 85%.</p>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <div class="accordion-header">
+                <i class="fas fa-mobile-alt"></i>
+                <h3>Praktis dan Mudah Digunakan</h3>
+                <span class="arrow">&#9662;</span>
+                </div>
+                <div class="accordion-content">
+                <p>Tanpa alat medis — hanya butuh HP atau laptop. Bisa dilakukan siapa saja.</p>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <div class="accordion-header">
+                <i class="fas fa-laptop-medical"></i>
+                <h3>Berbasis Data Medis</h3>
+                <span class="arrow">&#9662;</span>
+                </div>
+                <div class="accordion-content">
+                <p>Skoring menggunakan NIHSS dan model dilatih dengan data dari ribuan kasus stroke nyata.</p>
+                </div>
+            </div>
+
+            <div class="accordion-item">
+                <div class="accordion-header">
+                <i class="fas fa-user-shield"></i>
+                <h3>Privasi Terjamin</h3>
+                <span class="arrow">&#9662;</span>
+                </div>
+                <div class="accordion-content">
+                <p>Data diproses secara lokal, tidak disimpan di server. Aman dan sesuai etika medis.</p>
+                </div>
+            </div>
+            </div>
+
+        </div>
+        </section>
+
 
             <!-- AI Features -->
             <div class="ai-features">
-                <div class="feature-card">
-                    <i class="fas fa-eye"></i>
+                <div class="feature-card" onclick="showPopup('wajah')">
+                    <i class="fas fa-face-smile"></i>
                     <h3>Analisis Ekspresi Wajah</h3>
-                    <p>AI menganalisis asimetri wajah, ptosis mata, dan kemiringan senyuman untuk mendeteksi gejala stroke facial palsy.</p>
+                    <p>AI menganalisis asimetri wajah, ptosis mata, dan kemiringan senyuman untuk mendeteksi gejala stroke facial palsy. <br><em>Klik untuk lihat rincian skor.</em></p>
                 </div>
-                <div class="feature-card">
+                <div class="feature-card" onclick="showPopup('suara')">
                     <i class="fas fa-microphone-alt"></i>
                     <h3>Analisis Pola Bicara</h3>
-                    <p>Sistem mengevaluasi kejelasan artikulasi, kecepatan bicara, dan pola intonasi untuk mendeteksi disartria.</p>
+                    <p>Sistem mengevaluasi kejelasan artikulasi, kecepatan bicara, dan pola intonasi untuk mendeteksi disartria. <br><em>Klik untuk lihat rincian skor.</em></p>
                 </div>
-                <div class="feature-card">
+                <div class="feature-card" onclick="showPopup('nihss')">
                     <i class="fas fa-chart-line"></i>
                     <h3>Scoring NIHSS</h3>
-                    <p>Menggunakan skala NIHSS (National Institutes of Health Stroke Scale) untuk penilaian tingkat keparahan stroke.</p>
+                    <p>Menggunakan skala NIHSS (National Institutes of Health Stroke Scale) untuk penilaian tingkat keparahan stroke. <br><em>Klik untuk lihat bagaimana skor ditentukan.</em></p>
                 </div>
             </div>
 
@@ -413,6 +518,108 @@
                     });
             }
         </script>
+<!-- Tambahkan ke bagian akhir HTML sebelum </body> -->
+<script>
+function showPopup(feature) {
+    let title = "";
+    let html = "";
+
+    if (feature === 'wajah') {
+        title = "Analisis Ekspresi Wajah";
+        html = `
+        <p>Sistem menganalisis:</p>
+        <ul style="text-align:left">
+            <li><strong>Asimetri Bibir</strong> (Delta Y):
+                <ul>
+                    <li>< 0.01 &rarr; Skor 0 (Normal)</li>
+                    <li>< 0.03 &rarr; Skor 1</li>
+                    <li>&ge; 0.03 &rarr; Skor 2</li>
+                </ul>
+            </li>
+            <li><strong>Ptosis Mata</strong> (Selisih bukaan kiri-kanan):
+                <ul>
+                    <li>< 0.01 &rarr; Skor 0</li>
+                    <li>< 0.02 &rarr; Skor 1</li>
+                    <li>&ge; 0.02 &rarr; Skor 2</li>
+                </ul>
+            </li>
+            <li><strong>Kemiringan Wajah</strong> (Sudut pipi):
+                <ul>
+                    <li>< 3° &rarr; Skor 0</li>
+                    <li>< 6° &rarr; Skor 1</li>
+                    <li>&ge; 6° &rarr; Skor 2</li>
+                </ul>
+            </li>
+        </ul>
+        <p><strong>Total Skor Ekspresi:</strong> 0&ndash;6</p>`;
+    } else if (feature === 'suara') {
+        title = "Analisis Pola Bicara";
+        html = `
+        <p>Pasien diminta mengucapkan kalimat: <em>\"Hari ini saya makan nasi\"</em></p>
+        <ul style="text-align:left">
+            <li>Minimal 2 kata dikenali (\"makan\", \"nasi\", dll) &rarr; <strong>Suara jelas</strong> (Skor 0)</li>
+            <li>Hanya 1 kata dikenali &rarr; <strong>Suara tidak jelas</strong> (Skor 1)</li>
+            <li>Tidak ada suara dikenali &rarr; <strong>Tidak ada suara</strong> (Skor 2)</li>
+        </ul>`;
+    } else if (feature === 'nihss') {
+        title = "Scoring NIHSS";
+        html = `
+        <p>Skor akhir NIHSS adalah hasil penjumlahan dari:</p>
+        <ul style="text-align:left">
+            <li><strong>Skor Ekspresi Wajah:</strong> 0&ndash;6</li>
+            <li><strong>Skor Pola Bicara:</strong> 0&ndash;2</li>
+        </ul>
+        <p><strong>Interpretasi Skor:</strong></p>
+        <ul style="text-align:left">
+            <li>0 &rarr; Normal</li>
+            <li>1&ndash;2 &rarr; Ringan</li>
+            <li>3&ndash;4 &rarr; Sedang</li>
+            <li>&ge; 5 &rarr; Berat</li>
+        </ul>`;
+    }
+
+    Swal.fire({
+        title: title,
+        html: html,
+        icon: 'info',
+        confirmButtonText: 'Tutup',
+        width: 600
+    });
+}
+</script>
+
+<!-- Tambahkan onclick ke tiap feature-card -->
+<div class="feature-card" onclick="popupEkspresi()">
+    <i class="fas fa-face-smile"></i>
+    <h3>Analisis Ekspresi Wajah</h3>
+    <p>Klik untuk melihat cara sistem menilai ekspresi wajah dan menghitung skor.</p>
+</div>
+        <p>AI menganalisis asimetri wajah, ptosis mata, dan kemiringan senyuman untuk mendeteksi stroke facial palsy.</p>
+    </div>
+    <div class="feature-card" onclick="popupSuara()">
+    <i class="fas fa-microphone-alt"></i>
+    <h3>Analisis Pola Bicara</h3>
+    <p>Klik untuk melihat bagaimana sistem menganalisis suara dan menentukan skornya.</p>
+</div>
+        <h3>Analisis Pola Bicara</h3>
+        <p>Sistem mengevaluasi kejelasan artikulasi, kecepatan bicara, dan pola intonasi untuk mendeteksi disartria.</p>
+    </div>
+    <div class="feature-card" onclick="showPopup('nihss')">
+        <i class="fas fa-chart-line"></i>
+        <h3>Scoring NIHSS</h3>
+        <p>Menggabungkan hasil analisis wajah & suara untuk mengukur tingkat keparahan stroke.</p>
+    </div>
+</div>
+
+<script>
+  document.querySelectorAll('.accordion-header').forEach(header => {
+    header.addEventListener('click', () => {
+      const item = header.parentElement;
+      item.classList.toggle('active');
+      header.classList.toggle('active');
+    });
+  });
+</script>
 
 
 </body>
