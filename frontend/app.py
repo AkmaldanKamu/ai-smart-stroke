@@ -42,6 +42,7 @@ def encode_image_to_base64(img):
 @app.route('/')
 def index():
     return render_template("index.html")
+
 @app.route('/analyze-audio', methods=['POST'])
 def analyze_audio():
     try:
@@ -50,11 +51,12 @@ def analyze_audio():
 
         audio_file = request.files['audio']
 
+        # Simpan file sementara
         temp_input = os.path.join(tempfile.gettempdir(), 'input.webm')
         temp_output = os.path.join(tempfile.gettempdir(), 'output.wav')
         audio_file.save(temp_input)
 
-        # Konversi webm -> wav
+        # Konversi dari webm ke wav (dengan ffmpeg)
         subprocess.call(['ffmpeg', '-y', '-i', temp_input, temp_output],
                         stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 
@@ -63,15 +65,14 @@ def analyze_audio():
         result = model.transcribe(temp_output, language='id')
         text = result.get("text", "").strip()
 
-        from detection.voice_detection import is_speech_clear
-        clarity = is_speech_clear(text)
-        score = 0 if "jelas" in clarity else 1 if "tidak jelas" in clarity else 2
+        # ✅ Panggil fungsi dengan return_score=True
+        label, score = is_speech_clear(text, return_score=True)
 
         return jsonify({
             'status': 'ok',
-            'hasil': clarity,
+            'hasil': label,      # contoh: "⚠️ Suara Kurang Jelas"
             'transkrip': text,
-            'score': score
+            'score': score       # contoh: 1
         })
 
     except Exception as e:
@@ -108,35 +109,13 @@ def diagnosa():
     voice_result = data.get("voice_result")
     voice_score = data.get("voice_score")
 
-    # Validasi input
     if not all([image_b64, face_kategori, voice_result]) or face_score is None or voice_score is None:
         return jsonify({'status': 'error', 'message': 'Data tidak lengkap'}), 400
 
     try:
-        # 🧠 Hitung total skor NIHSS dari wajah dan suara
         total_score = int(face_score) + int(voice_score)
 
-        # 🩺 Penentuan kategori dan saran berdasarkan total skor
-        if total_score == 0:
-            kategori = "Normal"
-            saran = "Pasien tidak menunjukkan tanda stroke."
-        elif total_score <= 2:
-            kategori = "Ringan"
-            saran = "Amati, bisa konsultasi dokter."
-        elif total_score <= 4:
-            kategori = "Sedang"
-            saran = "Segera ke rumah sakit."
-        else:
-            kategori = "Berat"
-            saran = "Panggil ambulans secepatnya!"
-
-        # 📝 Ringkasan diagnosis
-        summary = []
-
-        # Interpretasi wajah
-        summary.append(f"Wajah menunjukkan gejala: {face_kategori}.")
-
-        # Interpretasi suara
+        # Diagnosa Berdasarkan Skor NIHSS
         if total_score == 0:
             kategori = "Normal"
             saran = "Pasien tidak menunjukkan tanda stroke."
@@ -154,21 +133,36 @@ def diagnosa():
             saran = "Panggil ambulans secepatnya!"
             penanganan = "Hubungi 119 dan siapkan tindakan darurat."
 
+        # Summary ringkasan diagnosis
+        summary = []
 
-        # Hasil akhir
+        if face_kategori.lower() == "normal":
+            summary.append("Tidak ditemukan kelainan pada otot wajah.")
+        else:
+            summary.append(f"Wajah menunjukkan gejala: {face_kategori}.")
+
+        voice_lower = voice_result.lower()
+        if "tidak ada suara" in voice_lower:
+            summary.append("Pasien tidak dapat berbicara saat diminta, gejala afasia berat.")
+        elif "tidak jelas" in voice_lower:
+            summary.append("Ucapan terdengar tidak jelas, indikasi gangguan bicara (dysarthria).")
+        else:
+            summary.append("Ucapan terdengar normal.")
+
         summary.append(f"Kategori stroke: {kategori} ({total_score} poin).")
         summary.append(f"Saran tindakan: {saran}")
+        summary.append(f"🩺 Penanganan: {penanganan}")
 
         return jsonify({
-        'status': 'ok',
-        'skor': total_score,
-        'kategori': kategori,
-        'saran': saran,
-        'penanganan': penanganan,  
-        'summary': summary,
-        'face': face_kategori,
-        'voice': voice_result
-    })
+            'status': 'ok',
+            'skor': total_score,
+            'kategori': kategori,
+            'saran': saran,
+            'penanganan': penanganan,
+            'summary': summary,
+            'face': face_kategori,
+            'voice': voice_result
+        })
 
     except Exception as e:
         return jsonify({'status': 'error', 'message': str(e)}), 500
