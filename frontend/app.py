@@ -15,6 +15,7 @@ from detection.voice_detection import detect_speech_clarity, is_speech_clear
 from detection.voice_detection import detect_speech_clarity
 from detection.face_detection import detect_facial_droop_from_frame
 from detection.nihss_scoring import score_nihss, generate_diagnosis_summary
+from detection.guidance_nlp import generate_guidance
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
 
@@ -114,6 +115,7 @@ def diagnosa():
 
     try:
         total_score = int(face_score) + int(voice_score)
+        
 
         # Diagnosa Berdasarkan Skor NIHSS
         if total_score == 0:
@@ -152,6 +154,8 @@ def diagnosa():
         summary.append(f"Kategori stroke: {kategori} ({total_score} poin).")
         summary.append(f"Saran tindakan: {saran}")
         summary.append(f"🩺 Penanganan: {penanganan}")
+        guidance = generate_guidance(total_score)
+        
 
         return jsonify({
             'status': 'ok',
@@ -160,6 +164,7 @@ def diagnosa():
             'saran': saran,
             'penanganan': penanganan,
             'summary': summary,
+            'guidance': guidance,
             'face': face_kategori,
             'voice': voice_result
         })

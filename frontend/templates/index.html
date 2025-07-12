@@ -271,6 +271,12 @@
             <div class="diagnosis-summary">
                 <ul id="diagnosa-summary"></ul>
             </div>
+
+            <!-- Panduan & Edukasi -->
+            <div class="guidance-section">
+                <h2><i class="fas fa-hands-helping"></i> Panduan & Edukasi</h2>
+                <div id="guidance-text">Panduan akan muncul setelah hasil diagnosa.</div>
+            </div>
         </div>
 
         <!-- Footer -->
@@ -478,10 +484,12 @@
             const output = document.getElementById("diagnosa-hasil");
             const summary = document.getElementById("diagnosa-summary");
             const penanganan = document.getElementById("diagnosa-penanganan");
+            const guidanceBox = document.getElementById("guidance-text");
 
             output.innerText = "⏳ Menganalisis semua indikator...";
             summary.innerHTML = "";
             penanganan.innerText = "";
+            guidanceBox.innerHTML = "⏳ Menyusun panduan pertolongan pertama...";
 
             fetch("/diagnosa", {
                     method: "POST",
@@ -500,24 +508,39 @@
                 .then(data => {
                     if (data.status !== "ok") {
                         output.innerText = `❌ Gagal diagnosa: ${data.message}`;
+                        guidanceBox.innerHTML = "❌ Gagal memuat panduan.";
                         return;
                     }
 
+                    // Hasil utama
                     output.innerText = `🧠 Skor NIHSS: ${data.skor} (${data.kategori})\n📢 ${data.saran}`;
                     penanganan.innerText = `🩺 Tindakan: ${data.penanganan || "-"}`;
 
+                    // Ringkasan diagnosa
+                    summary.innerHTML = "";
                     data.summary.forEach(item => {
                         const li = document.createElement("li");
                         li.innerText = item;
                         summary.appendChild(li);
                     });
+
+                    // ✅ Tampilkan panduan jika guidance berupa string
+                    if (typeof data.guidance === "string") {
+                        guidanceBox.innerHTML = data.guidance;
+                    } else {
+                        // Debug fallback kalau guidance bukan string
+                        guidanceBox.innerHTML = "⚠️ Panduan tidak tersedia atau dalam format salah.";
+                        console.warn("Format guidance tidak valid:", data.guidance);
+                    }
                 })
-                .catch(() => {
+                .catch(error => {
                     output.innerText = "❌ Terjadi error saat diagnosa.";
+                    guidanceBox.innerHTML = "❌ Gagal memuat panduan.";
+                    console.error("Diagnosa error:", error);
                 });
         }
     </script>
-    <!-- Tambahkan ke bagian akhir HTML sebelum </body> -->
+
     <script>
         function showPopup(feature) {
             let title = "";
