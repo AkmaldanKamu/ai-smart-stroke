@@ -60,9 +60,13 @@
                             <h3>Stroke = Darurat Medis</h3>
                             <span class="arrow">&#9662;</span>
                         </div>
-                        <div class="accordion-content">
-                            <p>Menurut WHO, Setiap tahun 15 juta orang mengalami stroke. 5 juta di antaranya mengalami kecacatan permanen.</p>
-                        </div>
+                        <div class="accordion-content" style="text-align: justify;">
+                        <p>
+                            Menurut data WHO, Indonesia memiliki beban stroke yang signifikan secara global. Pada tahun 2020, Indonesia menduduki peringkat 
+                            ke-11 di dunia untuk angka kematian stroke yang disesuaikan usia. Bahkan Indonesia menempati peringkat ke-7 tertinggi dalam 
+                            kematian akibat stroke berdasarkan data WHO tahun 2018. Secara umum, stroke merupakan penyebab utama kematian di Indonesia.
+                        </p>
+                    </div>
                     </div>
 
                     <div class="accordion-item">
@@ -110,7 +114,7 @@
                             <span class="arrow">&#9662;</span>
                         </div>
                         <div class="accordion-content">
-                            <p>Hasil analisis wajah dan suara keluar dalam kurang dari 30 detik.</p>
+                            <p>Hasil analisis wajah dan suara keluar dalam kurang dari 60 detik.</p>
                         </div>
                     </div>
 
@@ -591,41 +595,63 @@
 
             if (feature === 'wajah') {
                 title = "Analisis Ekspresi Wajah";
-                html = `
-        <p>Sistem menganalisis:</p>
-        <ul style="text-align:left">
-            <li><strong>Asimetri Bibir</strong> (Delta Y):
-                <ul>
-                    <li>< 0.01 &rarr; Skor 0 (Normal)</li>
-                    <li>< 0.03 &rarr; Skor 1</li>
-                    <li>&ge; 0.03 &rarr; Skor 2</li>
-                </ul>
-            </li>
-            <li><strong>Ptosis Mata</strong> (Selisih bukaan kiri-kanan):
-                <ul>
-                    <li>< 0.01 &rarr; Skor 0</li>
-                    <li>< 0.02 &rarr; Skor 1</li>
-                    <li>&ge; 0.02 &rarr; Skor 2</li>
-                </ul>
-            </li>
-            <li><strong>Kemiringan Wajah</strong> (Sudut pipi):
-                <ul>
-                    <li>< 3° &rarr; Skor 0</li>
-                    <li>< 6° &rarr; Skor 1</li>
-                    <li>&ge; 6° &rarr; Skor 2</li>
-                </ul>
-            </li>
-        </ul>
-        <p><strong>Total Skor Ekspresi:</strong> 0&ndash;6</p>`;
-            } else if (feature === 'suara') {
-                title = "Analisis Pola Bicara";
-                html = `
-        <p>Pasien diminta mengucapkan kalimat: <em>\"Hari ini saya makan nasi\"</em></p>
-        <ul style="text-align:left">
-            <li>Minimal 2 kata dikenali (\"makan\", \"nasi\", dll) &rarr; <strong>Suara jelas</strong> (Skor 0)</li>
-            <li>Hanya 1 kata dikenali &rarr; <strong>Suara tidak jelas</strong> (Skor 1)</li>
-            <li>Tidak ada suara dikenali &rarr; <strong>Tidak ada suara</strong> (Skor 2)</li>
-        </ul>`;
+            html = `
+                <div style="text-align: justify">
+                    <p style="text-align: center;"><strong>bibir</strong></p>
+                    <p>
+                        Delta Y = untuk menghitung selisih vertikal antara posisi bibir kiri dan kanan<br>
+                        Rasio x = jarak horizontal antara bibir kiri dan kanan. untuk memastikan posisi wajah dalam frame kamera ideal (tidak terlalu dekat atau jauh)<br>
+                        Skor = diambil dari data Delta Y<br>
+                        Rumus<br>
+                        Kurang 0,01 = 0<br>
+                        Kurang 0,03 = 1<br>
+                        lebih dari 0,03 = 2
+                    </p>
+
+                    <p style="text-align: center;"><strong>mata</strong></p>
+                    <p>
+                        Delta Openness = Sebagai indikator adanya ptosis (kelopak mata turun), yang sering terjadi pada stroke.<br>
+                        Ptosis = untuk mengetahui kondisi medis di mana kelopak mata atas turun secara tidak normal<br>
+                        Skor = diambil dari Delta Openness<br>
+                        Rumus<br>
+                        Kurang 0,01 = 0<br>
+                        Kurang 0,02 = 1<br>
+                        lebih dari 0,02 = 2
+                    </p>
+
+                    <p style="text-align: center;"><strong>Pipi</strong></p>
+                    <p>
+                        Kemiringan = untuk menganalisis kemiringan wajah secara horizontal menggunakan titik landmark pipi kiri dan pipi kanan<br>
+                        Skor = diambil dari kemiringan pipi<br>
+                        Rumus<br>
+                        Kurang 0,03 = 0<br>
+                        Kurang 0,06 = 1<br>
+                        lebih dari 0,06 = 2
+                    </p>
+
+                    <p style="text-align: center;"><strong>Skoring</strong></p>
+                    <p>
+                        Menghitung nilai total = nilai_bibir + nilai_mata + nilai_pipi
+                    </p>
+                </div>
+            `;
+
+           } else if (feature === 'suara') {
+            title = "Analisis Pola Bicara";
+            html = `
+                <div style="text-align: justify">
+                    <p>Evaluasi kejelasan suara berdasarkan jumlah kata dari kalimat target:</p>
+                    <p style="text-align:center"><em>"Hari ini saya makan nasi"</em></p>
+                    
+                    <p><strong>Skor NIHSS:</strong></p>
+                    <ul style="text-align:left">
+                        <li>✅ 5 kata cocok &rarr; <strong>Suara Jelas</strong> (Skor 0)</li>
+                        <li>✅ 4 kata cocok &rarr; <strong>Suara Hampir Jelas</strong> (Skor 0)</li>
+                        <li>⚠️ 2–3 kata &rarr; <strong>Suara Kurang Jelas</strong> (Skor 1)</li>
+                        <li>❌ 1 kata &rarr; <strong>Suara Tidak Jelas</strong> (Skor 2)</li>
+                        <li>❌ 0 kata &rarr; <strong>Tidak Ada Suara</strong> (Skor 2)</li>
+                    </ul>
+                </div>`;
             } else if (feature === 'nihss') {
                 title = "Scoring NIHSS";
                 html = `
