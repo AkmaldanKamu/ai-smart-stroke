@@ -15,7 +15,7 @@
         <!-- Header -->
         <div class="header">
             <h1><i class="fas fa-brain"></i> SiTANGGAP</h1>
-            <p class="subtitle">Sistem Tangkap Gejala Stroke Cepat - Deteksi Dini untuk Penanganan Tepat</p>
+            <p class="subtitle">Sistem Tangkap Gejala Stroke Cepat - Untuk mendeteksi gejala awal stroke dan menilai tingkat keparahannya.</p>
         </div>
 
         <!-- Hero Section -->
@@ -23,15 +23,15 @@
             <div class="hero-content">
                 <div class="hero-text">
                     <h2><i class="fas fa-robot"></i> AI Deteksi Stroke Terdepan</h2>
-                    <p>SiTANGGAP menggunakan teknologi Artificial Intelligence (AI) canggih untuk mendeteksi gejala stroke secara dini melalui analisis ekspresi wajah dan pola bicara.</p>
-                    <p>Dirancang agar inklusif dan mudah diakses, SiTANGGAP memungkinkan siapa pun dan di mana pun mereka berada, untuk melakukan deteksi dini stroke hanya dengan perangkat kamera dan mikrofon.</p>
-                    <p><strong>Deteksi dini stroke dapat menyelamatkan nyawa!</strong> Setiap menit sangat berharga dalam penanganan stroke.</p>
+                    <p>SiTANGGAP menggunakan teknologi Artificial Intelligence (AI) canggih untuk mendeteksi gejala awal stroke melalui analisis ekspresi wajah dan pola bicara.</p>
+                    <p>Dirancang agar inklusif dan mudah diakses, SiTANGGAP memungkinkan siapa pun dan di mana pun mereka berada, untuk melakukan deteksi awal stroke hanya dengan perangkat kamera dan mikrofon.</p>
+                    <p><strong>Deteksi awal stroke dapat menyelamatkan nyawa!</strong> Setiap menit sangat berharga dalam penanganan stroke.</p>
                 </div>
                 <div class="hero-visual">
                     <div class="stats-section">
                         <div class="stats-section-center">
                             <div class="stat-card">
-                                <div class="stat-number">&lt; 30s</div>
+                                <div class="stat-number">&lt;60s</div>
                                 <div class="stat-label">Waktu Analisis</div>
                             </div>
                             <div class="stat-card">
@@ -72,7 +72,7 @@
                             <span class="arrow">&#9662;</span>
                         </div>
                         <div class="accordion-content">
-                            <p>Waktu krusial hanya 3 jam pertama setelah serangan stroke. Deteksi dini bisa menyelamatkan otak.</p>
+                            <p>Waktu krusial hanya 3 jam pertama setelah serangan stroke. Deteksi awal bisa menyelamatkan otak.</p>
                         </div>
                     </div>
 
@@ -121,7 +121,7 @@
                             <span class="arrow">&#9662;</span>
                         </div>
                         <div class="accordion-content">
-                            <p>Tanpa alat medis untuk deteksi dini — hanya butuh HP atau laptop. Bisa dilakukan siapa saja.</p>
+                            <p>Tanpa alat medis untuk deteksi awal — hanya butuh HP atau laptop. Bisa dilakukan siapa saja.</p>
                         </div>
                     </div>
 
@@ -200,7 +200,7 @@
         <!-- Disclaimer -->
         <div class="disclaimer-section">
             <h3><i class="fas fa-exclamation-triangle"></i> Disclaimer Penting</h3>
-            <p><strong>PERHATIAN:</strong> SiTANGGAP adalah alat bantu deteksi dini yang menggunakan teknologi AI. Sistem ini <strong>TIDAK</strong> dapat menggantikan diagnosis medis profesional.</p>
+            <p><strong>PERHATIAN:</strong> SiTANGGAP adalah alat bantu deteksi awal yang menggunakan teknologi AI. Sistem ini <strong>TIDAK</strong> dapat menggantikan diagnosis medis profesional.</p>
             <p><strong>Penting untuk diingat:</strong></p>
             <ul style="margin-left: 20px; margin-top: 10px;">
                 <li>Hasil deteksi AI bersifat indikatif, bukan diagnosis pasti</li>
@@ -259,7 +259,7 @@
             </div>
         </div>
 
-        <!-- Diagnosis Section -->
+                <!-- Diagnosis Section -->
         <div class="diagnosis-section">
             <h2><i class="fas fa-stethoscope"></i> Diagnosa Stroke</h2>
 
@@ -275,17 +275,22 @@
             <!-- Panduan & Edukasi -->
             <div class="guidance-section">
                 <h2><i class="fas fa-hands-helping"></i> Panduan & Edukasi</h2>
-                <div id="guidance-text">Panduan akan muncul setelah hasil diagnosa.</div>
+               <div class="guidance-inner" id="guidance-text">
+                    <div class="guidance-box guidance-placeholder">
+                        <i class="fas fa-lightbulb"></i> Panduan akan muncul setelah hasil diagnosa.
+                    </div>
+                </div>
             </div>
-        </div>
+        </div> <!-- penutup diagnosis-section -->
 
-        <!-- Footer -->
-        <div class="footer">
-            <p>&copy; 2025 SiTANGGAP - Sistem Deteksi Stroke Dini | Kesehatan adalah prioritas utama</p>
-            <p style="margin-top: 10px; font-size: 0.8rem; opacity: 0.8;">
-                Dikembangkan dengan teknologi AI untuk membantu deteksi dini stroke. Selalu konsultasikan dengan tenaga medis profesional.
-            </p>
-        </div>
+    </div> <!-- penutup .container -->
+
+    <!-- Footer dipindah ke luar container -->
+    <div class="footer">
+        <p>&copy; 2025 SiTANGGAP - Sistem Deteksi Stroke awal | Kesehatan adalah prioritas utama</p>
+        <p style="margin-top: 10px; font-size: 0.8rem; opacity: 0.8;">
+            Dikembangkan dengan teknologi AI untuk membantu deteksi awal stroke. Selalu konsultasikan dengan tenaga medis profesional.
+        </p>
     </div>
 
     <script defer>
@@ -380,14 +385,14 @@
                     el.innerHTML = `✅ Wajah: ${data.kategori}`;
                     const p = data.penilaian;
                     detail.innerHTML = `
-                        <li><strong>🧠 Total Skor Wajah:</strong> ${data.score_total}/6</li>
+                        <li><strong>"👤" Total Skor Wajah:</strong> ${data.score_total}/6</li>
                         <li><strong>💡 Saran:</strong> ${data.saran}</li>
                         <hr>
                         <li><strong>👄 Bibir</strong></li>
                         <ul><li>Delta Y: ${p.bibir.delta_y}</li><li>Rasio X: ${p.bibir.rasio_x}</li><li>Skor: ${p.bibir.nilai}/2</li></ul>
                         <li><strong>👁️ Mata</strong></li>
                         <ul><li>Delta Openness: ${p.mata.delta_openness}</li><li>Ptosis: ${p.mata.ptosis_suspect ? "Ya" : "Tidak"}</li><li>Skor: ${p.mata.nilai}/2</li></ul>
-                        <li><strong>🧭 Pipi</strong></li>
+                        <li><strong>🧏‍♀️ Pipi</strong></li>
                         <ul><li>Kemiringan: ${p.pipi.kemiringan_derajat}°</li><li>Skor: ${p.pipi.nilai}/2</li></ul>
                     `;
                     updateDiagnosaButton();
@@ -515,6 +520,27 @@
                     // Hasil utama
                     output.innerText = `🧠 Skor NIHSS: ${data.skor} (${data.kategori})\n📢 ${data.saran}`;
                     penanganan.innerText = `🩺 Tindakan: ${data.penanganan || "-"}`;
+                    
+                    const hasilBox = document.querySelector(".diagnosis-result");
+                    hasilBox.classList.remove("critical");
+                    hasilBox.style.background = "#f0f4ff"; // default normal
+                    hasilBox.style.borderLeft = "8px solid transparent";
+                    hasilBox.style.color = "#000";
+
+                    if (data.kategori === "Berat") {
+                        hasilBox.classList.add("critical");
+                        hasilBox.style.background = "#ffe6e6";
+                        hasilBox.style.borderLeft = "8px solid #e74c3c";
+                        hasilBox.style.color = "#b30000";
+                    } else if (data.kategori === "Sedang") {
+                        hasilBox.style.background = "#fffbe6";
+                        hasilBox.style.borderLeft = "8px solid #f1c40f";
+                        hasilBox.style.color = "#8e5e00";
+                    } else if (data.kategori === "Ringan") {
+                        hasilBox.style.background = "#f9fbe7";
+                        hasilBox.style.borderLeft = "8px solid #82c91e";
+                        hasilBox.style.color = "#466802";
+                    }
 
                     // Ringkasan diagnosa
                     summary.innerHTML = "";
@@ -525,19 +551,36 @@
                     });
 
                     // ✅ Tampilkan panduan jika guidance berupa string
-                    if (typeof data.guidance === "string") {
-                        guidanceBox.innerHTML = data.guidance;
-                    } else {
-                        // Debug fallback kalau guidance bukan string
-                        guidanceBox.innerHTML = "⚠️ Panduan tidak tersedia atau dalam format salah.";
-                        console.warn("Format guidance tidak valid:", data.guidance);
-                    }
-                })
-                .catch(error => {
-                    output.innerText = "❌ Terjadi error saat diagnosa.";
-                    guidanceBox.innerHTML = "❌ Gagal memuat panduan.";
-                    console.error("Diagnosa error:", error);
-                });
+                                        if (typeof data.guidance === "string") {
+                    guidanceBox.innerHTML = `
+                        <div class="guidance-box">
+                            <i class=""fas fa-lightbulb"></i> <strong>Panduan Penanganan:</strong>
+                            <p>${data.guidance}</p>
+                        </div>
+                    `;
+                } else if (Array.isArray(data.guidance)) {
+                    guidanceBox.innerHTML = `
+                        <div class="guidance-box">
+                            <i class="fas fa-lightbulb"></i> <strong>Panduan Penanganan:</strong>
+                            <ul>
+                                ${data.guidance.map(item => `<li>${item}</li>`).join("")}
+                            </ul>
+                        </div>
+                    `;
+                } else {
+                guidanceBox.innerHTML = `
+                    <div class="guidance-box guidance-error">
+                        ⚠️ Panduan tidak tersedia atau dalam format salah.
+                    </div>
+                `;
+            }
+            })
+            .catch(error => {
+                output.innerText = "❌ Terjadi error saat diagnosa.";
+                guidanceBox.innerHTML = "❌ Gagal memuat panduan.";
+                console.error("Diagnosa error:", error);
+            });
+
         }
     </script>
 
@@ -618,7 +661,6 @@
             });
         });
     </script>
-
 
 </body>
 
