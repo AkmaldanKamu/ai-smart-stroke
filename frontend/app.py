@@ -12,7 +12,6 @@ from flask import Flask, render_template, request, jsonify
 # Tambahkan path ke backend
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'backend')))
 from detection.voice_detection import detect_speech_clarity, is_speech_clear
-from detection.voice_detection import detect_speech_clarity
 from detection.face_detection import detect_facial_droop_from_frame
 from detection.nihss_scoring import score_nihss, generate_diagnosis_summary
 from detection.guidance_nlp import generate_guidance
