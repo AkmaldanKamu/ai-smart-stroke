@@ -6,7 +6,13 @@ import numpy as np
 import tempfile
 import subprocess
 import whisper
-from flask import Flask, render_template, request, jsonify
+import google.generativeai as genai
+from flask import Flask, render_template, request, jsonify, Response, stream_with_context
+from dotenv import load_dotenv
+
+# Load .env dari parent directory
+env_path = os.path.join(os.path.dirname(__file__), '..', '.env')
+load_dotenv(dotenv_path=env_path)
 
 # Tambahkan path ke backend
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'backend')))
@@ -17,10 +23,14 @@ from detection.guidance_nlp import generate_guidance
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
 
-# Load Whisper model sekali saja (bukan di dalam route)
+# Load Whisper model sekali saja
 print("⏳ Memuat model Whisper...")
 whisper_model = whisper.load_model("base")
 print("✅ Model Whisper siap.")
+
+# Gemini setup
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
+genai.configure(api_key=GEMINI_API_KEY)
 
 # --------------------------
 # UTIL FUNCTIONS
@@ -191,6 +201,79 @@ def diagnosa():
     except Exception as e:
         print(f"❌ ERROR diagnosa: {e}")
         return jsonify({'status': 'error', 'message': str(e)}), 500
+
+# -------------------------------
+# ROUTE: AI Guidance (Gemini Streaming)
+# -------------------------------
+@app.route('/ai-guidance', methods=['POST'])
+def ai_guidance():
+    data = request.get_json()
+    if not data:
+        return jsonify({'status': 'error', 'message': 'Data tidak valid'}), 400
+
+    if not GEMINI_API_KEY:
+        return jsonify({'status': 'error', 'message': 'GEMINI_API_KEY belum di-set'}), 500
+
+    skor          = data.get('skor', 0)
+    kategori      = data.get('kategori', 'Normal')
+    face_kategori = data.get('face_kategori', 'Normal')
+    face_score    = data.get('face_score', 0)
+    voice_result  = data.get('voice_result', '')
+    voice_score   = data.get('voice_score', 0)
+    penanganan    = data.get('penanganan', '')
+    confidence    = data.get('confidence', None)
+
+    prompt = f"""Kamu adalah asisten medis AI yang membantu deteksi dini stroke menggunakan aplikasi SiTANGGAP.
+
+Berikut hasil skrining pasien:
+- Skor NIHSS Total: {skor}/8
+- Kategori: {kategori}
+- Deteksi Wajah: {face_kategori} (skor {face_score}/6)
+- Deteksi Suara: {voice_result} (skor {voice_score}/2)
+- Penanganan awal: {penanganan}
+{f"- Confidence deteksi wajah: {confidence}%" if confidence else ""}
+
+Berikan respons dalam format berikut (gunakan Bahasa Indonesia yang hangat, jelas, dan mudah dipahami awam):
+
+## 🩺 Analisis Kondisi
+Jelaskan apa arti hasil ini untuk pasien/keluarga dalam 2-3 kalimat sederhana.
+
+## ⚡ Tindakan Segera
+Berikan 3-5 langkah konkret yang harus dilakukan SEKARANG, sesuai tingkat keparahan.
+
+## 🚨 Tanda Bahaya
+Sebutkan 3 tanda yang harus membuat mereka langsung ke IGD tanpa menunggu.
+
+## 💊 Pantangan
+Hal-hal yang TIDAK boleh dilakukan saat ini.
+
+## 💬 Pesan untuk Keluarga
+Satu paragraf singkat yang empatik dan menenangkan untuk keluarga pasien.
+
+Catatan penting: Selalu ingatkan bahwa ini hanya skrining awal dan BUKAN pengganti diagnosis dokter."""
+
+    def generate():
+        try:
+            model = genai.GenerativeModel("gemini-1.5-flash")
+            response = model.generate_content(prompt, stream=True)
+            for chunk in response:
+                if chunk.text:
+                    # Escape newlines untuk SSE
+                    text = chunk.text.replace('\n', '\\n')
+                    yield f"data: {text}\n\n"
+            yield "data: [DONE]\n\n"
+        except Exception as e:
+            print(f"❌ Gemini error: {e}")
+            yield f"data: [ERROR] {str(e)}\n\n"
+
+    return Response(
+        stream_with_context(generate()),
+        mimetype='text/event-stream',
+        headers={
+            'Cache-Control': 'no-cache',
+            'X-Accel-Buffering': 'no',
+        }
+    )
 
 # -------------------------------
 # RUN SERVER + NGROK

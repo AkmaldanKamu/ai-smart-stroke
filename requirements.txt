@@ -12,3 +12,6 @@ numpy
 pandas
 openai-whisper
 ffmpeg-python
+anthropic
+google-generativeai
+python-dotenv

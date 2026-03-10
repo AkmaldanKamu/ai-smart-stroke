@@ -561,12 +561,23 @@ function diagnosaStroke() {
         summary.appendChild(li);
       });
 
-      // Guidance
-      if (typeof data.guidance === "string") {
-        guidanceBox.innerHTML = data.guidance;
-      } else {
-        guidanceBox.innerHTML = `<div class="guidance-placeholder"><i class="fas fa-exclamation"></i> Panduan tidak tersedia.</div>`;
-      }
+      // Guidance — panggil AI streaming
+      guidanceBox.innerHTML = `
+        <div style="display:flex;align-items:center;gap:10px;color:var(--cyan);font-size:0.9rem">
+          <i class="fas fa-spinner fa-spin"></i>
+          <span>AI sedang menganalisis kondisi pasien...</span>
+        </div>`;
+
+      streamAIGuidance({
+        skor: data.skor,
+        kategori: data.kategori,
+        face_kategori: data.face,
+        face_score: hasilDeteksi.face_score,
+        voice_result: data.voice,
+        voice_score: hasilDeteksi.suara_score,
+        penanganan: data.penanganan,
+        confidence: hasilDeteksi.face_confidence || null,
+      });
 
       // Enable export
       document.getElementById("btn-export").disabled = false;
@@ -589,6 +600,79 @@ function diagnosaStroke() {
       guidanceBox.innerHTML = "❌ Gagal memuat panduan.";
       console.error(err);
     });
+}
+
+// ── AI GUIDANCE STREAMING ──
+async function streamAIGuidance(payload) {
+  const guidanceBox = document.getElementById("guidance-text");
+
+  try {
+    const response = await fetch("/ai-guidance", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) throw new Error("Server error " + response.status);
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let fullText = "";
+    guidanceBox.innerHTML = "";
+
+    // Buat container untuk markdown rendering
+    const aiBox = document.createElement("div");
+    aiBox.className = "ai-guidance-box";
+    guidanceBox.appendChild(aiBox);
+
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+
+      const chunk = decoder.decode(value);
+      const lines = chunk.split("\n");
+
+      for (const line of lines) {
+        if (!line.startsWith("data: ")) continue;
+        const text = line.slice(6);
+        if (text === "[DONE]") break;
+        if (text.startsWith("[ERROR]")) {
+          aiBox.innerHTML += `<p style="color:var(--red)">${text.replace("[ERROR] ","")}</p>`;
+          break;
+        }
+        // Unescape \n yang di-escape di backend Gemini
+        fullText += text.replace(/\\n/g, '\n');
+        // Render markdown sederhana secara live
+        aiBox.innerHTML = renderMarkdown(fullText) + '<span class="ai-cursor">▋</span>';
+        guidanceBox.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      }
+    }
+
+    // Hapus cursor setelah selesai
+    aiBox.innerHTML = renderMarkdown(fullText);
+
+    // Simpan ke diagnosisData untuk export PDF
+    if (diagnosisData) diagnosisData.ai_guidance = fullText;
+
+  } catch (err) {
+    guidanceBox.innerHTML = `
+      <div style="color:var(--red);font-size:0.9rem">
+        ❌ Gagal memuat AI guidance: ${err.message}<br>
+        <small style="color:var(--muted)">Pastikan GEMINI_API_KEY sudah di-set di environment.</small>
+      </div>`;
+    console.error("AI Guidance error:", err);
+  }
+}
+
+// ── Simple Markdown Renderer ──
+function renderMarkdown(text) {
+  return text
+    .replace(/^## (.+)$/gm, '<h3 style="color:var(--white);font-family:var(--font-display);margin:16px 0 8px;font-size:1rem">$1</h3>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong style="color:var(--white)">$1</strong>')
+    .replace(/^- (.+)$/gm, '<li style="margin:4px 0;padding-left:4px">$1</li>')
+    .replace(/(<li.*<\/li>\n?)+/g, s => `<ul style="list-style:none;padding:0;margin:8px 0">${s}</ul>`)
+    .replace(/\n\n/g, '<br><br>')
+    .replace(/\n/g, '<br>');
 }
 
 // ── EXPORT PDF ──
