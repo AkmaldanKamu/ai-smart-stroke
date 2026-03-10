@@ -22,6 +22,104 @@
   --radius-lg: 24px;
 }
 
+/* ─── LIGHT MODE ─── */
+body.light-mode {
+  --bg: #f0f4ff;
+  --surface: #ffffff;
+  --surface2: #e8edf8;
+  --border: rgba(0,0,0,0.09);
+  --white: #1a2340;
+  --muted: #7a8aaa;
+}
+
+body.light-mode::after {
+  background-image:
+    linear-gradient(rgba(0,100,200,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,100,200,0.04) 1px, transparent 1px);
+}
+
+body.light-mode .header h1 {
+  background: linear-gradient(135deg, #1a2340 30%, #0077cc);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+body.light-mode .header h1 i { -webkit-text-fill-color: var(--red); }
+
+body.light-mode .hero-text p { color: #3a4a6b; }
+body.light-mode .hero-text h2 { color: #1a2340; }
+
+body.light-mode .accordion-header { color: #1a2340; }
+body.light-mode .accordion-content p { color: #4a5a7a; }
+
+body.light-mode .result-item p { color: #3a4a6b; }
+body.light-mode .result-item li { color: #4a5a7a; }
+
+body.light-mode .diagnosis-result p { color: #2a3a5a; }
+body.light-mode .diagnosis-summary li { color: #4a5a7a; }
+
+body.light-mode #guidance-text { color: #3a4a6b; }
+body.light-mode #guidance-text li { border-left-color: #e6a800; background: rgba(0,0,0,0.03); }
+body.light-mode #guidance-text strong { color: #1a2340; }
+
+body.light-mode .footer-title { color: #7a8aaa; }
+body.light-mode .footer > p { color: #7a8aaa; }
+body.light-mode .footer-sources a { color: #7a8aaa; }
+
+body.light-mode .tech-item p { color: #4a5a7a; }
+body.light-mode .tech-item h4 { color: #1a2340; }
+
+body.light-mode .feature-card p { color: #4a5a7a; }
+body.light-mode .feature-card h3 { color: #1a2340; }
+
+body.light-mode .disclaimer-section p,
+body.light-mode .disclaimer-section li { color: #5a3a40; }
+
+/* ─── THEME TOGGLE BUTTON ─── */
+.theme-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 10px 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--white);
+  transition: all 0.3s;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+.theme-toggle:hover {
+  border-color: var(--cyan);
+  box-shadow: 0 4px 24px rgba(0,229,255,0.15);
+  transform: translateY(-1px);
+}
+
+.theme-toggle .icon-dark { display: inline; }
+.theme-toggle .icon-light { display: none; }
+
+body.light-mode .theme-toggle .icon-dark { display: none; }
+body.light-mode .theme-toggle .icon-light { display: inline; }
+
+/* smooth transition for all elements */
+body, .header, .hero-section, .accordion-section, .feature-card,
+.tech-section, .disclaimer-section, .cta-section, .main-content,
+.camera-section, .controls-section, .results-section, .diagnosis-section,
+.result-item, .diagnosis-result, .accordion-item, .accordion-header,
+.accordion-content, .tech-item, .stat-card, .guidance-section,
+.hospital-section, .hospital-item, .footer {
+  transition: background 0.35s ease, border-color 0.35s ease, color 0.35s ease, box-shadow 0.35s ease;
+}
+
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
 html { scroll-behavior: smooth; }

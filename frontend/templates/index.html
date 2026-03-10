@@ -12,6 +12,12 @@
 </head>
 <body>
 
+<!-- ── THEME TOGGLE ── -->
+<button class="theme-toggle" onclick="toggleTheme()" title="Ganti tema">
+  <span class="icon-dark">🌙 Dark</span>
+  <span class="icon-light">☀️ Light</span>
+</button>
+
 <div class="container">
 
   <!-- ── HEADER ── -->
@@ -742,6 +748,20 @@ document.querySelectorAll(".accordion-header").forEach(header => {
     header.classList.toggle("active");
   });
 });
+</script>
+
+<!-- Theme Toggle -->
+<script>
+function toggleTheme() {
+  const isLight = document.body.classList.toggle("light-mode");
+  localStorage.setItem("sitanggap-theme", isLight ? "light" : "dark");
+}
+
+// Restore saved preference on load
+(function() {
+  const saved = localStorage.getItem("sitanggap-theme");
+  if (saved === "light") document.body.classList.add("light-mode");
+})();
 </script>
 
 </body>
