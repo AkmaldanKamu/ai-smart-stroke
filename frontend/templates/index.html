@@ -314,19 +314,62 @@ function setStep(n) {
 function deteksiWajah() {
   Swal.fire({
     title: "📸 Siap untuk Deteksi Wajah",
-    text: "Hadapkan wajah ke kamera, posisi di tengah, pencahayaan cukup.",
+    html: `
+      <p style="color:#8a9bbf;font-size:0.9rem;margin-bottom:16px">Hadapkan wajah ke kamera, posisi di tengah, pencahayaan cukup.</p>
+      <div style="background:#131929;border-radius:10px;padding:12px;font-size:0.85rem;color:#6b7a99;text-align:left">
+        <div>✅ Wajah menghadap lurus ke kamera</div>
+        <div>✅ Cahaya cukup (tidak gelap/silau)</div>
+        <div>✅ Jarak 40–60cm dari layar</div>
+      </div>`,
     icon: "info",
     background: "#0d1220",
     color: "#f0f4ff",
     confirmButtonColor: "#ff3b5c",
+    showCancelButton: true,
+    cancelButtonColor: "#1e2a3a",
+    cancelButtonText: "🎯 Kalibrasi Dulu",
     confirmButtonText: "Mulai Deteksi",
-  }).then(() => lanjutDeteksiWajah());
+  }).then(result => {
+    if (result.isConfirmed) lanjutDeteksiWajah();
+    else if (result.isDismissed && result.dismiss === Swal.DismissReason.cancel) jalankanKalibrasi();
+  });
+}
+
+async function jalankanKalibrasi() {
+  Swal.fire({
+    title: "🎯 Kalibrasi Wajah",
+    html: `<p style="color:#8a9bbf">Posisikan wajah normal (ekspresi santai, hadap lurus).<br>Sistem akan mengambil baseline dalam <strong style="color:#00e5ff">3 detik</strong>.</p>`,
+    background: "#0d1220",
+    color: "#f0f4ff",
+    showConfirmButton: false,
+    timer: 3000,
+    timerProgressBar: true,
+    didOpen: () => { video.classList.add("scanning"); }
+  });
+
+  await new Promise(r => setTimeout(r, 3000));
+  video.classList.remove("scanning");
+
+  const result = await window.calibrateBaseline(video);
+  if (result.ok) {
+    Swal.fire({
+      icon: "success",
+      title: "✅ Kalibrasi Berhasil",
+      text: "Baseline wajah tersimpan. Deteksi sekarang lebih akurat.",
+      background: "#0d1220",
+      color: "#f0f4ff",
+      confirmButtonColor: "#ff3b5c",
+      confirmButtonText: "Lanjut Deteksi",
+    }).then(() => lanjutDeteksiWajah());
+  } else {
+    Swal.fire({ icon: "error", title: "❌ Kalibrasi Gagal", text: result.message, background: "#0d1220", color: "#f0f4ff" });
+  }
 }
 
 async function lanjutDeteksiWajah() {
   const el = document.getElementById("hasil-wajah");
   const detail = document.getElementById("detail-wajah");
-  el.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mendeteksi ekspresi wajah...';
+  el.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menganalisis 5 frame...';
   detail.innerHTML = "";
 
   const overlay = document.getElementById("cam-overlay");
@@ -335,11 +378,18 @@ async function lanjutDeteksiWajah() {
   setStep(1);
 
   try {
-    // analyzeSymmetryJS didefinisikan di face_detection_js.js (module)
     const data = await window.analyzeSymmetryJS(video);
-
     overlay.classList.remove("active");
     video.classList.remove("scanning");
+
+    // ── Kondisi buruk terdeteksi ──
+    if (data.status === "warning") {
+      el.innerHTML = "⚠️ Kondisi kamera kurang ideal";
+      detail.innerHTML = data.warnings.map(w =>
+        `<li style="color:var(--yellow)">${w}</li>`
+      ).join("") + `<li><button onclick="lanjutDeteksiWajah()" style="margin-top:8px;background:var(--red);border:none;color:white;padding:6px 14px;border-radius:8px;cursor:pointer;font-family:var(--font-display);font-size:0.82rem">🔁 Coba Lagi</button></li>`;
+      return;
+    }
 
     if (data.status !== "ok") {
       el.innerHTML = `❌ ${data.message}`;
@@ -348,14 +398,26 @@ async function lanjutDeteksiWajah() {
 
     hasilDeteksi.wajah = data.kategori;
     hasilDeteksi.face_score = data.score_total;
-    el.innerHTML = `✅ Wajah: <strong>${data.kategori}</strong> &nbsp;|&nbsp; Skor: ${data.score_total}/6`;
+
+    // Warna badge confidence
+    const conf = data.confidence_total;
+    const confColor = conf >= 80 ? "var(--green)" : conf >= 60 ? "var(--yellow)" : "var(--red)";
+    const confLabel = conf >= 80 ? "Tinggi" : conf >= 60 ? "Sedang" : "Rendah";
+
+    el.innerHTML = `✅ Wajah: <strong>${data.kategori}</strong> &nbsp;|&nbsp; Skor: ${data.score_total}/6 &nbsp;|&nbsp; <span style="color:${confColor}">🎯 Confidence: ${conf}% (${confLabel})</span>`;
 
     const p = data.penilaian;
+    const baselineTag = data.baseline_applied
+      ? `<li style="color:var(--cyan);font-size:0.8rem">✅ Kalibrasi baseline diterapkan</li>`
+      : `<li style="color:var(--muted);font-size:0.8rem">ℹ️ Tanpa kalibrasi — klik "Kalibrasi Dulu" untuk hasil lebih akurat</li>`;
+
     detail.innerHTML = `
+      ${baselineTag}
       <li><strong>💡 Saran:</strong> ${data.saran}</li>
-      <li><strong>👄 Bibir</strong> — Delta Y: ${p.bibir.delta_y} | Rasio X: ${p.bibir.rasio_x} | Skor: ${p.bibir.nilai}/2</li>
-      <li><strong>👁️ Mata</strong> — Delta: ${p.mata.delta_openness} | Ptosis: ${p.mata.ptosis_suspect ? "Ya" : "Tidak"} | Skor: ${p.mata.nilai}/2</li>
-      <li><strong>🧏 Pipi</strong> — Kemiringan: ${p.pipi.kemiringan_derajat}° | Skor: ${p.pipi.nilai}/2</li>
+      <li><strong>👄 Bibir</strong> — Delta Y: ${p.bibir.delta_y} | Skor: ${p.bibir.nilai}/2 | Confidence: <span style="color:${p.bibir.confidence>=70?'var(--green)':'var(--yellow)'}">${p.bibir.confidence}%</span></li>
+      <li><strong>👁️ Mata</strong> — Delta: ${p.mata.delta_openness} | Ptosis: ${p.mata.ptosis_suspect?"Ya":"Tidak"} | Skor: ${p.mata.nilai}/2 | Confidence: <span style="color:${p.mata.confidence>=70?'var(--green)':'var(--yellow)'}">${p.mata.confidence}%</span></li>
+      <li><strong>🧏 Pipi</strong> — Kemiringan: ${p.pipi.kemiringan_derajat}° | Skor: ${p.pipi.nilai}/2 | Confidence: <span style="color:${p.pipi.confidence>=70?'var(--green)':'var(--yellow)'}">${p.pipi.confidence}%</span></li>
+      <li style="color:var(--muted);font-size:0.8rem">📊 ${data.frames_used} frame dianalisis</li>
     `;
     setStep(2);
     updateDiagnosaButton();
@@ -760,18 +822,24 @@ function toggleTheme() {
 })();
 </script>
 
-<!-- MediaPipe Face Landmarker (ES Module) -->
+<!-- MediaPipe Face Landmarker (ES Module) — Enhanced Accuracy v2 -->
 <script type="module">
 import {
   FaceLandmarker,
   FilesetResolver,
 } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/+esm";
 
+// ─── Singleton landmarker ─────────────────────────────────────────────────────
 let faceLandmarker = null;
+let isLoading = false;
 
 async function initLandmarker() {
   if (faceLandmarker) return faceLandmarker;
-  console.log("[SiTANGGAP] Memuat model FaceLandmarker...");
+  if (isLoading) {
+    while (isLoading) await new Promise(r => setTimeout(r, 80));
+    return faceLandmarker;
+  }
+  isLoading = true;
   const vision = await FilesetResolver.forVisionTasks(
     "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm"
   );
@@ -784,74 +852,218 @@ async function initLandmarker() {
     runningMode: "IMAGE",
     numFaces: 1,
   });
+  isLoading = false;
   console.log("[SiTANGGAP] Model siap ✅");
   return faceLandmarker;
 }
 
+// ─── Baseline kalibrasi ───────────────────────────────────────────────────────
+let baseline = null; // { deltaBibir, deltaMata, angleFace }
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
 function angleBetween(p1, p2) {
   return (Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180) / Math.PI;
 }
 
+function captureCanvas(videoEl) {
+  const c = document.createElement("canvas");
+  c.width  = videoEl.videoWidth  || 640;
+  c.height = videoEl.videoHeight || 480;
+  c.getContext("2d").drawImage(videoEl, 0, 0, c.width, c.height);
+  return c;
+}
+
+// ── Cek brightness frame (0–255) ──────────────────────────────────────────────
+function getBrightness(canvas) {
+  const ctx = canvas.getContext("2d");
+  const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+  let sum = 0;
+  for (let i = 0; i < data.length; i += 16) sum += (data[i] + data[i+1] + data[i+2]) / 3;
+  return sum / (data.length / 16);
+}
+
+// ── Deteksi kondisi buruk ─────────────────────────────────────────────────────
+function checkConditions(lm, canvas) {
+  const warnings = [];
+
+  // 1. Brightness — cek dari canvas
+  const brightness = getBrightness(canvas);
+  if (brightness < 40)  warnings.push("⚠️ Cahaya terlalu gelap — pindah ke tempat lebih terang");
+  if (brightness > 220) warnings.push("⚠️ Cahaya terlalu terang / silau");
+
+  // 2. Jarak wajah — cek lebar wajah relatif terhadap frame
+  const faceWidth = Math.abs(lm[454].x - lm[234].x);
+  if (faceWidth < 0.20) warnings.push("⚠️ Wajah terlalu jauh — dekatkan ke kamera");
+  if (faceWidth > 0.85) warnings.push("⚠️ Wajah terlalu dekat — mundur sedikit");
+
+  // 3. Head tilt ekstrem — tidak bisa diandalkan skornya
+  const tilt = Math.abs(angleBetween(lm[234], lm[454]));
+  if (tilt > 15) warnings.push("⚠️ Kepala terlalu miring — luruskan kepala");
+
+  // 4. Wajah tidak menghadap lurus (yaw) — pakai landmark hidung vs pipi
+  const noseX   = lm[1].x;
+  const centerX = (lm[234].x + lm[454].x) / 2;
+  if (Math.abs(noseX - centerX) > 0.06) warnings.push("⚠️ Wajah tidak menghadap lurus ke kamera");
+
+  return warnings;
+}
+
+// ── Ekstrak raw metrics dari satu set landmarks ───────────────────────────────
+function extractMetrics(lm) {
+  const deltaBibirY = Math.abs(lm[61].y  - lm[291].y);
+  const ratioBibirX = Math.abs(lm[61].x  - lm[291].x);
+  const lEyeOpen    = Math.abs(lm[159].y - lm[145].y);
+  const rEyeOpen    = Math.abs(lm[386].y - lm[374].y);
+  const deltaMata   = Math.abs(lEyeOpen  - rEyeOpen);
+  const angleFace   = angleBetween(lm[234], lm[454]);
+  return { deltaBibirY, ratioBibirX, deltaMata, lEyeOpen, rEyeOpen, angleFace };
+}
+
+// ── Kalkulasi confidence per komponen ────────────────────────────────────────
+// Confidence = seberapa "stabil" nilai di 5 frame (1 - CV)
+function calcConfidence(values) {
+  const mean = values.reduce((a,b) => a+b, 0) / values.length;
+  if (mean === 0) return 1;
+  const std = Math.sqrt(values.map(v => (v-mean)**2).reduce((a,b)=>a+b,0) / values.length);
+  const cv  = std / mean; // coefficient of variation
+  return Math.max(0, Math.min(1, 1 - cv * 3)); // skala ke 0–1
+}
+
+// ─── KALIBRASI: ambil baseline wajah normal user ─────────────────────────────
+async function calibrateBaseline(videoEl) {
+  const model = await initLandmarker();
+  const frames = [];
+
+  for (let i = 0; i < 5; i++) {
+    await new Promise(r => setTimeout(r, 150));
+    const canvas = captureCanvas(videoEl);
+    const result = model.detect(canvas);
+    if (result.faceLandmarks?.length > 0) {
+      frames.push(extractMetrics(result.faceLandmarks[0]));
+    }
+  }
+
+  if (frames.length < 3) return { ok: false, message: "Gagal kalibrasi — wajah tidak terdeteksi" };
+
+  baseline = {
+    deltaBibir: frames.reduce((s,f) => s + f.deltaBibirY, 0) / frames.length,
+    deltaMata:  frames.reduce((s,f) => s + f.deltaMata,   0) / frames.length,
+    angleFace:  frames.reduce((s,f) => s + f.angleFace,   0) / frames.length,
+  };
+
+  console.log("[SiTANGGAP] Baseline kalibrasi:", baseline);
+  return { ok: true };
+}
+
+// ─── ANALISIS UTAMA: multi-frame + calibration + confidence ──────────────────
 async function analyzeSymmetryJS(videoEl) {
-  const lm_model = await initLandmarker();
+  const model = await initLandmarker();
 
-  const canvas = document.createElement("canvas");
-  canvas.width  = videoEl.videoWidth  || 640;
-  canvas.height = videoEl.videoHeight || 480;
-  canvas.getContext("2d").drawImage(videoEl, 0, 0, canvas.width, canvas.height);
+  const FRAME_COUNT = 5;
+  const frameData   = [];
+  const canvasRef   = captureCanvas(videoEl); // untuk cek brightness
 
-  const result = lm_model.detect(canvas);
+  // Ambil 5 frame dengan jeda 100ms
+  for (let i = 0; i < FRAME_COUNT; i++) {
+    if (i > 0) await new Promise(r => setTimeout(r, 100));
+    const canvas = captureCanvas(videoEl);
+    const result = model.detect(canvas);
+    if (result.faceLandmarks?.length > 0) {
+      frameData.push({ lm: result.faceLandmarks[0], canvas });
+    }
+  }
 
-  if (!result.faceLandmarks || result.faceLandmarks.length === 0) {
+  if (frameData.length === 0) {
     return { status: "error", message: "Wajah tidak terdeteksi. Pastikan wajah terlihat jelas di kamera." };
   }
 
-  const lm = result.faceLandmarks[0];
+  // Cek kondisi buruk dari frame pertama
+  const warnings = checkConditions(frameData[0].lm, frameData[0].canvas);
+  if (warnings.length > 0) {
+    return { status: "warning", warnings, message: warnings.join("\n") };
+  }
 
-  // ── BIBIR ──
-  const lBibir      = lm[61],  rBibir = lm[291];
-  const deltaBibirY = Math.abs(lBibir.y - rBibir.y);
-  const ratioBibirX = Math.abs(lBibir.x - rBibir.x);
+  // Ekstrak metrics dari semua frame
+  const allMetrics = frameData.map(f => extractMetrics(f.lm));
 
-  // ── MATA ──
-  const lEyeOpen = Math.abs(lm[159].y - lm[145].y);
-  const rEyeOpen = Math.abs(lm[386].y - lm[374].y);
-  const deltaMata = Math.abs(lEyeOpen - rEyeOpen);
-  const ptosis    = deltaMata > 0.015;
+  // Rata-rata semua frame (multi-frame averaging)
+  const avg = {
+    deltaBibirY: allMetrics.reduce((s,m) => s + m.deltaBibirY, 0) / allMetrics.length,
+    ratioBibirX: allMetrics.reduce((s,m) => s + m.ratioBibirX, 0) / allMetrics.length,
+    deltaMata:   allMetrics.reduce((s,m) => s + m.deltaMata,   0) / allMetrics.length,
+    angleFace:   allMetrics.reduce((s,m) => s + m.angleFace,   0) / allMetrics.length,
+    lEyeOpen:    allMetrics.reduce((s,m) => s + m.lEyeOpen,    0) / allMetrics.length,
+    rEyeOpen:    allMetrics.reduce((s,m) => s + m.rEyeOpen,    0) / allMetrics.length,
+  };
 
-  // ── PIPI / HEAD TILT ──
-  const angleFace = angleBetween(lm[234], lm[454]);
+  // Terapkan koreksi baseline jika tersedia
+  let corrDeltaBibir = avg.deltaBibirY;
+  let corrDeltaMata  = avg.deltaMata;
+  let corrAngle      = avg.angleFace;
 
-  // ── SCORING ──
-  const nilaiBibir = deltaBibirY < 0.01 ? 0 : deltaBibirY < 0.03 ? 1 : 2;
-  const nilaiMata  = deltaMata   < 0.01 ? 0 : deltaMata   < 0.02 ? 1 : 2;
-  const nilaiPipi  = Math.abs(angleFace) < 3 ? 0 : Math.abs(angleFace) < 6 ? 1 : 2;
+  if (baseline) {
+    corrDeltaBibir = Math.max(0, avg.deltaBibirY - baseline.deltaBibir * 0.7);
+    corrDeltaMata  = Math.max(0, avg.deltaMata   - baseline.deltaMata  * 0.7);
+    corrAngle      = avg.angleFace - baseline.angleFace;
+  }
+
+  // Confidence score per komponen (stabilitas antar frame)
+  const confBibir = calcConfidence(allMetrics.map(m => m.deltaBibirY));
+  const confMata  = calcConfidence(allMetrics.map(m => m.deltaMata));
+  const confPipi  = calcConfidence(allMetrics.map(m => m.angleFace));
+
+  // Scoring
+  const nilaiBibir = corrDeltaBibir < 0.01 ? 0 : corrDeltaBibir < 0.03 ? 1 : 2;
+  const nilaiMata  = corrDeltaMata  < 0.01 ? 0 : corrDeltaMata  < 0.02 ? 1 : 2;
+  const nilaiPipi  = Math.abs(corrAngle) < 3 ? 0 : Math.abs(corrAngle) < 6 ? 1 : 2;
   const nilaiTotal = nilaiBibir + nilaiMata + nilaiPipi;
 
-  // ── KATEGORI ──
-  const map = [
-    [1, "Normal", "Wajah simetris. Tidak ada tanda stroke."],
-    [3, "Ringan",  "Terdapat sedikit asimetri. Perlu observasi."],
-    [5, "Sedang",  "Asimetri wajah terlihat. Konsultasikan ke dokter."],
-    [99,"Berat",   "Tanda jelas facial droop. Segera periksa medis."],
+  // Confidence total (weighted average)
+  const confTotal = ((confBibir + confMata + confPipi) / 3 * 100).toFixed(0);
+
+  // Kategori
+  const kategoriMap = [
+    [1,  "Normal", "Wajah simetris. Tidak ada tanda stroke."],
+    [3,  "Ringan", "Terdapat sedikit asimetri. Perlu observasi."],
+    [5,  "Sedang", "Asimetri wajah terlihat. Konsultasikan ke dokter."],
+    [99, "Berat",  "Tanda jelas facial droop. Segera periksa medis."],
   ];
-  const [, kategori, saran] = map.find(([t]) => nilaiTotal <= t);
+  const [, kategori, saran] = kategoriMap.find(([t]) => nilaiTotal <= t);
 
   return {
-    status: "ok", kategori, saran,
+    status: "ok",
+    kategori, saran,
     score_total: nilaiTotal,
+    frames_used: frameData.length,
+    baseline_applied: !!baseline,
+    confidence_total: +confTotal,
     penilaian: {
-      bibir: { delta_y: +deltaBibirY.toFixed(4), rasio_x: +ratioBibirX.toFixed(4), nilai: nilaiBibir },
-      mata:  { delta_openness: +deltaMata.toFixed(4), ptosis_suspect: ptosis, nilai: nilaiMata },
-      pipi:  { kemiringan_derajat: +angleFace.toFixed(2), nilai: nilaiPipi },
+      bibir: {
+        delta_y:  +corrDeltaBibir.toFixed(4),
+        rasio_x:  +avg.ratioBibirX.toFixed(4),
+        nilai:    nilaiBibir,
+        confidence: +(confBibir * 100).toFixed(0),
+      },
+      mata: {
+        delta_openness: +corrDeltaMata.toFixed(4),
+        ptosis_suspect: corrDeltaMata > 0.015,
+        nilai:    nilaiMata,
+        confidence: +(confMata * 100).toFixed(0),
+      },
+      pipi: {
+        kemiringan_derajat: +corrAngle.toFixed(2),
+        nilai:    nilaiPipi,
+        confidence: +(confPipi * 100).toFixed(0),
+      },
     },
   };
 }
 
-// Expose ke window — dipanggil dari script biasa
-window.analyzeSymmetryJS = analyzeSymmetryJS;
+// ─── Expose ke window ─────────────────────────────────────────────────────────
+window.analyzeSymmetryJS   = analyzeSymmetryJS;
+window.calibrateBaseline   = calibrateBaseline;
 
-// Pre-load model saat halaman dibuka
+// Pre-load model
 initLandmarker().catch(e => console.warn("[SiTANGGAP] Pre-load gagal:", e));
 </script>
 
