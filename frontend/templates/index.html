@@ -6,7 +6,6 @@
   <title>SiTANGGAP — Deteksi Stroke Dini dengan AI</title>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
-  <!-- jsPDF for export -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <link rel="stylesheet" href="../static/style.css" />
 </head>
@@ -311,7 +310,7 @@ function setStep(n) {
   }
 }
 
-// ── DETEKSI WAJAH ──
+// ── DETEKSI WAJAH (JS-side MediaPipe, no backend needed) ──
 function deteksiWajah() {
   Swal.fire({
     title: "📸 Siap untuk Deteksi Wajah",
@@ -324,7 +323,7 @@ function deteksiWajah() {
   }).then(() => lanjutDeteksiWajah());
 }
 
-function lanjutDeteksiWajah() {
+async function lanjutDeteksiWajah() {
   const el = document.getElementById("hasil-wajah");
   const detail = document.getElementById("detail-wajah");
   el.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mendeteksi ekspresi wajah...';
@@ -335,39 +334,38 @@ function lanjutDeteksiWajah() {
   video.classList.add("scanning");
   setStep(1);
 
-  fetch("/detect-face", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ image: ambilFrameBase64() }),
-  })
-    .then(res => res.json())
-    .then(data => {
-      overlay.classList.remove("active");
-      video.classList.remove("scanning");
+  try {
+    // analyzeSymmetryJS didefinisikan di face_detection_js.js (module)
+    const data = await window.analyzeSymmetryJS(video);
 
-      if (data.status !== "ok") {
-        el.innerHTML = `❌ Gagal: ${data.message}`;
-        return;
-      }
-      hasilDeteksi.wajah = data.kategori;
-      hasilDeteksi.face_score = data.score_total;
-      el.innerHTML = `✅ Wajah: <strong>${data.kategori}</strong> &nbsp;|&nbsp; Skor: ${data.score_total}/6`;
+    overlay.classList.remove("active");
+    video.classList.remove("scanning");
 
-      const p = data.penilaian;
-      detail.innerHTML = `
-        <li><strong>💡 Saran:</strong> ${data.saran}</li>
-        <li><strong>👄 Bibir</strong> — Delta Y: ${p.bibir.delta_y} | Rasio X: ${p.bibir.rasio_x} | Skor: ${p.bibir.nilai}/2</li>
-        <li><strong>👁️ Mata</strong> — Delta: ${p.mata.delta_openness} | Ptosis: ${p.mata.ptosis_suspect ? "Ya" : "Tidak"} | Skor: ${p.mata.nilai}/2</li>
-        <li><strong>🧏 Pipi</strong> — Kemiringan: ${p.pipi.kemiringan_derajat}° | Skor: ${p.pipi.nilai}/2</li>
-      `;
-      setStep(2);
-      updateDiagnosaButton();
-    })
-    .catch(() => {
-      overlay.classList.remove("active");
-      video.classList.remove("scanning");
-      el.innerHTML = "❌ Gagal deteksi wajah";
-    });
+    if (data.status !== "ok") {
+      el.innerHTML = `❌ ${data.message}`;
+      return;
+    }
+
+    hasilDeteksi.wajah = data.kategori;
+    hasilDeteksi.face_score = data.score_total;
+    el.innerHTML = `✅ Wajah: <strong>${data.kategori}</strong> &nbsp;|&nbsp; Skor: ${data.score_total}/6`;
+
+    const p = data.penilaian;
+    detail.innerHTML = `
+      <li><strong>💡 Saran:</strong> ${data.saran}</li>
+      <li><strong>👄 Bibir</strong> — Delta Y: ${p.bibir.delta_y} | Rasio X: ${p.bibir.rasio_x} | Skor: ${p.bibir.nilai}/2</li>
+      <li><strong>👁️ Mata</strong> — Delta: ${p.mata.delta_openness} | Ptosis: ${p.mata.ptosis_suspect ? "Ya" : "Tidak"} | Skor: ${p.mata.nilai}/2</li>
+      <li><strong>🧏 Pipi</strong> — Kemiringan: ${p.pipi.kemiringan_derajat}° | Skor: ${p.pipi.nilai}/2</li>
+    `;
+    setStep(2);
+    updateDiagnosaButton();
+
+  } catch(err) {
+    overlay.classList.remove("active");
+    video.classList.remove("scanning");
+    el.innerHTML = `❌ Gagal deteksi wajah: ${err.message}`;
+    console.error(err);
+  }
 }
 
 // ── DETEKSI SUARA ──
@@ -756,12 +754,105 @@ function toggleTheme() {
   const isLight = document.body.classList.toggle("light-mode");
   localStorage.setItem("sitanggap-theme", isLight ? "light" : "dark");
 }
-
-// Restore saved preference on load
 (function() {
   const saved = localStorage.getItem("sitanggap-theme");
   if (saved === "light") document.body.classList.add("light-mode");
 })();
+</script>
+
+<!-- MediaPipe Face Landmarker (ES Module) -->
+<script type="module">
+import {
+  FaceLandmarker,
+  FilesetResolver,
+} from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/+esm";
+
+let faceLandmarker = null;
+
+async function initLandmarker() {
+  if (faceLandmarker) return faceLandmarker;
+  console.log("[SiTANGGAP] Memuat model FaceLandmarker...");
+  const vision = await FilesetResolver.forVisionTasks(
+    "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm"
+  );
+  faceLandmarker = await FaceLandmarker.createFromOptions(vision, {
+    baseOptions: {
+      modelAssetPath:
+        "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
+      delegate: "GPU",
+    },
+    runningMode: "IMAGE",
+    numFaces: 1,
+  });
+  console.log("[SiTANGGAP] Model siap ✅");
+  return faceLandmarker;
+}
+
+function angleBetween(p1, p2) {
+  return (Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180) / Math.PI;
+}
+
+async function analyzeSymmetryJS(videoEl) {
+  const lm_model = await initLandmarker();
+
+  const canvas = document.createElement("canvas");
+  canvas.width  = videoEl.videoWidth  || 640;
+  canvas.height = videoEl.videoHeight || 480;
+  canvas.getContext("2d").drawImage(videoEl, 0, 0, canvas.width, canvas.height);
+
+  const result = lm_model.detect(canvas);
+
+  if (!result.faceLandmarks || result.faceLandmarks.length === 0) {
+    return { status: "error", message: "Wajah tidak terdeteksi. Pastikan wajah terlihat jelas di kamera." };
+  }
+
+  const lm = result.faceLandmarks[0];
+
+  // ── BIBIR ──
+  const lBibir      = lm[61],  rBibir = lm[291];
+  const deltaBibirY = Math.abs(lBibir.y - rBibir.y);
+  const ratioBibirX = Math.abs(lBibir.x - rBibir.x);
+
+  // ── MATA ──
+  const lEyeOpen = Math.abs(lm[159].y - lm[145].y);
+  const rEyeOpen = Math.abs(lm[386].y - lm[374].y);
+  const deltaMata = Math.abs(lEyeOpen - rEyeOpen);
+  const ptosis    = deltaMata > 0.015;
+
+  // ── PIPI / HEAD TILT ──
+  const angleFace = angleBetween(lm[234], lm[454]);
+
+  // ── SCORING ──
+  const nilaiBibir = deltaBibirY < 0.01 ? 0 : deltaBibirY < 0.03 ? 1 : 2;
+  const nilaiMata  = deltaMata   < 0.01 ? 0 : deltaMata   < 0.02 ? 1 : 2;
+  const nilaiPipi  = Math.abs(angleFace) < 3 ? 0 : Math.abs(angleFace) < 6 ? 1 : 2;
+  const nilaiTotal = nilaiBibir + nilaiMata + nilaiPipi;
+
+  // ── KATEGORI ──
+  const map = [
+    [1, "Normal", "Wajah simetris. Tidak ada tanda stroke."],
+    [3, "Ringan",  "Terdapat sedikit asimetri. Perlu observasi."],
+    [5, "Sedang",  "Asimetri wajah terlihat. Konsultasikan ke dokter."],
+    [99,"Berat",   "Tanda jelas facial droop. Segera periksa medis."],
+  ];
+  const [, kategori, saran] = map.find(([t]) => nilaiTotal <= t);
+
+  return {
+    status: "ok", kategori, saran,
+    score_total: nilaiTotal,
+    penilaian: {
+      bibir: { delta_y: +deltaBibirY.toFixed(4), rasio_x: +ratioBibirX.toFixed(4), nilai: nilaiBibir },
+      mata:  { delta_openness: +deltaMata.toFixed(4), ptosis_suspect: ptosis, nilai: nilaiMata },
+      pipi:  { kemiringan_derajat: +angleFace.toFixed(2), nilai: nilaiPipi },
+    },
+  };
+}
+
+// Expose ke window — dipanggil dari script biasa
+window.analyzeSymmetryJS = analyzeSymmetryJS;
+
+// Pre-load model saat halaman dibuka
+initLandmarker().catch(e => console.warn("[SiTANGGAP] Pre-load gagal:", e));
 </script>
 
 </body>
