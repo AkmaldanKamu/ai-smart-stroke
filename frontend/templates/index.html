@@ -1,866 +1,748 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SiTANGGAP - Sistem Tangkap Gejala Stroke Cepat</title>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
-    <link rel="stylesheet" href="../static/style.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SiTANGGAP — Deteksi Stroke Dini dengan AI</title>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+  <!-- jsPDF for export -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <link rel="stylesheet" href="../static/style.css" />
 </head>
-
 <body>
-    <div class="container">
-        <!-- Header -->
-        <div class="header">
-            <h1><i class="fas fa-brain"></i> SiTANGGAP</h1>
-            <p class="subtitle">
-                Sistem Tangkap Gejala Stroke Cepat - Untuk mendeteksi gejala awal stroke dan menilai tingkat keparahannya.
-            </p>
-        </div>
 
-        <!-- Hero Section -->
-        <div class="hero-section">
-            <div class="hero-content">
-                <div class="hero-text">
-                    <h2><i class="fas fa-robot"></i> AI Deteksi Stroke Terdepan</h2>
-                    <p>
-                        SiTANGGAP menggunakan teknologi Artificial Intelligence (AI) canggih untuk mendeteksi gejala awal stroke melalui analisis ekspresi wajah dan pola bicara.
-                    </p>
-                    <p>
-                        Dirancang agar inklusif dan mudah diakses, SiTANGGAP memungkinkan siapa pun dan di mana pun mereka berada, untuk melakukan deteksi awal stroke hanya dengan perangkat kamera dan mikrofon.
-                    </p>
-                    <p>
-                        <strong>Deteksi awal stroke dapat menyelamatkan nyawa!</strong> Setiap menit sangat berharga dalam penanganan stroke.
-                    </p>
-                </div>
-                <div class="hero-visual">
-                    <div class="stats-section">
-                        <div class="stats-section-center">
-                            <div class="stat-card">
-                                <div class="stat-number">&lt;60s</div>
-                                <div class="stat-label">Waktu Analisis</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-number">2</div>
-                                <div class="stat-label">Metode Deteksi</div>
-                            </div>
-                            <div class="stat-card">
-                                <div class="stat-number">NIHSS</div>
-                                <div class="stat-label">Standar Skoring Medis</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <section class="accordion-section">
-            <div class="container two-column-accordion">
-                <!-- Kolom Kiri: Kenapa Penting -->
-                <div class="accordion-column">
-                    <h2 class="accordion-title">
-                        Kenapa <span>SiTANGGAP Penting?</span>
-                    </h2>
+<div class="container">
 
-                    <div class="accordion-item">
-                        <div class="accordion-header">
-                            <i class="fas fa-brain"></i>
-                            <h3>Stroke = Darurat Medis</h3>
-                            <span class="arrow">&#9662;</span>
-                        </div>
-                        <div class="accordion-content" style="text-align: justify">
-                            <p>
-                                Menurut data WHO, Indonesia memiliki beban stroke yang signifikan secara global. Pada tahun 2020, Indonesia menduduki peringkat ke-11 di dunia untuk angka kematian stroke yang disesuaikan usia. 
-                                Bahkan stroke menempati peringkat ke-2 tertinggi sebagai penyakit penyebab kematian di indonesia tahun 2021, secara umum stroke merupakan penyebab utama kematian di Indonesia.
-                            </p>
-                        </div>
-                    </div>
+  <!-- ── HEADER ── -->
+  <div class="header">
+    <h1><i class="fas fa-brain"></i>SiTANGGAP</h1>
+    <p class="subtitle">Sistem Tangkap Gejala Stroke Cepat &mdash; Deteksi dini berbasis AI untuk menilai risiko stroke Anda.</p>
+  </div>
 
-                    <div class="accordion-item">
-                        <div class="accordion-header">
-                            <i class="fas fa-stopwatch"></i>
-                            <h3>Golden Hour 3 Jam</h3>
-                            <span class="arrow">&#9662;</span>
-                        </div>
-                        <div class="accordion-content">
-                            <p>
-                                Waktu krusial hanya 3 jam pertama setelah serangan stroke. Deteksi awal bisa menyelamatkan dari serangan gejala stroke.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="accordion-item">
-                        <div class="accordion-header">
-                            <i class="fas fa-house-medical"></i>
-                            <h3>
-                                <center>Banyak Terjadi di Rumah</center>
-                            </h3>
-                            <span class="arrow">&#9662;</span>
-                        </div>
-                        <div class="accordion-content">
-                            <p>
-                                Kebanyakan stroke terjadi tanpa disadari di rumah, dan sering terlambat ditangani.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="accordion-item">
-                        <div class="accordion-header">
-                            <i class="fas fa-map-marked-alt"></i>
-                            <h3>
-                                <center>Solusi untuk Wilayah Terpencil</center>
-                            </h3>
-                            <span class="arrow">&#9662;</span>
-                        </div>
-                        <div class="accordion-content">
-                            <p>
-                                SiTANGGAP bisa digunakan di daerah yang jauh dari rumah sakit — cukup dengan kamera dan mikrofon.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Kolom Kanan: Kenapa Efektif -->
-                <div class="accordion-column">
-                    <h2 class="accordion-title">
-                        Kenapa <span>SiTANGGAP Efektif?</span>
-                    </h2>
-
-                    <div class="accordion-item">
-                        <div class="accordion-header">
-                            <i class="fas fa-bolt"></i>
-                            <h3>Deteksi Cepat</h3>
-                            <span class="arrow">&#9662;</span>
-                        </div>
-                        <div class="accordion-content">
-                            <p>
-                                Hasil analisis wajah dan suara keluar dalam kurang dari 60 detik.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="accordion-item">
-                        <div class="accordion-header">
-                            <i class="fas fa-mobile-alt"></i>
-                            <h3>
-                                <center>Praktis dan Mudah Digunakan</center>
-                            </h3>
-                            <span class="arrow">&#9662;</span>
-                        </div>
-                        <div class="accordion-content">
-                            <p>
-                                Tanpa alat medis untuk deteksi awal — hanya butuh HP atau laptop. Bisa dilakukan siapa saja.
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="accordion-item">
-                        <div class="accordion-header">
-                            <i class="fas fa-laptop-medical"></i>
-                            <h3>Berbasis Data Medis</h3>
-                            <span class="arrow">&#9662;</span>
-                        </div>
-                        <div class="accordion-content">
-                            <p>
-                                Skoring didasarkan pada National Institute of Health Stroke Score (NIHSS), skala yang diakui secara internasional dalam evaluasi gejala stroke.
-                            </p>
-                        </div>
-                    </div>
-                    <div class="accordion-item">
-                        <div class="accordion-header">
-                            <i class="fas fa-user-shield"></i>
-                            <h3>Privasi Terjamin</h3>
-                            <span class="arrow">&#9662;</span>
-                        </div>
-                        <div class="accordion-content">
-                            <p>
-                                Data diproses secara lokal, tidak disimpan di server. Aman dan sesuai etika medis.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- AI Features -->
-        <div class="ai-features">
-            <div class="feature-card" onclick="showPopup('wajah')">
-                <i class="fas fa-face-smile"></i>
-                <h3>Analisis Ekspresi Wajah</h3>
-                <p>
-                    AI menganalisis asimetri wajah, ptosis mata, dan kemiringan senyuman untuk mendeteksi gejala stroke facial palsy. <br /><em>Klik untuk lihat rincian skor.</em
-            >
-          </p>
-        </div>
-        <div class="feature-card" onclick="showPopup('suara')">
-          <i class="fas fa-microphone-alt"></i>
-          <h3>Analisis Pola Bicara</h3>
-          <p>
-            Sistem mengevaluasi kejelasan artikulasi, kecepatan bicara, dan pola
-            intonasi untuk mendeteksi disartria. <br /><em
-              >Klik untuk lihat rincian skor.</em
-            >
-          </p>
-        </div>
-        <div class="feature-card" onclick="showPopup('nihss')">
-          <i class="fas fa-chart-line"></i>
-          <h3>Scoring NIHSS</h3>
-          <p>
-            Menggunakan skala NIHSS (National Institutes of Health Stroke Scale)
-            untuk penilaian tingkat keparahan stroke. <br /><em
-              >Klik untuk lihat bagaimana skor ditentukan.</em
-            >
-          </p>
-        </div>
+  <!-- ── HERO ── -->
+  <div class="hero-section">
+    <div class="hero-content">
+      <div class="hero-text">
+        <h2><i class="fas fa-robot"></i> AI Deteksi Stroke Terdepan</h2>
+        <p>SiTANGGAP menggunakan AI canggih untuk mendeteksi gejala awal stroke melalui analisis ekspresi wajah dan pola bicara secara real-time.</p>
+        <p>Dirancang inklusif — cukup dengan kamera dan mikrofon, siapa pun bisa melakukan skrining di mana saja.</p>
+        <p><strong>Deteksi awal stroke dapat menyelamatkan nyawa.</strong> Setiap menit sangat berharga.</p>
       </div>
-
-      <!-- Technology Section -->
-      <div class="tech-section">
-        <h3><i class="fas fa-cogs"></i> Teknologi yang Digunakan</h3>
-        <div class="tech-grid">
-          <div class="tech-item">
-            <i class="fas fa-brain"></i>
-            <h4>Deep Learning</h4>
-            <p>Neural networks untuk analisis wajah</p>
+      <div class="hero-visual">
+        <div class="stats-section-center">
+          <div class="stat-card">
+            <div class="stat-number">&lt;60s</div>
+            <div class="stat-label">Waktu Analisis</div>
           </div>
-          <div class="tech-item">
-            <i class="fas fa-wave-square"></i>
-            <h4>Signal Processing</h4>
-            <p>Analisis sinyal suara digital</p>
+          <div class="stat-card">
+            <div class="stat-number">2</div>
+            <div class="stat-label">Metode Deteksi</div>
           </div>
-          <div class="tech-item">
-            <i class="fas fa-eye"></i>
-            <h4>Computer Vision</h4>
-            <p>Deteksi landmarks wajah</p>
-          </div>
-          <div class="tech-item">
-            <i class="fas fa-microphone"></i>
-            <h4>Speech Recognition</h4>
-            <p>Konversi suara ke teks</p>
+          <div class="stat-card">
+            <div class="stat-number">NIHSS</div>
+            <div class="stat-label">Standar Skoring Medis</div>
           </div>
         </div>
       </div>
-
-      <!-- Disclaimer -->
-      <div class="disclaimer-section">
-        <h3><i class="fas fa-exclamation-triangle"></i> Disclaimer Penting</h3>
-
-        <p>
-          <strong>PERHATIAN:</strong> SiTANGGAP adalah sistem bantuan deteksi
-          dini stroke yang menggunakan teknologi Artificial Intelligence (AI).
-          Aplikasi ini <strong>BUKAN</strong> alat diagnostik medis dan
-          <strong>TIDAK DAPAT</strong> menggantikan pemeriksaan, diagnosis, atau
-          penanganan oleh tenaga medis profesional.
-        </p>
-
-        <p><strong>Hal-hal yang perlu dipahami:</strong></p>
-        <ul style="margin-left: 20px; margin-top: 10px">
-          <li>
-            <strong>Hasil Skrining:</strong> Sistem ini hanya memberikan
-            indikasi awal kemungkinan gejala stroke, bukan diagnosis medis yang
-            definitif
-          </li>
-          <li>
-            <strong>Akurasi Terbatas:</strong> Teknologi AI dapat mengalami
-            kesalahan interpretasi dan tidak 100% akurat
-          </li>
-          <li>
-            <strong>Konsultasi Medis Wajib:</strong> Segera hubungi dokter,
-            rumah sakit, atau fasilitas kesehatan terdekat jika mendapat hasil
-            yang mengkhawatirkan
-          </li>
-          <li>
-            <strong>Jangan Menunda:</strong> Dalam kondisi stroke, waktu adalah
-            faktor krusial - jangan mengandalkan aplikasi ini sebagai
-            satu-satunya rujukan
-          </li>
-        </ul>
-
-        <p style="margin-top: 15px">
-          <strong>🚨 KONDISI DARURAT:</strong> Jika mengalami gejala stroke
-          mendadak (wajah tidak simetris, lemah sebelah badan, bicara pelo,
-          sakit kepala hebat), segera hubungi <strong>119</strong> atau bawa ke
-          IGD rumah sakit terdekat tanpa menunggu hasil aplikasi ini.
-        </p>
-
-        <p style="margin-top: 15px">
-          <strong>🔒 Keamanan & Privasi Data:</strong> Semua data video, audio,
-          dan informasi personal diproses secara lokal di perangkat Anda dan
-          <strong>tidak disimpan, dikirim, atau dibagikan</strong> ke server
-          manapun. Data Anda sepenuhnya aman dan privat.
-        </p>
-      </div>
-
-      <!-- CTA Section -->
-      <div class="cta-section">
-        <h3><i class="fas fa-rocket"></i> Mulai Deteksi Sekarang</h3>
-        <p>
-          Lakukan tes deteksi stroke dengan AI dalam hitungan menit. Pastikan
-          Anda berada di ruangan dengan pencahayaan yang baik.
-        </p>
-        <button
-          class="start-test-btn"
-          onclick="document.getElementById('video').scrollIntoView({behavior: 'smooth'})"
-        >
-          <i class="fas fa-play-circle"></i> Mulai Tes Deteksi
-        </button>
-      </div>
-
-      <!-- Main Content -->
-      <div class="main-content">
-        <div class="camera-section">
-          <h2><i class="fas fa-camera"></i> Kamera Deteksi</h2>
-          <video id="video" width="400" height="300" autoplay muted></video>
-        </div>
-
-        <div class="controls-section">
-          <h2><i class="fas fa-cogs"></i> Kontrol Tes</h2>
-          <div class="button-group">
-            <button class="btn btn-primary" onclick="deteksiWajah()">
-              <i class="fas fa-smile"></i> Tes Ekspresi Wajah
-            </button>
-            <button
-              id="btn-voice"
-              class="btn btn-secondary"
-              onclick="mulaiTesSuara()"
-            >
-              <i class="fas fa-microphone"></i> Tes Ucapan
-            </button>
-            <button
-              id="btn-diagnosa"
-              class="btn btn-success"
-              onclick="diagnosaStroke()"
-              disabled
-            >
-              <i class="fas fa-search"></i> Cek Diagnosa Stroke
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Results Section -->
-      <div class="results-section">
-        <h2><i class="fas fa-chart-line"></i> Hasil Deteksi</h2>
-
-        <div class="result-item">
-          <p id="hasil-wajah">Belum ada hasil deteksi wajah</p>
-          <ul id="detail-wajah"></ul>
-        </div>
-
-        <div class="result-item">
-          <p id="status-audio">Belum ada hasil deteksi suara</p>
-          <p id="transkrip-audio"></p>
-          <p id="skor-audio"></p>
-        </div>
-      </div>
-
-      <!-- Diagnosis Section -->
-      <div class="diagnosis-section">
-        <h2><i class="fas fa-stethoscope"></i> Diagnosa Stroke</h2>
-
-        <div class="diagnosis-result">
-          <p id="diagnosa-hasil">
-            Silakan lakukan tes wajah dan suara terlebih dahulu
-          </p>
-          <p id="diagnosa-penanganan"></p>
-        </div>
-
-        <div class="diagnosis-summary">
-          <ul id="diagnosa-summary"></ul>
-        </div>
-
-        <!-- Panduan & Edukasi -->
-        <div class="guidance-section">
-          <h2><i class="fas fa-hands-helping"></i> Panduan & Edukasi</h2>
-          <div class="guidance-inner" id="guidance-text">
-            <div class="guidance-box guidance-placeholder">
-              <i class="fas fa-lightbulb"></i> Panduan akan muncul setelah hasil
-              diagnosa.
-            </div>
-          </div>
-        </div>
-      </div>
-      <!-- penutup diagnosis-section -->
-    </div>
-    <!-- penutup .container -->
-
-<!-- Footer dipindah ke luar container -->
-<div class="footer">
-    <p>
-      &copy; 2025 SiTANGGAP - Sistem Deteksi Stroke awal | Kesehatan adalah
-      prioritas utama
-    </p>
-    <p style="margin-top: 10px; font-size: 0.8rem; opacity: 0.8">
-      Dikembangkan dengan teknologi AI untuk membantu deteksi awal stroke.
-      Selalu konsultasikan dengan tenaga medis profesional.
-    </p>
-  
-    <!-- Footer Sources -->
-    <div class="footer">
-        <div class="footer-sources">
-        <p class="footer-title">Sumber Referensi:</p>
-        <ul>
-            <li><a href="https://data.who.int/countries/360" target="_blank">World Health Organization - Data Stroke Indonesia</a></li>
-            <li><a href="https://www.cdc.gov/stroke/signs-symptoms/index.html" target="_blank">Centers for Disease Control and Prevention</a></li>
-            <li><a href="https://kemkes.go.id/id/cegah-stroke-dengan-aktivitas-fisik" target="_blank">Kemenkes RI - Cegah Stroke dengan Aktivitas Fisik</a></li>
-            <li><a href="https://ayosehat.kemkes.go.id/kenali-gejala-stroke-dengan-segera-ke-rs" target="_blank">Kemenkes RI - Kenali Gejala Stroke dengan Segera ke RS</a></li>
-            <li><a href="https://setjen.kemkes.go.id/medkom/detail/waspadai-stroke" target="_blank">Setjen Kemenkes RI - Waspadai Stroke</a></li>
-            <li><a href="https://www.worldlifeexpectancy.com/cause-of-death/stroke/by-country/" target="_blank">World Life Expectancy</a></li>
-        </ul>
-        </div>
     </div>
   </div>
-  
 
-    <script defer>
-      const video = document.getElementById("video");
-      const hasilDeteksi = {
-        wajah: null,
-        suara: null,
-        face_score: null,
-        suara_score: null,
-      };
+  <!-- ── ACCORDION ── -->
+  <section class="accordion-section">
+    <div class="two-column-accordion">
+      <div class="accordion-column">
+        <h2 class="accordion-title">Kenapa <span>SiTANGGAP Penting?</span></h2>
+        <div class="accordion-item">
+          <div class="accordion-header"><i class="fas fa-brain"></i><h3>Stroke = Darurat Medis</h3><span class="arrow">&#9662;</span></div>
+          <div class="accordion-content" style="text-align:justify"><p>Menurut data WHO, Indonesia menduduki peringkat ke-11 di dunia untuk angka kematian stroke yang disesuaikan usia (2020). Stroke menempati peringkat ke-2 tertinggi penyebab kematian di Indonesia tahun 2021.</p></div>
+        </div>
+        <div class="accordion-item">
+          <div class="accordion-header"><i class="fas fa-stopwatch"></i><h3>Golden Hour 3 Jam</h3><span class="arrow">&#9662;</span></div>
+          <div class="accordion-content"><p>Waktu krusial hanya 3 jam pertama setelah serangan stroke. Deteksi awal bisa menyelamatkan dari kerusakan neurologis permanen.</p></div>
+        </div>
+        <div class="accordion-item">
+          <div class="accordion-header"><i class="fas fa-house-medical"></i><h3>Banyak Terjadi di Rumah</h3><span class="arrow">&#9662;</span></div>
+          <div class="accordion-content"><p>Kebanyakan stroke terjadi tanpa disadari di rumah, dan sering terlambat ditangani karena kurangnya kesadaran gejala awal.</p></div>
+        </div>
+        <div class="accordion-item">
+          <div class="accordion-header"><i class="fas fa-map-marked-alt"></i><h3>Solusi Wilayah Terpencil</h3><span class="arrow">&#9662;</span></div>
+          <div class="accordion-content"><p>SiTANGGAP dapat digunakan di daerah yang jauh dari rumah sakit — cukup dengan kamera dan mikrofon perangkat.</p></div>
+        </div>
+      </div>
+      <div class="accordion-column">
+        <h2 class="accordion-title">Kenapa <span>SiTANGGAP Efektif?</span></h2>
+        <div class="accordion-item">
+          <div class="accordion-header"><i class="fas fa-bolt"></i><h3>Deteksi Cepat</h3><span class="arrow">&#9662;</span></div>
+          <div class="accordion-content"><p>Hasil analisis wajah dan suara keluar dalam kurang dari 60 detik dengan akurasi berbasis landmark wajah MediaPipe.</p></div>
+        </div>
+        <div class="accordion-item">
+          <div class="accordion-header"><i class="fas fa-mobile-alt"></i><h3>Praktis & Mudah Digunakan</h3><span class="arrow">&#9662;</span></div>
+          <div class="accordion-content"><p>Tanpa alat medis — hanya butuh HP atau laptop. Bisa dilakukan siapa saja tanpa latar belakang medis.</p></div>
+        </div>
+        <div class="accordion-item">
+          <div class="accordion-header"><i class="fas fa-laptop-medical"></i><h3>Berbasis Data Medis</h3><span class="arrow">&#9662;</span></div>
+          <div class="accordion-content"><p>Skoring didasarkan pada NIHSS (National Institute of Health Stroke Score), skala yang diakui secara internasional.</p></div>
+        </div>
+        <div class="accordion-item">
+          <div class="accordion-header"><i class="fas fa-user-shield"></i><h3>Privasi Terjamin</h3><span class="arrow">&#9662;</span></div>
+          <div class="accordion-content"><p>Data diproses secara lokal di perangkat. Tidak ada data yang dikirim atau disimpan di server eksternal.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-      function startSmartCamera() {
-        navigator.mediaDevices.enumerateDevices().then((devices) => {
-          const cams = devices.filter((d) => d.kind === "videoinput");
-          const selected =
-            cams.find((d) => !d.label.toLowerCase().includes("iriun")) ||
-            cams[0];
+  <!-- ── AI FEATURES ── -->
+  <div class="ai-features">
+    <div class="feature-card" onclick="showPopup('wajah')">
+      <i class="fas fa-face-smile"></i>
+      <h3>Analisis Ekspresi Wajah</h3>
+      <p>AI menganalisis asimetri wajah, ptosis mata, dan kemiringan senyuman untuk mendeteksi facial palsy.<br><em>Klik untuk lihat rincian skor →</em></p>
+    </div>
+    <div class="feature-card" onclick="showPopup('suara')">
+      <i class="fas fa-microphone-alt"></i>
+      <h3>Analisis Pola Bicara</h3>
+      <p>Sistem mengevaluasi kejelasan artikulasi dan pola intonasi untuk mendeteksi disartria akibat stroke.<br><em>Klik untuk lihat rincian skor →</em></p>
+    </div>
+    <div class="feature-card" onclick="showPopup('nihss')">
+      <i class="fas fa-chart-line"></i>
+      <h3>Scoring NIHSS</h3>
+      <p>Menggunakan skala NIHSS internasional untuk penilaian tingkat keparahan stroke secara objektif.<br><em>Klik untuk lihat cara skoring →</em></p>
+    </div>
+  </div>
 
-          if (!selected) {
-            alert("❌ Tidak ada kamera terdeteksi.");
-            return;
-          }
+  <!-- ── TECH ── -->
+  <div class="tech-section">
+    <h3><i class="fas fa-cogs"></i> Teknologi yang Digunakan</h3>
+    <div class="tech-grid">
+      <div class="tech-item"><i class="fas fa-brain"></i><h4>Deep Learning</h4><p>Neural networks untuk analisis wajah</p></div>
+      <div class="tech-item"><i class="fas fa-wave-square"></i><h4>Signal Processing</h4><p>Analisis sinyal suara digital</p></div>
+      <div class="tech-item"><i class="fas fa-eye"></i><h4>Computer Vision</h4><p>Deteksi landmarks wajah</p></div>
+      <div class="tech-item"><i class="fas fa-microphone"></i><h4>Speech Recognition</h4><p>Konversi suara ke teks (Whisper)</p></div>
+    </div>
+  </div>
 
-          navigator.mediaDevices
-            .getUserMedia({
-              video: {
-                deviceId: {
-                  ideal: selected.deviceId,
-                },
-              },
-            })
-            .then((stream) => {
-              video.srcObject = stream;
-            })
-            .catch((err) => {
-              alert("❌ Gagal akses kamera: " + err.name);
-            });
-        });
+  <!-- ── DISCLAIMER ── -->
+  <div class="disclaimer-section">
+    <h3><i class="fas fa-exclamation-triangle"></i> Disclaimer Penting</h3>
+    <p><strong>PERHATIAN:</strong> SiTANGGAP adalah sistem bantuan deteksi dini stroke berbasis AI. Aplikasi ini <strong>BUKAN</strong> alat diagnostik medis dan <strong>TIDAK DAPAT</strong> menggantikan pemeriksaan oleh tenaga medis profesional.</p>
+    <p><strong>Hal-hal yang perlu dipahami:</strong></p>
+    <ul>
+      <li><strong>Hasil Skrining:</strong> Hanya indikasi awal, bukan diagnosis medis definitif</li>
+      <li><strong>Akurasi Terbatas:</strong> AI dapat mengalami kesalahan interpretasi</li>
+      <li><strong>Konsultasi Medis Wajib:</strong> Segera hubungi dokter jika mendapat hasil mengkhawatirkan</li>
+      <li><strong>Jangan Menunda:</strong> Dalam kondisi stroke, waktu adalah faktor krusial</li>
+    </ul>
+    <p style="margin-top:12px"><strong>🚨 DARURAT:</strong> Gejala stroke mendadak? Segera hubungi <strong>119</strong> atau ke IGD terdekat tanpa menunggu hasil aplikasi ini.</p>
+  </div>
+
+  <!-- ── CTA ── -->
+  <div class="cta-section">
+    <h3><i class="fas fa-rocket"></i> Mulai Deteksi Sekarang</h3>
+    <p>Lakukan tes deteksi stroke dalam hitungan menit. Pastikan berada di ruangan dengan pencahayaan baik.</p>
+    <button class="start-test-btn" onclick="document.getElementById('video').scrollIntoView({behavior:'smooth'})">
+      <i class="fas fa-play-circle"></i> Mulai Tes Deteksi
+    </button>
+  </div>
+
+  <!-- ── STEP INDICATOR ── -->
+  <div class="step-indicator">
+    <div class="step" id="step-1">① Tes Wajah</div>
+    <span class="step-arrow">›</span>
+    <div class="step" id="step-2">② Tes Suara</div>
+    <span class="step-arrow">›</span>
+    <div class="step" id="step-3">③ Diagnosa</div>
+    <span class="step-arrow">›</span>
+    <div class="step" id="step-4">④ Hasil & Panduan</div>
+  </div>
+
+  <!-- ── MAIN CONTENT ── -->
+  <div class="main-content">
+    <div class="camera-section">
+      <h2><i class="fas fa-camera"></i> Kamera Deteksi</h2>
+      <div class="camera-wrapper">
+        <video id="video" autoplay muted playsinline></video>
+        <div class="camera-overlay" id="cam-overlay"></div>
+      </div>
+    </div>
+    <div class="controls-section">
+      <h2><i class="fas fa-cogs"></i> Kontrol Tes</h2>
+      <div class="button-group">
+        <button class="btn btn-primary" onclick="deteksiWajah()">
+          <i class="fas fa-smile"></i> Tes Ekspresi Wajah
+        </button>
+        <button id="btn-voice" class="btn btn-secondary" onclick="mulaiTesSuara()">
+          <i class="fas fa-microphone"></i> Tes Ucapan
+        </button>
+        <button id="btn-diagnosa" class="btn btn-success" onclick="diagnosaStroke()" disabled>
+          <i class="fas fa-search"></i> Cek Diagnosa Stroke
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── RESULTS ── -->
+  <div class="results-section">
+    <h2><i class="fas fa-chart-line"></i> Hasil Deteksi</h2>
+    <div class="result-item">
+      <p id="hasil-wajah">Belum ada hasil deteksi wajah</p>
+      <ul id="detail-wajah"></ul>
+    </div>
+    <div class="result-item">
+      <p id="status-audio">Belum ada hasil deteksi suara</p>
+      <p id="transkrip-audio"></p>
+      <p id="skor-audio"></p>
+    </div>
+  </div>
+
+  <!-- ── DIAGNOSIS ── -->
+  <div class="diagnosis-section">
+    <h2><i class="fas fa-stethoscope"></i> Diagnosa Stroke</h2>
+
+    <!-- NIHSS Gauge -->
+    <div class="nihss-gauge" id="nihss-gauge" style="display:none">
+      <span class="gauge-label">NIHSS Score</span>
+      <div class="gauge-track"><div class="gauge-fill" id="gauge-fill"></div></div>
+      <span class="gauge-score" id="gauge-score">0</span>
+    </div>
+
+    <div class="diagnosis-result" id="diagnosis-result-box">
+      <p id="diagnosa-hasil">Silakan lakukan tes wajah dan suara terlebih dahulu</p>
+      <p id="diagnosa-penanganan"></p>
+    </div>
+
+    <div class="diagnosis-summary">
+      <ul id="diagnosa-summary"></ul>
+    </div>
+
+    <!-- Guidance -->
+    <div class="guidance-section">
+      <h2><i class="fas fa-hands-helping"></i> Panduan & Edukasi</h2>
+      <div id="guidance-text">
+        <div class="guidance-placeholder"><i class="fas fa-lightbulb"></i> Panduan akan muncul setelah hasil diagnosa.</div>
+      </div>
+    </div>
+
+    <!-- Export PDF -->
+    <div class="export-section">
+      <button class="btn-export" id="btn-export" onclick="exportPDF()" disabled>
+        <i class="fas fa-file-pdf"></i> Export Hasil ke PDF
+      </button>
+    </div>
+  </div>
+
+  <!-- ── HOSPITAL MAP ── -->
+  <div class="hospital-section">
+    <h2><i class="fas fa-hospital"></i> Rumah Sakit Terdekat</h2>
+    <p class="hospital-subtitle">Temukan fasilitas kesehatan terdekat dari lokasi Anda sekarang.</p>
+    <div class="hospital-controls">
+      <button class="btn-find-hospital" onclick="cariRumahSakit()">
+        <i class="fas fa-location-arrow"></i> Cari RS Terdekat
+      </button>
+    </div>
+    <div id="map-container">
+      <span><i class="fas fa-map-marker-alt" style="margin-right:8px;color:#ff3b5c"></i>Klik tombol di atas untuk menemukan RS terdekat</span>
+    </div>
+    <div class="hospital-list" id="hospital-list"></div>
+  </div>
+
+</div><!-- .container -->
+
+<!-- ── FOOTER ── -->
+<div class="footer">
+  <p>&copy; 2025 SiTANGGAP &mdash; Sistem Deteksi Stroke Dini | Kesehatan adalah prioritas utama</p>
+  <p style="font-size:0.8rem;opacity:0.5;margin-top:4px">Dikembangkan dengan teknologi AI. Selalu konsultasikan dengan tenaga medis profesional.</p>
+  <div class="footer-sources">
+    <p class="footer-title">Sumber Referensi</p>
+    <ul>
+      <li><a href="https://data.who.int/countries/360" target="_blank">World Health Organization — Data Stroke Indonesia</a></li>
+      <li><a href="https://www.cdc.gov/stroke/signs-symptoms/index.html" target="_blank">Centers for Disease Control and Prevention</a></li>
+      <li><a href="https://kemkes.go.id/id/cegah-stroke-dengan-aktivitas-fisik" target="_blank">Kemenkes RI — Cegah Stroke dengan Aktivitas Fisik</a></li>
+      <li><a href="https://ayosehat.kemkes.go.id/kenali-gejala-stroke-dengan-segera-ke-rs" target="_blank">Kemenkes RI — Kenali Gejala Stroke</a></li>
+      <li><a href="https://setjen.kemkes.go.id/medkom/detail/waspadai-stroke" target="_blank">Setjen Kemenkes RI — Waspadai Stroke</a></li>
+    </ul>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════ SCRIPTS ════════════════════════════════════ -->
+<script defer>
+const video = document.getElementById("video");
+const hasilDeteksi = { wajah: null, suara: null, face_score: null, suara_score: null };
+let diagnosisData = null;
+
+// ── CAMERA ──
+function startSmartCamera() {
+  navigator.mediaDevices.enumerateDevices().then(devices => {
+    const cams = devices.filter(d => d.kind === "videoinput");
+    const selected = cams.find(d => !d.label.toLowerCase().includes("iriun")) || cams[0];
+    if (!selected) { alert("❌ Tidak ada kamera terdeteksi."); return; }
+    navigator.mediaDevices.getUserMedia({ video: { deviceId: { ideal: selected.deviceId } } })
+      .then(stream => { video.srcObject = stream; })
+      .catch(err => { alert("❌ Gagal akses kamera: " + err.name); });
+  });
+}
+startSmartCamera();
+
+function ambilFrameBase64() {
+  const canvas = document.createElement("canvas");
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  canvas.getContext("2d").drawImage(video, 0, 0);
+  return canvas.toDataURL("image/jpeg");
+}
+
+function updateDiagnosaButton() {
+  document.getElementById("btn-diagnosa").disabled = !(hasilDeteksi.wajah && hasilDeteksi.suara);
+}
+
+// ── STEP UI ──
+function setStep(n) {
+  for (let i = 1; i <= 4; i++) {
+    const el = document.getElementById("step-" + i);
+    el.classList.remove("active", "done");
+    if (i < n) el.classList.add("done");
+    else if (i === n) el.classList.add("active");
+  }
+}
+
+// ── DETEKSI WAJAH ──
+function deteksiWajah() {
+  Swal.fire({
+    title: "📸 Siap untuk Deteksi Wajah",
+    text: "Hadapkan wajah ke kamera, posisi di tengah, pencahayaan cukup.",
+    icon: "info",
+    background: "#0d1220",
+    color: "#f0f4ff",
+    confirmButtonColor: "#ff3b5c",
+    confirmButtonText: "Mulai Deteksi",
+  }).then(() => lanjutDeteksiWajah());
+}
+
+function lanjutDeteksiWajah() {
+  const el = document.getElementById("hasil-wajah");
+  const detail = document.getElementById("detail-wajah");
+  el.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Mendeteksi ekspresi wajah...';
+  detail.innerHTML = "";
+
+  const overlay = document.getElementById("cam-overlay");
+  overlay.classList.add("active");
+  video.classList.add("scanning");
+  setStep(1);
+
+  fetch("/detect-face", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ image: ambilFrameBase64() }),
+  })
+    .then(res => res.json())
+    .then(data => {
+      overlay.classList.remove("active");
+      video.classList.remove("scanning");
+
+      if (data.status !== "ok") {
+        el.innerHTML = `❌ Gagal: ${data.message}`;
+        return;
       }
+      hasilDeteksi.wajah = data.kategori;
+      hasilDeteksi.face_score = data.score_total;
+      el.innerHTML = `✅ Wajah: <strong>${data.kategori}</strong> &nbsp;|&nbsp; Skor: ${data.score_total}/6`;
 
-      startSmartCamera();
+      const p = data.penilaian;
+      detail.innerHTML = `
+        <li><strong>💡 Saran:</strong> ${data.saran}</li>
+        <li><strong>👄 Bibir</strong> — Delta Y: ${p.bibir.delta_y} | Rasio X: ${p.bibir.rasio_x} | Skor: ${p.bibir.nilai}/2</li>
+        <li><strong>👁️ Mata</strong> — Delta: ${p.mata.delta_openness} | Ptosis: ${p.mata.ptosis_suspect ? "Ya" : "Tidak"} | Skor: ${p.mata.nilai}/2</li>
+        <li><strong>🧏 Pipi</strong> — Kemiringan: ${p.pipi.kemiringan_derajat}° | Skor: ${p.pipi.nilai}/2</li>
+      `;
+      setStep(2);
+      updateDiagnosaButton();
+    })
+    .catch(() => {
+      overlay.classList.remove("active");
+      video.classList.remove("scanning");
+      el.innerHTML = "❌ Gagal deteksi wajah";
+    });
+}
 
-      function ambilFrameBase64() {
-        const canvas = document.createElement("canvas");
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        canvas.getContext("2d").drawImage(video, 0, 0);
-        return canvas.toDataURL("image/jpeg");
-      }
+// ── DETEKSI SUARA ──
+function mulaiTesSuara() {
+  Swal.fire({
+    title: "🎤 Siap Tes Ucapan",
+    html: 'Ucapkan dengan jelas setelah tombol ditekan:<br><br><b style="font-size:1.2em;color:#00e5ff">"Hari ini saya makan nasi"</b>',
+    icon: "info",
+    background: "#0d1220",
+    color: "#f0f4ff",
+    confirmButtonColor: "#ff3b5c",
+    showCancelButton: true,
+    cancelButtonColor: "#1e2a3a",
+    confirmButtonText: "Mulai Rekam (5 detik)",
+  }).then(result => { if (result.isConfirmed) rekamSuaraDanKirim(); });
+}
 
-      function updateDiagnosaButton() {
-        const btn = document.getElementById("btn-diagnosa");
-        btn.disabled = !(hasilDeteksi.wajah && hasilDeteksi.suara);
-      }
+function rekamSuaraDanKirim() {
+  const status = document.getElementById("status-audio");
+  const transkrip = document.getElementById("transkrip-audio");
+  const skor = document.getElementById("skor-audio");
+  const btn = document.getElementById("btn-voice");
 
-      // =====================
-      // 🚨 DETEKSI WAJAH
-      // =====================
-      function deteksiWajah() {
-        Swal.fire({
-          title: "📸 Siap untuk Deteksi Wajah",
-          text: "Senyum ke kamera, wajah di tengah, jangan miring.",
-          icon: "info",
-          confirmButtonText: "Mulai",
-        }).then(() => lanjutDeteksiWajah());
-      }
+  btn.disabled = true;
 
-      function lanjutDeteksiWajah() {
-        const el = document.getElementById("hasil-wajah");
-        const detail = document.getElementById("detail-wajah");
-        el.innerHTML =
-          '<i class="fas fa-spinner fa-spin"></i> Mendeteksi ekspresi wajah...';
-        detail.innerHTML = "";
+  let countdown = 5;
+  status.innerHTML = `⏺️ Merekam... <strong>${countdown}s</strong>`;
+  const timer = setInterval(() => {
+    countdown--;
+    status.innerHTML = countdown > 0
+      ? `⏺️ Merekam... <strong>${countdown}s</strong>`
+      : "🧠 Memproses audio...";
+    if (countdown <= 0) clearInterval(timer);
+  }, 1000);
 
-        const imageBase64 = ambilFrameBase64();
+  transkrip.innerText = "";
+  skor.innerText = "";
 
-        fetch("/detect-face", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            image: imageBase64,
-          }),
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            if (data.status !== "ok") {
-              el.innerHTML = `❌ Gagal deteksi wajah: ${data.message}`;
-              return;
-            }
-
-            hasilDeteksi.wajah = data.kategori;
-            hasilDeteksi.face_score = data.score_total;
-
-            el.innerHTML = `✅ Wajah: ${data.kategori}`;
-            const p = data.penilaian;
-            detail.innerHTML = `
-                        <li><strong>"👤" Total Skor Wajah:</strong> ${
-                          data.score_total
-                        }/6</li>
-                        <li><strong>💡 Saran:</strong> ${data.saran}</li>
-                        <hr>
-                        <li><strong>👄 Bibir</strong></li>
-                        <ul><li>Delta Y: ${p.bibir.delta_y}</li><li>Rasio X: ${
-              p.bibir.rasio_x
-            }</li><li>Skor: ${p.bibir.nilai}/2</li></ul>
-                        <li><strong>👁️ Mata</strong></li>
-                        <ul><li>Delta Openness: ${
-                          p.mata.delta_openness
-                        }</li><li>Ptosis: ${
-              p.mata.ptosis_suspect ? "Ya" : "Tidak"
-            }</li><li>Skor: ${p.mata.nilai}/2</li></ul>
-                        <li><strong>🧏‍♀️ Pipi</strong></li>
-                        <ul><li>Kemiringan: ${
-                          p.pipi.kemiringan_derajat
-                        }°</li><li>Skor: ${p.pipi.nilai}/2</li></ul>
-                    `;
+  navigator.mediaDevices.getUserMedia({ audio: true })
+    .then(stream => {
+      const mediaRecorder = new MediaRecorder(stream);
+      const chunks = [];
+      mediaRecorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+      mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(chunks, { type: "audio/webm" });
+        const formData = new FormData();
+        formData.append("audio", audioBlob);
+        fetch("/analyze-audio", { method: "POST", body: formData })
+          .then(res => res.json())
+          .then(data => {
+            hasilDeteksi.suara = data.hasil;
+            hasilDeteksi.suara_score = data.score;
+            status.innerHTML = `✅ Hasil Suara: <strong>${data.hasil}</strong>`;
+            transkrip.innerText = `🗣️ Transkrip: "${data.transkrip}"`;
+            skor.innerText = `🎯 Skor Suara: ${data.score}/2`;
+            btn.disabled = false;
+            setStep(3);
             updateDiagnosaButton();
           })
-          .catch(() => (el.innerHTML = "❌ Gagal deteksi wajah"));
-      }
-
-      // =====================
-      // 🎤 DETEKSI SUARA
-      // =====================
-      function mulaiTesSuara() {
-        Swal.fire({
-          title: "🎤 Siap Tes Ucapan",
-          html: 'Ucapkan dengan jelas: <br><b>"Hari ini saya makan nasi"</b>',
-          icon: "info",
-          showCancelButton: true,
-          confirmButtonText: "Mulai Rekam",
-        }).then((result) => {
-          if (result.isConfirmed) {
-            rekamSuaraDanKirim();
-          }
-        });
-      }
-
-      function rekamSuaraDanKirim() {
-        const status = document.getElementById("status-audio");
-        const transkrip = document.getElementById("transkrip-audio");
-        const skor = document.getElementById("skor-audio");
-        const btn = document.getElementById("btn-voice");
-
-        btn.disabled = true;
-        status.innerText = "⏺️ Merekam suara selama 5 detik...";
-        transkrip.innerText = "";
-        skor.innerText = "";
-
-        navigator.mediaDevices
-          .getUserMedia({
-            audio: true,
-          })
-          .then((stream) => {
-            const mediaRecorder = new MediaRecorder(stream);
-            const chunks = [];
-
-            mediaRecorder.ondataavailable = (e) => {
-              if (e.data.size > 0) chunks.push(e.data);
-            };
-
-            mediaRecorder.onstop = () => {
-              const audioBlob = new Blob(chunks, {
-                type: "audio/webm",
-              });
-              const formData = new FormData();
-              formData.append("audio", audioBlob);
-
-              status.innerText = "🧠 Menganalisis suara...";
-
-              fetch("/analyze-audio", {
-                method: "POST",
-                body: formData,
-              })
-                .then((res) => res.json())
-                .then((data) => {
-                  hasilDeteksi.suara = data.hasil;
-                  hasilDeteksi.suara_score = data.score;
-
-                  status.innerText = `✅ Hasil Suara: ${data.hasil}`;
-                  transkrip.innerText = `🗣️ Transkrip: ${data.transkrip}`;
-                  skor.innerText = `🎯 Skor Suara: ${data.score}/2`;
-
-                  btn.disabled = false;
-                  updateDiagnosaButton();
-                })
-                .catch(() => {
-                  status.innerText = "❌ Gagal menganalisis suara.";
-                  btn.disabled = false;
-                });
-            };
-
-            mediaRecorder.start();
-            setTimeout(() => {
-              mediaRecorder.stop();
-              stream.getTracks().forEach((t) => t.stop());
-            }, 5000);
-          })
-          .catch((err) => {
-            Swal.fire("❌ Gagal akses mikrofon", err.message, "error");
+          .catch(() => {
+            status.innerText = "❌ Gagal menganalisis suara.";
             btn.disabled = false;
           });
+      };
+      mediaRecorder.start();
+      setTimeout(() => { mediaRecorder.stop(); stream.getTracks().forEach(t => t.stop()); }, 5000);
+    })
+    .catch(err => {
+      Swal.fire({ title: "❌ Gagal akses mikrofon", text: err.message, background: "#0d1220", color: "#f0f4ff" });
+      btn.disabled = false;
+    });
+}
+
+// ── DIAGNOSA ──
+function diagnosaStroke() {
+  const output = document.getElementById("diagnosa-hasil");
+  const summary = document.getElementById("diagnosa-summary");
+  const penanganan = document.getElementById("diagnosa-penanganan");
+  const guidanceBox = document.getElementById("guidance-text");
+
+  output.innerText = "⏳ Menganalisis semua indikator...";
+  summary.innerHTML = "";
+  penanganan.innerText = "";
+  guidanceBox.innerHTML = "⏳ Menyusun panduan pertolongan pertama...";
+
+  fetch("/diagnosa", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      image: ambilFrameBase64(),
+      face_score: hasilDeteksi.face_score,
+      face_kategori: hasilDeteksi.wajah,
+      voice_result: hasilDeteksi.suara,
+      voice_score: hasilDeteksi.suara_score,
+    }),
+  })
+    .then(res => res.json())
+    .then(data => {
+      if (data.status !== "ok") {
+        output.innerText = `❌ Gagal diagnosa: ${data.message}`;
+        guidanceBox.innerHTML = "❌ Gagal memuat panduan.";
+        return;
       }
 
-      // =====================
-      // 🔍 DIAGNOSA FINAL
-      // =====================
-      function diagnosaStroke() {
-        const output = document.getElementById("diagnosa-hasil");
-        const summary = document.getElementById("diagnosa-summary");
-        const penanganan = document.getElementById("diagnosa-penanganan");
-        const guidanceBox = document.getElementById("guidance-text");
+      diagnosisData = data;
+      setStep(4);
 
-        output.innerText = "⏳ Menganalisis semua indikator...";
-        summary.innerHTML = "";
-        penanganan.innerText = "";
-        guidanceBox.innerHTML = "⏳ Menyusun panduan pertolongan pertama...";
+      // Gauge
+      const maxScore = 8;
+      const pct = Math.min((data.skor / maxScore) * 100, 100);
+      const severityKey = data.kategori.toLowerCase();
+      document.getElementById("nihss-gauge").style.display = "flex";
+      const gaugeFill = document.getElementById("gauge-fill");
+      const gaugeScore = document.getElementById("gauge-score");
+      gaugeFill.className = "gauge-fill " + severityKey;
+      gaugeScore.style.color = severityKey === "berat" ? "var(--red)" : severityKey === "sedang" ? "var(--yellow)" : severityKey === "ringan" ? "#a8e063" : "var(--green)";
+      gaugeScore.innerText = data.skor;
+      setTimeout(() => { gaugeFill.style.width = pct + "%"; }, 100);
 
-        fetch("/diagnosa", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            image: ambilFrameBase64(),
-            face_score: hasilDeteksi.face_score,
-            face_kategori: hasilDeteksi.wajah,
-            voice_result: hasilDeteksi.suara,
-            voice_score: hasilDeteksi.suara_score,
-          }),
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            if (data.status !== "ok") {
-              output.innerText = `❌ Gagal diagnosa: ${data.message}`;
-              guidanceBox.innerHTML = "❌ Gagal memuat panduan.";
-              return;
-            }
+      // Result box
+      const box = document.getElementById("diagnosis-result-box");
+      box.setAttribute("data-severity", severityKey);
+      output.innerText = `Skor NIHSS: ${data.skor} — ${data.kategori}\n${data.saran}`;
+      penanganan.innerText = `🩺 ${data.penanganan}`;
 
-            // Hasil utama
-            output.innerText = `🧠 Skor NIHSS: ${data.skor} (${data.kategori})\n📢 ${data.saran}`;
-            penanganan.innerText = `🩺 Tindakan: ${data.penanganan || "-"}`;
-
-            const hasilBox = document.querySelector(".diagnosis-result");
-            hasilBox.classList.remove("critical");
-            hasilBox.style.background = "#f0f4ff"; // default normal
-            hasilBox.style.borderLeft = "8px solid transparent";
-            hasilBox.style.color = "#000";
-
-            if (data.kategori === "Berat") {
-              hasilBox.classList.add("critical");
-              hasilBox.style.background = "#ffe6e6";
-              hasilBox.style.borderLeft = "8px solid #e74c3c";
-              hasilBox.style.color = "#b30000";
-            } else if (data.kategori === "Sedang") {
-              hasilBox.style.background = "#fffbe6";
-              hasilBox.style.borderLeft = "8px solid #f1c40f";
-              hasilBox.style.color = "#8e5e00";
-            } else if (data.kategori === "Ringan") {
-              hasilBox.style.background = "#f9fbe7";
-              hasilBox.style.borderLeft = "8px solid #82c91e";
-              hasilBox.style.color = "#466802";
-            }
-
-            // Ringkasan diagnosa
-            summary.innerHTML = "";
-            data.summary.forEach((item) => {
-              const li = document.createElement("li");
-              li.innerText = item;
-              summary.appendChild(li);
-            });
-
-            // ✅ Tampilkan panduan jika guidance berupa string
-            if (typeof data.guidance === "string") {
-              guidanceBox.innerHTML = `
-                        <div class="guidance-box">
-                            <i class=""fas fa-lightbulb"></i> <strong>Panduan Penanganan:</strong>
-                            <p>${data.guidance}</p>
-                        </div>
-                    `;
-            } else if (Array.isArray(data.guidance)) {
-              guidanceBox.innerHTML = `
-                        <div class="guidance-box">
-                            <i class="fas fa-lightbulb"></i> <strong>Panduan Penanganan:</strong>
-                            <ul>
-                                ${data.guidance
-                                  .map((item) => `<li>${item}</li>`)
-                                  .join("")}
-                            </ul>
-                        </div>
-                    `;
-            } else {
-              guidanceBox.innerHTML = `
-                    <div class="guidance-box guidance-error">
-                        ⚠️ Panduan tidak tersedia atau dalam format salah.
-                    </div>
-                `;
-            }
-          })
-          .catch((error) => {
-            output.innerText = "❌ Terjadi error saat diagnosa.";
-            guidanceBox.innerHTML = "❌ Gagal memuat panduan.";
-            console.error("Diagnosa error:", error);
-          });
-      }
-    </script>
-
-    <script>
-      function showPopup(feature) {
-        let title = "";
-        let html = "";
-
-        if (feature === "wajah") {
-          title = "Analisis Ekspresi Wajah";
-          html = `
-        <div style="text-align: justify">
-            <p style="text-align: center; margin-bottom: 15px;"><strong>📍 ANALISIS BIBIR</strong></p>
-            <p style="line-height: 1.6;">
-                <strong>Delta Y:</strong> Menghitung selisih vertikal antara posisi bibir kiri dan kanan untuk mendeteksi asimetri wajah.<br>
-                <strong>Rasio X:</strong> Mengukur jarak horizontal bibir untuk memastikan posisi wajah optimal dalam frame kamera.<br>
-                <strong>Sistem Penilaian:</strong>
-            </p>
-            <ul style="margin: 10px 0; padding-left: 20px;">
-                <li>≤ 0,01 → Skor 0 (Normal)</li>
-                <li>0,01 - 0,03 → Skor 1 (Ringan)</li>
-                <li>> 0,03 → Skor 2 (Signifikan)</li>
-            </ul>
-
-            <p style="text-align: center; margin: 20px 0 15px 0;"><strong>👁️ ANALISIS MATA</strong></p>
-            <p style="line-height: 1.6;">
-                <strong>Delta Openness:</strong> Mengukur perbedaan bukaan mata kiri dan kanan sebagai indikator ptosis (kelopak mata turun).<br>
-                <strong>Ptosis:</strong> Kondisi medis di mana kelopak mata atas turun secara abnormal, sering terjadi pada kasus stroke.<br>
-                <strong>Sistem Penilaian:</strong>
-            </p>
-            <ul style="margin: 10px 0; padding-left: 20px;">
-                <li>≤ 0,01 → Skor 0 (Normal)</li>
-                <li>0,01 - 0,02 → Skor 1 (Ringan)</li>
-                <li>> 0,02 → Skor 2 (Signifikan)</li>
-            </ul>
-
-            <p style="text-align: center; margin: 20px 0 15px 0;"><strong>😊 ANALISIS PIPI</strong></p>
-            <p style="line-height: 1.6;">
-                <strong>Kemiringan Wajah:</strong> Menganalisis simetri horizontal menggunakan landmark pipi kiri dan kanan untuk mendeteksi kelumpuhan fasial.<br>
-                <strong>Sistem Penilaian:</strong>
-            </p>
-            <ul style="margin: 10px 0; padding-left: 20px;">
-                <li>≤ 0,03 → Skor 0 (Normal)</li>
-                <li>0,03 - 0,06 → Skor 1 (Ringan)</li>
-                <li>> 0,06 → Skor 2 (Signifikan)</li>
-            </ul>
-
-            <p style="text-align: center; margin: 20px 0 10px 0; background: #f0f8ff; padding: 10px; border-radius: 8px;">
-                <strong>📊 SKOR TOTAL</strong><br>
-                <span style="color: #2c5aa0;">Skor Ekspresi Wajah = Skor Bibir + Skor Mata + Skor Pipi</span>
-            </p>
-        </div>
-        `;
-        } else if (feature === "suara") {
-          title = "Analisis Pola Bicara";
-          html = `
-        <div style="text-align: justify">
-            <p style="line-height: 1.6;">Evaluasi kejelasan artikulasi dan kemampuan berbicara berdasarkan pengenalan kata dari kalimat target:</p>
-            
-            <div style="text-align: center; background: #f8f9fa; padding: 15px; border-radius: 10px; margin: 15px 0; border-left: 4px solid #28a745;">
-                <strong style="font-size: 1.1em; color: #2c5aa0;">"Hari ini saya makan nasi"</strong>
-            </div>
-            
-            <p style="margin: 15px 0;"><strong>🎯 Kriteria Penilaian NIHSS:</strong></p>
-            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px;">
-                <ul style="text-align: left; margin: 0; padding-left: 20px;">
-                    <li style="margin: 8px 0; color: #28a745;"><strong>✅ 5 kata teridentifikasi</strong> → Suara Jelas <span style="background: #d4edda; padding: 2px 8px; border-radius: 12px; font-size: 0.9em;">(Skor 0)</span></li>
-                    <li style="margin: 8px 0; color: #28a745;"><strong>✅ 4 kata teridentifikasi</strong> → Suara Hampir Jelas <span style="background: #d4edda; padding: 2px 8px; border-radius: 12px; font-size: 0.9em;">(Skor 0)</span></li>
-                    <li style="margin: 8px 0; color: #ffc107;"><strong>⚠️ 2-3 kata teridentifikasi</strong> → Disartria Ringan <span style="background: #fff3cd; padding: 2px 8px; border-radius: 12px; font-size: 0.9em;">(Skor 1)</span></li>
-                    <li style="margin: 8px 0; color: #dc3545;"><strong>❌ 1 kata teridentifikasi</strong> → Disartria Berat <span style="background: #f8d7da; padding: 2px 8px; border-radius: 12px; font-size: 0.9em;">(Skor 2)</span></li>
-                    <li style="margin: 8px 0; color: #dc3545;"><strong>❌ 0 kata teridentifikasi</strong> → Afasia/Mutisme <span style="background: #f8d7da; padding: 2px 8px; border-radius: 12px; font-size: 0.9em;">(Skor 2)</span></li>
-                </ul>
-            </div>
-            
-            <div style="background: #e7f3ff; padding: 12px; border-radius: 8px; margin-top: 15px; border-left: 4px solid #007bff;">
-                <p style="margin: 0; font-size: 0.95em; color: #495057;">
-                    <strong>💡 Catatan:</strong> Disartria adalah gangguan berbicara akibat kelemahan otot, sedangkan afasia adalah gangguan bahasa akibat kerusakan area bahasa di otak.
-                </p>
-            </div>
-        </div>`;
-        } else if (feature === "nihss") {
-          title = "Sistem Penilaian NIHSS";
-          html = `
-        <div style="text-align: justify">
-            <p style="line-height: 1.6; margin-bottom: 20px;">
-                <strong>National Institutes of Health Stroke Scale (NIHSS)</strong> adalah instrumen standar untuk mengevaluasi tingkat keparahan stroke secara objektif.
-            </p>
-            
-            <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin: 15px 0;">
-                <p style="margin: 0 0 10px 0;"><strong>📊 Komponen Penilaian:</strong></p>
-                <ul style="text-align: left; margin: 0; padding-left: 20px;">
-                    <li style="margin: 5px 0;"><strong>Skor Ekspresi Wajah:</strong> 0–6 poin</li>
-                    <li style="margin: 5px 0;"><strong>Skor Pola Bicara:</strong> 0–2 poin</li>
-                </ul>
-            </div>
-            
-            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px; margin: 20px 0;">
-                <p style="margin: 0 0 15px 0; text-align: center;"><strong>🏥 INTERPRETASI KLINIS</strong></p>
-                <div style="display: grid; gap: 10px;">
-                    <div style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 8px;">
-                        <strong>Skor 0:</strong> <span style="color: #90EE90;">Fungsi Normal</span> - Tidak ada tanda neurologis
-                    </div>
-                    <div style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 8px;">
-                        <strong>Skor 1-2:</strong> <span style="color: #FFE135;">Stroke Ringan</span> - Defisit neurologis minimal
-                    </div>
-                    <div style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 8px;">
-                        <strong>Skor 3-4:</strong> <span style="color: #FFA500;">Stroke Sedang</span> - Defisit neurologis moderat
-                    </div>
-                    <div style="background: rgba(255,255,255,0.1); padding: 10px; border-radius: 8px;">
-                        <strong>Skor ≥5:</strong> <span style="color: #FF6B6B;">Stroke Berat</span> - Defisit neurologis signifikan
-                    </div>
-                </div>
-            </div>
-            
-            <div style="background: #fff3cd; padding: 15px; border-radius: 8px; border-left: 4px solid #ffc107; margin-top: 15px;">
-                <p style="margin: 0; font-size: 0.95em; color: #856404;">
-                    <strong>⚠️ Disclaimer:</strong> Aplikasi ini hanya untuk skrining awal. Diagnosis dan penanganan stroke harus dilakukan oleh tenaga medis profesional di fasilitas kesehatan yang tepat.
-                </p>
-            </div>
-        </div>`;
-        }
-
-        Swal.fire({
-          title: title,
-          html: html,
-          icon: "info",
-          confirmButtonText: "Tutup",
-          width: 700,
-          customClass: {
-            popup: "swal-custom-popup",
-            title: "swal-custom-title",
-            content: "swal-custom-content",
-          },
-        });
-      }
-    </script>
-    <script>
-      document.querySelectorAll(".accordion-header").forEach((header) => {
-        header.addEventListener("click", () => {
-          const item = header.parentElement;
-          item.classList.toggle("active");
-          header.classList.toggle("active");
-        });
+      // Summary
+      summary.innerHTML = "";
+      data.summary.forEach(item => {
+        const li = document.createElement("li");
+        li.innerText = item;
+        summary.appendChild(li);
       });
-    </script>
-  </body>
+
+      // Guidance
+      if (typeof data.guidance === "string") {
+        guidanceBox.innerHTML = data.guidance;
+      } else {
+        guidanceBox.innerHTML = `<div class="guidance-placeholder"><i class="fas fa-exclamation"></i> Panduan tidak tersedia.</div>`;
+      }
+
+      // Enable export
+      document.getElementById("btn-export").disabled = false;
+
+      // Alert for severe
+      if (data.kategori === "Berat") {
+        Swal.fire({
+          title: "🚨 STROKE BERAT TERDETEKSI",
+          text: "Segera hubungi 119 atau bawa ke IGD rumah sakit terdekat sekarang!",
+          icon: "error",
+          background: "#0d1220",
+          color: "#f0f4ff",
+          confirmButtonColor: "#ff3b5c",
+          confirmButtonText: "Hubungi 119",
+        }).then(r => { if (r.isConfirmed) window.open("tel:119"); });
+      }
+    })
+    .catch(err => {
+      output.innerText = "❌ Terjadi error saat diagnosa.";
+      guidanceBox.innerHTML = "❌ Gagal memuat panduan.";
+      console.error(err);
+    });
+}
+
+// ── EXPORT PDF ──
+function exportPDF() {
+  if (!diagnosisData) return;
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  const now = new Date().toLocaleString("id-ID");
+  doc.setFontSize(18);
+  doc.setFont("helvetica", "bold");
+  doc.text("SiTANGGAP — Laporan Deteksi Stroke", 14, 20);
+
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(120);
+  doc.text("Sistem Tangkap Gejala Stroke Cepat | " + now, 14, 28);
+  doc.text("DISCLAIMER: Ini bukan diagnosis medis. Konsultasikan ke dokter.", 14, 34);
+
+  doc.setDrawColor(200);
+  doc.line(14, 37, 196, 37);
+
+  doc.setFontSize(13);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(0);
+  doc.text("Hasil Diagnosa", 14, 46);
+
+  doc.setFontSize(11);
+  doc.setFont("helvetica", "normal");
+  doc.text("Skor NIHSS     : " + diagnosisData.skor + " / 8", 14, 55);
+  doc.text("Kategori       : " + diagnosisData.kategori, 14, 63);
+  doc.text("Saran          : " + diagnosisData.saran, 14, 71);
+  doc.text("Penanganan     : " + diagnosisData.penanganan, 14, 79);
+
+  doc.setDrawColor(200);
+  doc.line(14, 84, 196, 84);
+
+  doc.setFontSize(13);
+  doc.setFont("helvetica", "bold");
+  doc.text("Rincian Deteksi", 14, 93);
+
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "normal");
+  let y = 101;
+  diagnosisData.summary.forEach(item => {
+    doc.text("• " + item, 14, y);
+    y += 8;
+  });
+
+  doc.setDrawColor(200);
+  doc.line(14, y + 2, 196, y + 2);
+
+  y += 10;
+  doc.setFontSize(13);
+  doc.setFont("helvetica", "bold");
+  doc.text("Deteksi Wajah", 14, y);
+  y += 8;
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  doc.text("Kategori Wajah : " + (hasilDeteksi.wajah || "-"), 14, y); y += 7;
+  doc.text("Skor Wajah     : " + (hasilDeteksi.face_score || "0") + " / 6", 14, y); y += 10;
+
+  doc.setFontSize(13);
+  doc.setFont("helvetica", "bold");
+  doc.text("Deteksi Suara", 14, y);
+  y += 8;
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  doc.text("Hasil Suara    : " + (hasilDeteksi.suara || "-"), 14, y); y += 7;
+  doc.text("Skor Suara     : " + (hasilDeteksi.suara_score || "0") + " / 2", 14, y);
+
+  doc.save("SiTANGGAP-Hasil-" + Date.now() + ".pdf");
+}
+
+// ── HOSPITAL MAP ──
+function cariRumahSakit() {
+  const mapContainer = document.getElementById("map-container");
+  const hospitalList = document.getElementById("hospital-list");
+
+  mapContainer.innerHTML = `<span><i class="fas fa-spinner fa-spin" style="color:#00e5ff;margin-right:8px"></i> Mendapatkan lokasi Anda...</span>`;
+
+  if (!navigator.geolocation) {
+    mapContainer.innerHTML = `<span style="color:#ff3b5c">❌ Browser tidak mendukung geolocation</span>`;
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      const { latitude: lat, longitude: lng } = pos.coords;
+      const query = "rumah sakit terdekat";
+      const mapsUrl = `https://www.google.com/maps/embed/v1/search?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU2L5s&q=${encodeURIComponent(query)}&center=${lat},${lng}&zoom=13`;
+
+      // Embed map via Google Maps search (public embed)
+      mapContainer.innerHTML = `<iframe
+        src="https://maps.google.com/maps?q=rumah+sakit+terdekat&near=${lat},${lng}&output=embed&z=14"
+        allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+      </iframe>`;
+
+      // Nearby hospitals (static fallback list with directions link)
+      hospitalList.innerHTML = `
+        <div class="hospital-item">
+          <i class="fas fa-hospital-alt"></i>
+          <div class="hospital-info">
+            <div class="hospital-name">Rumah Sakit Terdekat</div>
+            <div class="hospital-addr">Berdasarkan lokasi GPS Anda saat ini</div>
+          </div>
+          <a href="https://www.google.com/maps/search/rumah+sakit/@${lat},${lng},14z" target="_blank"
+            style="color:var(--cyan);font-size:0.85rem;font-weight:700;text-decoration:none;font-family:var(--font-display)">
+            Buka Maps →
+          </a>
+        </div>
+        <div class="hospital-item">
+          <i class="fas fa-ambulance"></i>
+          <div class="hospital-info">
+            <div class="hospital-name">IGD Terdekat</div>
+            <div class="hospital-addr">Darurat medis? Hubungi 119 sekarang</div>
+          </div>
+          <a href="tel:119" style="color:var(--red);font-size:0.85rem;font-weight:700;text-decoration:none;font-family:var(--font-display)">
+            📞 119
+          </a>
+        </div>
+      `;
+    },
+    err => {
+      mapContainer.innerHTML = `
+        <div style="text-align:center;padding:20px">
+          <div style="color:#ff3b5c;margin-bottom:12px"><i class="fas fa-map-marker-slash" style="font-size:2rem"></i></div>
+          <div style="color:var(--muted);font-size:0.9rem">Izin lokasi ditolak.<br>Aktifkan lokasi di browser untuk fitur ini.</div>
+          <a href="https://www.google.com/maps/search/rumah+sakit+terdekat" target="_blank"
+            style="color:var(--cyan);font-size:0.85rem;margin-top:12px;display:block">
+            Cari di Google Maps →
+          </a>
+        </div>
+      `;
+    }
+  );
+}
+
+</script>
+
+<!-- Popup Feature Info -->
+<script>
+function showPopup(feature) {
+  const popups = {
+    wajah: {
+      title: "Analisis Ekspresi Wajah",
+      html: `<div style="text-align:left;color:#8a9bbf;font-size:0.92rem;line-height:1.7">
+        <p style="color:#f0f4ff;font-weight:600;margin-bottom:12px">📍 Tiga komponen yang dianalisis:</p>
+        <div style="background:#131929;border-radius:10px;padding:14px;margin-bottom:10px;border-left:3px solid #00e5ff">
+          <strong style="color:#fff">👄 Bibir</strong><br>
+          Delta Y ≤0.01 → Skor 0 | 0.01–0.03 → Skor 1 | &gt;0.03 → Skor 2
+        </div>
+        <div style="background:#131929;border-radius:10px;padding:14px;margin-bottom:10px;border-left:3px solid #00e5ff">
+          <strong style="color:#fff">👁️ Mata</strong><br>
+          Delta ≤0.01 → Skor 0 | 0.01–0.02 → Skor 1 | &gt;0.02 → Skor 2
+        </div>
+        <div style="background:#131929;border-radius:10px;padding:14px;border-left:3px solid #00e5ff">
+          <strong style="color:#fff">🧏 Pipi / Head Tilt</strong><br>
+          &lt;3° → Skor 0 | 3°–6° → Skor 1 | &gt;6° → Skor 2
+        </div>
+        <div style="margin-top:14px;text-align:center;background:#0d1220;padding:12px;border-radius:8px">
+          <strong style="color:#00e5ff">Total Skor Wajah = Bibir + Mata + Pipi (max 6)</strong>
+        </div>
+      </div>`
+    },
+    suara: {
+      title: "Analisis Pola Bicara",
+      html: `<div style="text-align:left;color:#8a9bbf;font-size:0.92rem;line-height:1.7">
+        <p style="color:#f0f4ff;margin-bottom:8px">Kalimat target:</p>
+        <div style="background:#131929;border-radius:10px;padding:14px;text-align:center;margin-bottom:16px;border:1px solid rgba(0,229,255,0.2)">
+          <strong style="color:#00e5ff;font-size:1.1em">"Hari ini saya makan nasi"</strong>
+        </div>
+        <div style="background:#131929;border-radius:10px;padding:14px">
+          <div style="margin:6px 0"><span style="color:#00e676">✅ 5 kata</span> → Suara Jelas (Skor 0)</div>
+          <div style="margin:6px 0"><span style="color:#00e676">✅ 4 kata</span> → Suara Hampir Jelas (Skor 0)</div>
+          <div style="margin:6px 0"><span style="color:#ffd600">⚠️ 2–3 kata</span> → Disartria Ringan (Skor 1)</div>
+          <div style="margin:6px 0"><span style="color:#ff3b5c">❌ 1 kata</span> → Disartria Berat (Skor 2)</div>
+          <div style="margin:6px 0"><span style="color:#ff3b5c">❌ 0 kata</span> → Afasia / Mutisme (Skor 2)</div>
+        </div>
+      </div>`
+    },
+    nihss: {
+      title: "Sistem Penilaian NIHSS",
+      html: `<div style="text-align:left;color:#8a9bbf;font-size:0.92rem;line-height:1.7">
+        <p style="color:#f0f4ff;margin-bottom:12px">NIHSS (National Institutes of Health Stroke Scale) adalah standar internasional evaluasi keparahan stroke.</p>
+        <div style="background:#131929;border-radius:10px;padding:14px;margin-bottom:12px">
+          <div style="margin:8px 0"><span style="color:#00e676">● Skor 0</span> &nbsp;— Normal, tidak ada tanda neurologis</div>
+          <div style="margin:8px 0"><span style="color:#a8e063">● Skor 1–2</span> — Stroke Ringan, defisit minimal</div>
+          <div style="margin:8px 0"><span style="color:#ffd600">● Skor 3–4</span> — Stroke Sedang, defisit moderat</div>
+          <div style="margin:8px 0"><span style="color:#ff3b5c">● Skor ≥5</span> &nbsp;— Stroke Berat, defisit signifikan</div>
+        </div>
+        <div style="background:rgba(255,59,92,0.08);border:1px solid rgba(255,59,92,0.2);border-radius:8px;padding:12px;font-size:0.85rem">
+          ⚠️ Hasil ini hanya untuk skrining awal. Diagnosis definitif harus dilakukan oleh tenaga medis.
+        </div>
+      </div>`
+    }
+  };
+
+  const p = popups[feature];
+  Swal.fire({
+    title: p.title,
+    html: p.html,
+    confirmButtonText: "Tutup",
+    background: "#0d1220",
+    color: "#f0f4ff",
+    confirmButtonColor: "#ff3b5c",
+    width: 560,
+  });
+}
+</script>
+
+<!-- Accordion -->
+<script>
+document.querySelectorAll(".accordion-header").forEach(header => {
+  header.addEventListener("click", () => {
+    header.parentElement.classList.toggle("active");
+    header.classList.toggle("active");
+  });
+});
+</script>
+
+</body>
 </html>
